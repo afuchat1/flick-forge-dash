@@ -1,12 +1,5 @@
 import MovieCard from "./MovieCard";
-
-interface Movie {
-  id: number;
-  title: string;
-  image: string;
-  rating: number;
-  year: string;
-}
+import { Movie } from "@/data/movies";
 
 interface MovieRowProps {
   title: string;
@@ -21,6 +14,7 @@ const MovieRow = ({ title, movies }: MovieRowProps) => {
         {movies.map((movie) => (
           <MovieCard
             key={movie.id}
+            id={movie.id}
             title={movie.title}
             image={movie.image}
             rating={movie.rating}
