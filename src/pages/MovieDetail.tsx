@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
-import StreamingProviders from "@/components/StreamingProviders";
+import VideoPlayer from "@/components/VideoPlayer";
 import { useMovieDetails, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useDownloads } from "@/hooks/useDownloads";
 import { useAuth } from "@/hooks/useAuth";
+import { useVideoPlayer } from "@/hooks/useVideoPlayer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
@@ -19,22 +20,14 @@ const MovieDetail = () => {
   const { user } = useAuth();
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const { isDownloaded, startDownload } = useDownloads();
+  const { currentVideo, playVideo, closeVideo } = useVideoPlayer();
 
   const handlePlay = () => {
-    // Get streaming providers link or play trailer
-    const providers = movie?.["watch/providers"]?.results?.US || movie?.["watch/providers"]?.results?.GB;
-    const link = providers?.link;
-    
-    if (link) {
-      window.open(link, "_blank");
+    const trailer = movie?.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
+    if (trailer) {
+      playVideo(trailer.key, movie?.title || "Movie");
     } else {
-      // Fall back to trailer
-      const trailer = movie?.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
-      if (trailer) {
-        window.open(`https://www.youtube.com/watch?v=${trailer.key}`, "_blank");
-      } else {
-        toast.info("No streaming link available");
-      }
+      toast.info("No trailer available for this movie");
     }
   };
 
@@ -124,13 +117,21 @@ const MovieDetail = () => {
   const trailer = movie.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
   const cast = movie.credits?.cast?.slice(0, 10) || [];
   const similarMovies = movie.similar?.results?.slice(0, 10) || [];
-  const watchProviders = movie["watch/providers"]?.results?.US || movie["watch/providers"]?.results?.GB;
   const inWatchlist = isInWatchlist(movie.id, "movie");
   const downloaded = isDownloaded(movie.id, "movie");
 
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Header />
+      
+      {/* Video Player Modal */}
+      {currentVideo && (
+        <VideoPlayer
+          videoKey={currentVideo.key}
+          title={currentVideo.title}
+          onClose={closeVideo}
+        />
+      )}
       
       <div className="relative">
         <div className="h-[50vh] md:h-[60vh] w-full">
@@ -177,7 +178,7 @@ const MovieDetail = () => {
               onClick={handlePlay}
             >
               <Play className="mr-1.5 h-4 w-4" fill="currentColor" /> 
-              {watchProviders?.link ? "Watch Now" : "Play Trailer"}
+              Play Trailer
             </Button>
             <Button 
               size="sm" 
@@ -242,18 +243,24 @@ const MovieDetail = () => {
           </div>
         )}
 
-        <StreamingProviders providers={watchProviders} />
-
+        {/* Inline Trailer Player */}
         {trailer && (
           <div>
             <h3 className="font-bold mb-2">Trailer</h3>
-            <div className="aspect-video rounded-md overflow-hidden bg-card">
-              <iframe
-                src={`https://www.youtube.com/embed/${trailer.key}`}
-                title="Trailer"
-                className="w-full h-full"
-                allowFullScreen
+            <div 
+              className="aspect-video rounded-md overflow-hidden bg-card relative group cursor-pointer"
+              onClick={handlePlay}
+            >
+              <img
+                src={`https://img.youtube.com/vi/${trailer.key}/maxresdefault.jpg`}
+                alt="Trailer thumbnail"
+                className="w-full h-full object-cover"
               />
+              <div className="absolute inset-0 bg-background/40 flex items-center justify-center group-hover:bg-background/60 transition-colors">
+                <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Play className="h-8 w-8 text-primary-foreground fill-current ml-1" />
+                </div>
+              </div>
             </div>
           </div>
         )}
