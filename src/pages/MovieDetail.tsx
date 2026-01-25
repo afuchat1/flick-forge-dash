@@ -8,6 +8,7 @@ import TMDBContentRow from "@/components/TMDBContentRow";
 import VideoPlayer from "@/components/VideoPlayer";
 import AddVideoLinkModal from "@/components/AddVideoLinkModal";
 import AIInsights from "@/components/AIInsights";
+import ContentMatcher from "@/components/ContentMatcher";
 import { useMovieDetails, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useDownloads } from "@/hooks/useDownloads";
@@ -286,6 +287,14 @@ const MovieDetail = () => {
 
         {/* AI-Powered Insights */}
         <AIInsights movie={movie} />
+
+        {/* AI Content Matcher */}
+        <ContentMatcher 
+          title={movie.title}
+          type="movie"
+          genres={movie.genres?.map((g: any) => g.name)}
+          overview={movie.overview}
+        />
 
         {/* Cast Section with Photos */}
         {cast.length > 0 && (

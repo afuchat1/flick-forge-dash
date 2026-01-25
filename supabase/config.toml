@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.personalized-recommendations]
 verify_jwt = false
+
+[functions.search-suggestions]
+verify_jwt = false
+
+[functions.content-matcher]
+verify_jwt = false

@@ -10,6 +10,7 @@ import AddVideoLinkModal from "@/components/AddVideoLinkModal";
 import AddEpisodeVideoModal from "@/components/AddEpisodeVideoModal";
 import EpisodeCard from "@/components/EpisodeCard";
 import AIInsights from "@/components/AIInsights";
+import ContentMatcher from "@/components/ContentMatcher";
 import { useTVDetails, useTVSeason, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useDownloads } from "@/hooks/useDownloads";
@@ -354,6 +355,14 @@ const TVDetail = () => {
 
         {/* AI-Powered Insights */}
         <AIInsights movie={show} />
+
+        {/* AI Content Matcher */}
+        <ContentMatcher 
+          title={show.name}
+          type="tv"
+          genres={show.genres?.map((g: any) => g.name)}
+          overview={show.overview}
+        />
 
         {/* Cast Section with Photos */}
         {cast.length > 0 && (
