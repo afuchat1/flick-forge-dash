@@ -1,13 +1,14 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, Plus, Star, Download, Share2, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Play, Plus, Star, Download, Share2, Check, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import StreamingProviders from "@/components/StreamingProviders";
 import { useTVDetails, getImageUrl } from "@/hooks/useTMDB";
-import { useDownload } from "@/hooks/useDownload";
+import { useWatchlist } from "@/hooks/useWatchlist";
+import { useDownloads } from "@/hooks/useDownloads";
+import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
@@ -15,20 +16,61 @@ const TVDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: show, isLoading } = useTVDetails(Number(id));
-  const { startDownload, isDownloading, isDownloaded, getProgress } = useDownload();
-  const [isInList, setIsInList] = useState(false);
+  const { user } = useAuth();
+  const { isInWatchlist, toggleWatchlist } = useWatchlist();
+  const { isDownloaded, startDownload } = useDownloads();
 
   const handlePlay = () => {
-    navigate(`/player/tv/${id}`);
+    const providers = show?.["watch/providers"]?.results?.US || show?.["watch/providers"]?.results?.GB;
+    const link = providers?.link;
+    
+    if (link) {
+      window.open(link, "_blank");
+    } else {
+      const trailer = show?.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
+      if (trailer) {
+        window.open(`https://www.youtube.com/watch?v=${trailer.key}`, "_blank");
+      } else {
+        toast.info("No streaming link available");
+      }
+    }
   };
 
   const handleDownload = () => {
+    if (!user) {
+      toast.error("Please sign in to download");
+      navigate("/auth");
+      return;
+    }
+    
     if (show) {
-      startDownload(
-        show.id,
-        show.name,
-        getImageUrl(show.poster_path, "w185")
-      );
+      startDownload({
+        tmdb_id: show.id,
+        media_type: "tv",
+        title: show.name,
+        poster_path: show.poster_path,
+        vote_average: show.vote_average,
+        release_date: show.first_air_date,
+      });
+    }
+  };
+
+  const handleToggleWatchlist = () => {
+    if (!user) {
+      toast.error("Please sign in to add to your list");
+      navigate("/auth");
+      return;
+    }
+    
+    if (show) {
+      toggleWatchlist({
+        tmdb_id: show.id,
+        media_type: "tv",
+        title: show.name,
+        poster_path: show.poster_path,
+        vote_average: show.vote_average,
+        release_date: show.first_air_date,
+      });
     }
   };
 
@@ -41,7 +83,7 @@ const TVDetail = () => {
           url: window.location.href,
         });
       } catch {
-        // User cancelled or share failed
+        // User cancelled
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
@@ -81,9 +123,8 @@ const TVDetail = () => {
   const cast = show.credits?.cast?.slice(0, 10) || [];
   const similarShows = show.similar?.results?.slice(0, 10) || [];
   const watchProviders = show["watch/providers"]?.results?.US || show["watch/providers"]?.results?.GB;
-  const downloading = isDownloading(show.id);
-  const downloaded = isDownloaded(show.id);
-  const progress = getProgress(show.id);
+  const inWatchlist = isInWatchlist(show.id, "tv");
+  const downloaded = isDownloaded(show.id, "tv");
 
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
@@ -133,20 +174,17 @@ const TVDetail = () => {
               className="bg-foreground text-background h-9 px-5 font-semibold"
               onClick={handlePlay}
             >
-              <Play className="mr-1.5 h-4 w-4" fill="currentColor" /> Play
+              <Play className="mr-1.5 h-4 w-4" fill="currentColor" /> 
+              {watchProviders?.link ? "Watch Now" : "Play Trailer"}
             </Button>
             <Button 
               size="sm" 
               variant="secondary" 
               className={`h-9 px-4 ${downloaded ? 'bg-primary text-primary-foreground' : ''}`}
               onClick={handleDownload}
-              disabled={downloading}
+              disabled={downloaded}
             >
-              {downloading ? (
-                <>
-                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> {Math.round(progress)}%
-                </>
-              ) : downloaded ? (
+              {downloaded ? (
                 <>
                   <Check className="mr-1.5 h-4 w-4" /> Downloaded
                 </>
@@ -159,13 +197,10 @@ const TVDetail = () => {
             <Button 
               size="sm" 
               variant="secondary" 
-              className={`h-9 w-9 p-0 ${isInList ? 'bg-primary text-primary-foreground' : ''}`}
-              onClick={() => {
-                setIsInList(!isInList);
-                toast.success(isInList ? "Removed from My List" : "Added to My List");
-              }}
+              className={`h-9 w-9 p-0 ${inWatchlist ? 'bg-primary text-primary-foreground' : ''}`}
+              onClick={handleToggleWatchlist}
             >
-              {isInList ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+              {inWatchlist ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
             </Button>
             <Button size="sm" variant="secondary" className="h-9 w-9 p-0" onClick={handleShare}>
               <Share2 className="h-4 w-4" />
