@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
@@ -121,6 +121,15 @@ export const useTVDetails = (tvId: number) => {
   });
 };
 
+export const useTVSeason = (tvId: number, seasonNumber: number) => {
+  return useQuery({
+    queryKey: ["tmdb", "tv", tvId, "season", seasonNumber],
+    queryFn: () => fetchTMDB(`/tv/${tvId}/season/${seasonNumber}`),
+    enabled: !!tvId && seasonNumber >= 0,
+    staleTime: 10 * 60 * 1000,
+  });
+};
+
 export const useTVProviders = (tvId: number) => {
   return useQuery({
     queryKey: ["tmdb", "tv", tvId, "providers"],
@@ -139,10 +148,42 @@ export const useSearch = (query: string, page = 1) => {
   });
 };
 
+export const useInfiniteSearch = (query: string) => {
+  return useInfiniteQuery<TMDBResponse>({
+    queryKey: ["tmdb", "search", "infinite", query],
+    queryFn: ({ pageParam = 1 }) => fetchTMDB("/search/multi", { query, page: String(pageParam) }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    enabled: query.length > 0,
+    staleTime: 2 * 60 * 1000,
+  });
+};
+
 export const useMoviesByGenre = (genreId: number, page = 1) => {
   return useQuery<TMDBResponse>({
     queryKey: ["tmdb", "discover", "movie", genreId, page],
     queryFn: () => fetchTMDB("/discover/movie", { with_genres: String(genreId), page: String(page) }),
+    enabled: !!genreId,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useInfiniteMoviesByGenre = (genreId: number) => {
+  return useInfiniteQuery<TMDBResponse>({
+    queryKey: ["tmdb", "discover", "movie", "infinite", genreId],
+    queryFn: ({ pageParam = 1 }) => fetchTMDB("/discover/movie", { with_genres: String(genreId), page: String(pageParam) }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages && lastPage.page < 20) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
     enabled: !!genreId,
     staleTime: 5 * 60 * 1000,
   });

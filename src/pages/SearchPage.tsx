@@ -1,18 +1,72 @@
-import { useState } from "react";
-import { Search } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Search, Loader2 } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
-import { useSearch, useGenres, getImageUrl } from "@/hooks/useTMDB";
+import { useInfiniteSearch, useGenres, getImageUrl, useMoviesByGenre } from "@/hooks/useTMDB";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const SearchPage = () => {
-  const [query, setQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const urlQuery = searchParams.get("q") || "";
+  const [query, setQuery] = useState(urlQuery);
   const [selectedGenre, setSelectedGenre] = useState<number | null>(null);
-  const { data: searchResults, isLoading: searchLoading } = useSearch(query);
+  
+  const { 
+    data: searchResults, 
+    isLoading: searchLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useInfiniteSearch(query);
+  
   const { data: genres, isLoading: genresLoading } = useGenres();
+  const { data: genreMovies } = useMoviesByGenre(selectedGenre || 0);
 
-  const results = searchResults?.results || [];
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  // Update query when URL changes
+  useEffect(() => {
+    if (urlQuery) {
+      setQuery(urlQuery);
+    }
+  }, [urlQuery]);
+
+  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    const [target] = entries;
+    if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  useEffect(() => {
+    const element = loadMoreRef.current;
+    if (!element) return;
+
+    observerRef.current = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: "100px",
+      threshold: 0,
+    });
+
+    observerRef.current.observe(element);
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [handleObserver]);
+
+  const allResults = searchResults?.pages.flatMap(page => page.results) || [];
+  const totalResults = searchResults?.pages[0]?.total_results || 0;
+  
+  // Filter out person results
+  const filteredResults = allResults.filter(item => item.media_type !== "person");
+  
+  // Show genre movies if a genre is selected and no search query
+  const displayResults = query ? filteredResults : (selectedGenre ? genreMovies?.results || [] : []);
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
@@ -25,9 +79,12 @@ const SearchPage = () => {
             <input
               type="text"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setSelectedGenre(null);
+              }}
               placeholder="Search movies & TV shows..."
-              className="w-full h-10 pl-10 pr-4 rounded-lg bg-card text-sm"
+              className="w-full h-10 pl-10 pr-4 rounded-lg bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
         </div>
@@ -42,8 +99,8 @@ const SearchPage = () => {
                   <button
                     key={g.id}
                     onClick={() => setSelectedGenre(selectedGenre === g.id ? null : g.id)}
-                    className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium ${
-                      selectedGenre === g.id ? "bg-primary text-primary-foreground" : "bg-card"
+                    className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      selectedGenre === g.id ? "bg-primary text-primary-foreground" : "bg-card hover:bg-accent"
                     }`}
                   >
                     {g.name}
@@ -64,17 +121,19 @@ const SearchPage = () => {
                 </div>
               ))}
             </div>
-          ) : results.length > 0 ? (
+          ) : displayResults.length > 0 ? (
             <>
-              <p className="text-xs text-muted-foreground mb-2">{results.length} results</p>
+              <p className="text-xs text-muted-foreground mb-2">
+                {query ? `${totalResults.toLocaleString()} results for "${query}"` : `${displayResults.length} results`}
+              </p>
               <div className="grid grid-cols-3 gap-2">
-                {results.map((item) => {
+                {displayResults.map((item, index) => {
                   const isTV = item.media_type === "tv" || item.first_air_date;
                   const path = isTV ? `/tv/${item.id}` : `/movie/${item.id}`;
                   const title = item.title || item.name || "Untitled";
                   
                   return (
-                    <Link key={item.id} to={path}>
+                    <Link key={`${item.id}-${index}`} to={path}>
                       <div className="aspect-[2/3] rounded-lg overflow-hidden bg-card">
                         <img 
                           src={getImageUrl(item.poster_path)} 
@@ -92,16 +151,33 @@ const SearchPage = () => {
                   );
                 })}
               </div>
+
+              {/* Infinite scroll trigger for search */}
+              {query && (
+                <div ref={loadMoreRef} className="py-8 flex justify-center">
+                  {isFetchingNextPage && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span className="text-sm">Loading more...</span>
+                    </div>
+                  )}
+                  {!hasNextPage && allResults.length > 0 && (
+                    <p className="text-xs text-muted-foreground">End of results</p>
+                  )}
+                </div>
+              )}
             </>
           ) : query ? (
             <div className="text-center py-12">
               <Search className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-              <p className="text-sm">No results found</p>
+              <p className="text-sm">No results found for "{query}"</p>
+              <p className="text-xs text-muted-foreground mt-1">Try a different search term</p>
             </div>
           ) : (
             <div className="text-center py-12">
               <Search className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
               <p className="text-sm">Search for movies and TV shows</p>
+              <p className="text-xs text-muted-foreground mt-1">Or select a genre to browse</p>
             </div>
           )}
         </div>
