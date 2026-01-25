@@ -6,7 +6,6 @@ import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import StreamingProviders from "@/components/StreamingProviders";
-import UserReviews from "@/components/UserReviews";
 import { useTVDetails, useTVSeason, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useDownloads } from "@/hooks/useDownloads";
@@ -342,9 +341,6 @@ const TVDetail = () => {
             </div>
           </div>
         )}
-
-        {/* User Reviews */}
-        <UserReviews tmdbId={show.id} mediaType="tv" title={show.name} />
       </div>
 
       {similarShows.length > 0 && (

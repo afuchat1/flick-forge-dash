@@ -5,7 +5,6 @@ import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import StreamingProviders from "@/components/StreamingProviders";
-import UserReviews from "@/components/UserReviews";
 import { useMovieDetails, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useDownloads } from "@/hooks/useDownloads";
@@ -259,12 +258,9 @@ const MovieDetail = () => {
           </div>
         )}
 
-        {/* User Reviews */}
-        <UserReviews tmdbId={movie.id} mediaType="movie" title={movie.title} />
-
         {movie.reviews?.results?.length > 0 && (
           <div>
-            <h3 className="font-bold mb-2">TMDB Reviews</h3>
+            <h3 className="font-bold mb-2">Reviews</h3>
             <div className="space-y-2">
               {movie.reviews.results.slice(0, 3).map((review: any) => (
                 <div key={review.id} className="p-3 bg-card rounded-md">
