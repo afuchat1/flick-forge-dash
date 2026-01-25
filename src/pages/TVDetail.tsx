@@ -1,5 +1,5 @@
-import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Play, Plus, Star, Download, Share2, Check } from "lucide-react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, Play, Plus, Star, Download, Share2, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import Header from "@/components/Header";
@@ -7,12 +7,47 @@ import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import StreamingProviders from "@/components/StreamingProviders";
 import { useTVDetails, getImageUrl } from "@/hooks/useTMDB";
+import { useDownload } from "@/hooks/useDownload";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 const TVDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { data: show, isLoading } = useTVDetails(Number(id));
+  const { startDownload, isDownloading, isDownloaded, getProgress } = useDownload();
   const [isInList, setIsInList] = useState(false);
+
+  const handlePlay = () => {
+    navigate(`/player/tv/${id}`);
+  };
+
+  const handleDownload = () => {
+    if (show) {
+      startDownload(
+        show.id,
+        show.name,
+        getImageUrl(show.poster_path, "w185")
+      );
+    }
+  };
+
+  const handleShare = async () => {
+    if (navigator.share && show) {
+      try {
+        await navigator.share({
+          title: show.name,
+          text: show.overview,
+          url: window.location.href,
+        });
+      } catch {
+        // User cancelled or share failed
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copied to clipboard!");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -46,6 +81,9 @@ const TVDetail = () => {
   const cast = show.credits?.cast?.slice(0, 10) || [];
   const similarShows = show.similar?.results?.slice(0, 10) || [];
   const watchProviders = show["watch/providers"]?.results?.US || show["watch/providers"]?.results?.GB;
+  const downloading = isDownloading(show.id);
+  const downloaded = isDownloaded(show.id);
+  const progress = getProgress(show.id);
 
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
@@ -90,21 +128,46 @@ const TVDetail = () => {
           )}
 
           <div className="flex items-center gap-2">
-            <Button size="sm" className="bg-foreground text-background h-9 px-5 font-semibold">
+            <Button 
+              size="sm" 
+              className="bg-foreground text-background h-9 px-5 font-semibold"
+              onClick={handlePlay}
+            >
               <Play className="mr-1.5 h-4 w-4" fill="currentColor" /> Play
-            </Button>
-            <Button size="sm" variant="secondary" className="h-9 px-4">
-              <Download className="mr-1.5 h-4 w-4" /> Download
             </Button>
             <Button 
               size="sm" 
               variant="secondary" 
-              className={`h-9 w-9 p-0 ${isInList ? 'bg-primary' : ''}`}
-              onClick={() => setIsInList(!isInList)}
+              className={`h-9 px-4 ${downloaded ? 'bg-primary text-primary-foreground' : ''}`}
+              onClick={handleDownload}
+              disabled={downloading}
+            >
+              {downloading ? (
+                <>
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> {Math.round(progress)}%
+                </>
+              ) : downloaded ? (
+                <>
+                  <Check className="mr-1.5 h-4 w-4" /> Downloaded
+                </>
+              ) : (
+                <>
+                  <Download className="mr-1.5 h-4 w-4" /> Download
+                </>
+              )}
+            </Button>
+            <Button 
+              size="sm" 
+              variant="secondary" 
+              className={`h-9 w-9 p-0 ${isInList ? 'bg-primary text-primary-foreground' : ''}`}
+              onClick={() => {
+                setIsInList(!isInList);
+                toast.success(isInList ? "Removed from My List" : "Added to My List");
+              }}
             >
               {isInList ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
             </Button>
-            <Button size="sm" variant="secondary" className="h-9 w-9 p-0">
+            <Button size="sm" variant="secondary" className="h-9 w-9 p-0" onClick={handleShare}>
               <Share2 className="h-4 w-4" />
             </Button>
           </div>
