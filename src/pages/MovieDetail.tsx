@@ -216,10 +216,25 @@ const MovieDetail = () => {
           <p className="text-sm text-foreground/80">{movie.overview}</p>
         )}
 
+        {/* Cast Section with Photos */}
         {cast.length > 0 && (
           <div>
-            <h3 className="text-xs text-muted-foreground mb-1">Cast</h3>
-            <p className="text-sm">{cast.map((c: any) => c.name).join(", ")}</p>
+            <h3 className="font-bold mb-2">Cast</h3>
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+              {cast.map((actor: any) => (
+                <div key={actor.id} className="flex-shrink-0 w-20 text-center">
+                  <div className="w-20 h-20 rounded-full overflow-hidden bg-card mb-1.5">
+                    <img
+                      src={getImageUrl(actor.profile_path, "w185")}
+                      alt={actor.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <p className="text-xs font-medium line-clamp-1">{actor.name}</p>
+                  <p className="text-[10px] text-muted-foreground line-clamp-1">{actor.character}</p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
