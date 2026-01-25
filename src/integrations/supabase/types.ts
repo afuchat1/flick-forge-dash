@@ -116,6 +116,45 @@ export type Database = {
         }
         Relationships: []
       }
+      video_links: {
+        Row: {
+          added_by: string | null
+          created_at: string
+          id: string
+          is_full_movie: boolean | null
+          media_type: string
+          quality: string | null
+          tmdb_id: number
+          updated_at: string
+          video_title: string | null
+          video_url: string
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string
+          id?: string
+          is_full_movie?: boolean | null
+          media_type: string
+          quality?: string | null
+          tmdb_id: number
+          updated_at?: string
+          video_title?: string | null
+          video_url: string
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string
+          id?: string
+          is_full_movie?: boolean | null
+          media_type?: string
+          quality?: string | null
+          tmdb_id?: number
+          updated_at?: string
+          video_title?: string | null
+          video_url?: string
+        }
+        Relationships: []
+      }
       watchlist: {
         Row: {
           added_at: string
