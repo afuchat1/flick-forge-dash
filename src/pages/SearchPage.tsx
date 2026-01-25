@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, Loader2, X } from "lucide-react";
+import { Search, Loader2, X, Sparkles } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
+import MoodMatcher from "@/components/MoodMatcher";
 import { useInfiniteSearch, useGenres, getImageUrl, useMoviesByGenre } from "@/hooks/useTMDB";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -130,6 +131,11 @@ const SearchPage = () => {
             </p>
           )}
         </div>
+
+        {/* AI Mood Matcher - shown when no search query */}
+        {!debouncedQuery && (
+          <MoodMatcher />
+        )}
 
         {!debouncedQuery && (
           <div className="px-3 py-2">
