@@ -10,23 +10,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAddVideoLink, extractYouTubeId, isYouTubeUrl } from "@/hooks/useVideoLinks";
+import { useAddEpisodeVideoLink } from "@/hooks/useEpisodeVideoLinks";
 
-interface AddVideoLinkModalProps {
+interface AddEpisodeVideoModalProps {
   tmdbId: number;
-  mediaType: "movie" | "tv";
-  title: string;
+  showTitle: string;
+  seasonNumber: number;
+  episodeNumber: number;
+  episodeTitle: string;
   onClose: () => void;
 }
 
-const AddVideoLinkModal = ({ tmdbId, mediaType, title, onClose }: AddVideoLinkModalProps) => {
+const AddEpisodeVideoModal = ({
+  tmdbId,
+  showTitle,
+  seasonNumber,
+  episodeNumber,
+  episodeTitle,
+  onClose,
+}: AddEpisodeVideoModalProps) => {
   const [videoUrl, setVideoUrl] = useState("");
   const [quality, setQuality] = useState("HD");
-  const { mutate: addVideoLink, isPending } = useAddVideoLink();
+  const { mutate: addVideoLink, isPending } = useAddEpisodeVideoLink();
 
   const isValidUrl = videoUrl.trim().length > 10;
-  const isYouTube = isYouTubeUrl(videoUrl);
-  const youtubeId = extractYouTubeId(videoUrl);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,9 +41,10 @@ const AddVideoLinkModal = ({ tmdbId, mediaType, title, onClose }: AddVideoLinkMo
 
     addVideoLink({
       tmdb_id: tmdbId,
-      media_type: mediaType,
+      season_number: seasonNumber,
+      episode_number: episodeNumber,
       video_url: videoUrl.trim(),
-      video_title: title,
+      video_title: `${showTitle} - S${seasonNumber}E${episodeNumber}`,
       quality,
     }, {
       onSuccess: () => onClose(),
@@ -52,16 +60,17 @@ const AddVideoLinkModal = ({ tmdbId, mediaType, title, onClose }: AddVideoLinkMo
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Film className="h-5 w-5 text-primary" />
-            <h2 className="font-bold">Add Video Link</h2>
+            <h2 className="font-bold">Add Episode Video</h2>
           </div>
           <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
         </div>
 
-        <p className="text-sm text-muted-foreground">
-          Add a video link for "<span className="text-foreground font-medium">{title}</span>"
-        </p>
+        <div className="text-sm text-muted-foreground">
+          <p className="font-medium text-foreground">{showTitle}</p>
+          <p>Season {seasonNumber}, Episode {episodeNumber}: {episodeTitle}</p>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -70,20 +79,15 @@ const AddVideoLinkModal = ({ tmdbId, mediaType, title, onClose }: AddVideoLinkMo
               <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="videoUrl"
-                placeholder="https://youtube.com/watch?v=... or any video URL"
+                placeholder="https://example.com/video or embed URL"
                 value={videoUrl}
                 onChange={(e) => setVideoUrl(e.target.value)}
                 className="pl-10"
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Supports YouTube, Vimeo, Dailymotion, or any direct video/embed URL
+              Supports YouTube, Vimeo, direct video links, or any embed URL
             </p>
-            {isValidUrl && (
-              <p className="text-xs text-primary">
-                ✓ Valid {isYouTube ? "YouTube" : "video"} URL detected
-              </p>
-            )}
           </div>
 
           <div className="space-y-2">
@@ -100,19 +104,6 @@ const AddVideoLinkModal = ({ tmdbId, mediaType, title, onClose }: AddVideoLinkMo
               </SelectContent>
             </Select>
           </div>
-
-          {youtubeId && (
-            <div className="space-y-2">
-              <Label>Preview</Label>
-              <div className="aspect-video rounded-md overflow-hidden bg-muted">
-                <img
-                  src={`https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`}
-                  alt="Video thumbnail"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          )}
 
           <div className="flex gap-2 pt-2">
             <Button type="button" variant="outline" className="flex-1" onClick={onClose}>
@@ -132,4 +123,4 @@ const AddVideoLinkModal = ({ tmdbId, mediaType, title, onClose }: AddVideoLinkMo
   );
 };
 
-export default AddVideoLinkModal;
+export default AddEpisodeVideoModal;

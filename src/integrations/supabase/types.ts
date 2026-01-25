@@ -174,10 +174,12 @@ export type Database = {
         Row: {
           added_by: string | null
           created_at: string
+          episode_number: number | null
           id: string
           is_full_movie: boolean | null
           media_type: string
           quality: string | null
+          season_number: number | null
           tmdb_id: number
           updated_at: string
           video_title: string | null
@@ -186,10 +188,12 @@ export type Database = {
         Insert: {
           added_by?: string | null
           created_at?: string
+          episode_number?: number | null
           id?: string
           is_full_movie?: boolean | null
           media_type: string
           quality?: string | null
+          season_number?: number | null
           tmdb_id: number
           updated_at?: string
           video_title?: string | null
@@ -198,10 +202,12 @@ export type Database = {
         Update: {
           added_by?: string | null
           created_at?: string
+          episode_number?: number | null
           id?: string
           is_full_movie?: boolean | null
           media_type?: string
           quality?: string | null
+          season_number?: number | null
           tmdb_id?: number
           updated_at?: string
           video_title?: string | null

@@ -46,9 +46,9 @@ const ProfilePage = () => {
     { icon: Heart, label: "My List", count: watchlist.length, href: "/my-list" },
     { icon: Download, label: "Downloads", count: downloads.length, href: "/downloads" },
     { icon: Bell, label: "Notifications", href: "/notifications" },
-    { icon: Settings, label: "Settings", href: "/profile" },
-    { icon: Shield, label: "Privacy", href: "/profile" },
-    { icon: HelpCircle, label: "Help & Support", href: "/profile" },
+    { icon: Settings, label: "Settings", href: "/settings" },
+    { icon: Shield, label: "Privacy", href: "/privacy" },
+    { icon: HelpCircle, label: "Help & Support", href: "/help" },
   ];
 
   return (

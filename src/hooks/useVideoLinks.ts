@@ -37,6 +37,49 @@ export const extractYouTubeId = (url: string): string | null => {
   return null;
 };
 
+// Check if URL is a YouTube URL
+export const isYouTubeUrl = (url: string): boolean => {
+  return /(?:youtube\.com|youtu\.be)/.test(url) || /^[a-zA-Z0-9_-]{11}$/.test(url);
+};
+
+// Get video embed URL for any video source
+export const getVideoEmbedUrl = (url: string): { embedUrl: string; isYouTube: boolean } => {
+  // YouTube
+  const youtubeId = extractYouTubeId(url);
+  if (youtubeId) {
+    return { 
+      embedUrl: `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1`, 
+      isYouTube: true 
+    };
+  }
+  
+  // Vimeo
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) {
+    return { 
+      embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`, 
+      isYouTube: false 
+    };
+  }
+  
+  // Dailymotion
+  const dailymotionMatch = url.match(/dailymotion\.com\/video\/([a-zA-Z0-9]+)/);
+  if (dailymotionMatch) {
+    return { 
+      embedUrl: `https://www.dailymotion.com/embed/video/${dailymotionMatch[1]}?autoplay=1`, 
+      isYouTube: false 
+    };
+  }
+  
+  // Already an embed URL or direct link
+  if (url.includes('/embed/') || url.includes('player.')) {
+    return { embedUrl: url, isYouTube: false };
+  }
+  
+  // Return as-is for other URLs
+  return { embedUrl: url, isYouTube: false };
+};
+
 // Fetch video link for a specific movie/show
 export const useVideoLink = (tmdbId: number, mediaType: "movie" | "tv") => {
   return useQuery({
@@ -72,7 +115,7 @@ export const useAllVideoLinks = () => {
   });
 };
 
-// Add a new video link
+// Add a new video link (supports any URL)
 export const useAddVideoLink = () => {
   const queryClient = useQueryClient();
   
@@ -81,20 +124,20 @@ export const useAddVideoLink = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("Not authenticated");
 
-      const videoId = extractYouTubeId(params.video_url);
-      if (!videoId) throw new Error("Invalid YouTube URL");
+      const videoUrl = params.video_url.trim();
+      if (!videoUrl || videoUrl.length < 10) throw new Error("Invalid video URL");
 
       const { data, error } = await supabase
         .from("video_links")
         .upsert({
           tmdb_id: params.tmdb_id,
           media_type: params.media_type,
-          video_url: videoId,
+          video_url: videoUrl,
           video_title: params.video_title || null,
           quality: params.quality || "HD",
           added_by: user.user.id,
         }, {
-          onConflict: "tmdb_id,media_type",
+          onConflict: "tmdb_id,media_type,season_number,episode_number",
         })
         .select()
         .single();
