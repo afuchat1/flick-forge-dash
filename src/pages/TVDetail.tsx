@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, Plus, Star, Download, Share2, Check, ChevronDown } from "lucide-react";
+import { ArrowLeft, Play, Plus, Star, Download, Share2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
-import StreamingProviders from "@/components/StreamingProviders";
+import VideoPlayer from "@/components/VideoPlayer";
 import { useTVDetails, useTVSeason, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useDownloads } from "@/hooks/useDownloads";
 import { useAuth } from "@/hooks/useAuth";
+import { useVideoPlayer } from "@/hooks/useVideoPlayer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import {
@@ -29,20 +30,14 @@ const TVDetail = () => {
   const { user } = useAuth();
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const { isDownloaded, startDownload } = useDownloads();
+  const { currentVideo, playVideo, closeVideo } = useVideoPlayer();
 
   const handlePlay = () => {
-    const providers = show?.["watch/providers"]?.results?.US || show?.["watch/providers"]?.results?.GB;
-    const link = providers?.link;
-    
-    if (link) {
-      window.open(link, "_blank");
+    const trailer = show?.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
+    if (trailer) {
+      playVideo(trailer.key, show?.name || "TV Show");
     } else {
-      const trailer = show?.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
-      if (trailer) {
-        window.open(`https://www.youtube.com/watch?v=${trailer.key}`, "_blank");
-      } else {
-        toast.info("No streaming link available");
-      }
+      toast.info("No trailer available for this show");
     }
   };
 
@@ -132,7 +127,6 @@ const TVDetail = () => {
   const trailer = show.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
   const cast = show.credits?.cast?.slice(0, 10) || [];
   const similarShows = show.similar?.results?.slice(0, 10) || [];
-  const watchProviders = show["watch/providers"]?.results?.US || show["watch/providers"]?.results?.GB;
   const inWatchlist = isInWatchlist(show.id, "tv");
   const downloaded = isDownloaded(show.id, "tv");
   const seasons = show.seasons?.filter((s: any) => s.season_number > 0) || [];
@@ -141,6 +135,15 @@ const TVDetail = () => {
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Header />
+      
+      {/* Video Player Modal */}
+      {currentVideo && (
+        <VideoPlayer
+          videoKey={currentVideo.key}
+          title={currentVideo.title}
+          onClose={closeVideo}
+        />
+      )}
       
       <div className="relative">
         <div className="h-[50vh] md:h-[60vh] w-full">
@@ -187,7 +190,7 @@ const TVDetail = () => {
               onClick={handlePlay}
             >
               <Play className="mr-1.5 h-4 w-4" fill="currentColor" /> 
-              {watchProviders?.link ? "Watch Now" : "Play Trailer"}
+              Play Trailer
             </Button>
             <Button 
               size="sm" 
@@ -251,8 +254,6 @@ const TVDetail = () => {
             </div>
           </div>
         )}
-
-        <StreamingProviders providers={watchProviders} />
 
         {/* Seasons & Episodes Section */}
         {seasons.length > 0 && (
@@ -328,16 +329,24 @@ const TVDetail = () => {
           </div>
         )}
 
+        {/* Inline Trailer Player */}
         {trailer && (
           <div>
             <h3 className="font-bold mb-2">Trailer</h3>
-            <div className="aspect-video rounded-md overflow-hidden bg-card">
-              <iframe
-                src={`https://www.youtube.com/embed/${trailer.key}`}
-                title="Trailer"
-                className="w-full h-full"
-                allowFullScreen
+            <div 
+              className="aspect-video rounded-md overflow-hidden bg-card relative group cursor-pointer"
+              onClick={handlePlay}
+            >
+              <img
+                src={`https://img.youtube.com/vi/${trailer.key}/maxresdefault.jpg`}
+                alt="Trailer thumbnail"
+                className="w-full h-full object-cover"
               />
+              <div className="absolute inset-0 bg-background/40 flex items-center justify-center group-hover:bg-background/60 transition-colors">
+                <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Play className="h-8 w-8 text-primary-foreground fill-current ml-1" />
+                </div>
+              </div>
             </div>
           </div>
         )}
