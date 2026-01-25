@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import StreamingProviders from "@/components/StreamingProviders";
+import UserReviews from "@/components/UserReviews";
 import { useTVDetails, useTVSeason, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useDownloads } from "@/hooks/useDownloads";
@@ -232,17 +233,21 @@ const TVDetail = () => {
             <h3 className="font-bold mb-2">Cast</h3>
             <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
               {cast.map((actor: any) => (
-                <div key={actor.id} className="flex-shrink-0 w-20 text-center">
-                  <div className="w-20 h-20 rounded-full overflow-hidden bg-card mb-1.5">
+                <Link 
+                  key={actor.id} 
+                  to={`/person/${actor.id}`}
+                  className="flex-shrink-0 w-20 text-center group"
+                >
+                  <div className="w-20 h-20 rounded-full overflow-hidden bg-card mb-1.5 ring-2 ring-transparent group-hover:ring-primary transition-all">
                     <img
                       src={getImageUrl(actor.profile_path, "w185")}
                       alt={actor.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <p className="text-xs font-medium line-clamp-1">{actor.name}</p>
+                  <p className="text-xs font-medium line-clamp-1 group-hover:text-primary transition-colors">{actor.name}</p>
                   <p className="text-[10px] text-muted-foreground line-clamp-1">{actor.character}</p>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -337,6 +342,9 @@ const TVDetail = () => {
             </div>
           </div>
         )}
+
+        {/* User Reviews */}
+        <UserReviews tmdbId={show.id} mediaType="tv" title={show.name} />
       </div>
 
       {similarShows.length > 0 && (
