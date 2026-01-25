@@ -5,12 +5,12 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
-import { useMovieDetails, getImageUrl } from "@/hooks/useTMDB";
+import { useTVDetails, getImageUrl } from "@/hooks/useTMDB";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const MovieDetail = () => {
+const TVDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: movie, isLoading } = useMovieDetails(Number(id));
+  const { data: show, isLoading } = useTVDetails(Number(id));
   const [isInList, setIsInList] = useState(false);
 
   if (isLoading) {
@@ -30,20 +30,20 @@ const MovieDetail = () => {
     );
   }
 
-  if (!movie) {
+  if (!show) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="text-center">
-          <h1 className="text-xl font-bold mb-2">Movie not found</h1>
+          <h1 className="text-xl font-bold mb-2">TV Show not found</h1>
           <Link to="/" className="text-primary text-sm">Go Home</Link>
         </div>
       </div>
     );
   }
 
-  const trailer = movie.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
-  const cast = movie.credits?.cast?.slice(0, 10) || [];
-  const similarMovies = movie.similar?.results?.slice(0, 10) || [];
+  const trailer = show.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
+  const cast = show.credits?.cast?.slice(0, 10) || [];
+  const similarShows = show.similar?.results?.slice(0, 10) || [];
 
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
@@ -52,37 +52,37 @@ const MovieDetail = () => {
       <div className="relative">
         <div className="h-[50vh] md:h-[60vh] w-full">
           <img 
-            src={getImageUrl(movie.backdrop_path || movie.poster_path, "w780")} 
-            alt={movie.title} 
+            src={getImageUrl(show.backdrop_path || show.poster_path, "w780")} 
+            alt={show.name} 
             className="w-full h-full object-cover" 
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 p-4">
-          <Link to="/" className="inline-flex items-center gap-1 text-xs text-muted-foreground mb-3">
+          <Link to="/tv-shows" className="inline-flex items-center gap-1 text-xs text-muted-foreground mb-3">
             <ArrowLeft className="h-3 w-3" /> Back
           </Link>
           
-          <h1 className="text-2xl md:text-4xl font-bold mb-2">{movie.title}</h1>
+          <h1 className="text-2xl md:text-4xl font-bold mb-2">{show.name}</h1>
           
           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-            <span className="text-primary font-semibold">{Math.round(movie.vote_average * 10)}%</span>
-            <span>{movie.release_date?.slice(0, 4)}</span>
+            <span className="text-primary font-semibold">{Math.round(show.vote_average * 10)}%</span>
+            <span>{show.first_air_date?.slice(0, 4)}</span>
             <span className="px-1 border border-muted-foreground/50 rounded text-[10px]">HD</span>
-            <span>{movie.runtime} min</span>
+            <span>{show.number_of_seasons} Season{show.number_of_seasons > 1 ? "s" : ""}</span>
             <div className="flex items-center gap-0.5">
               <Star className="h-3 w-3 text-primary fill-primary" />
-              <span>{movie.vote_average?.toFixed(1)}</span>
+              <span>{show.vote_average?.toFixed(1)}</span>
             </div>
           </div>
 
-          {movie.genres && (
+          {show.genres && (
             <div className="flex flex-wrap gap-1.5 mb-3">
-              {movie.genres.map((g: any) => (
-                <Link key={g.id} to={`/genre/${g.id}`} className="px-2 py-0.5 bg-secondary rounded text-[10px]">
+              {show.genres.map((g: any) => (
+                <span key={g.id} className="px-2 py-0.5 bg-secondary rounded text-[10px]">
                   {g.name}
-                </Link>
+                </span>
               ))}
             </div>
           )}
@@ -110,8 +110,8 @@ const MovieDetail = () => {
       </div>
 
       <div className="p-4 space-y-4">
-        {movie.overview && (
-          <p className="text-sm text-foreground/80">{movie.overview}</p>
+        {show.overview && (
+          <p className="text-sm text-foreground/80">{show.overview}</p>
         )}
 
         {cast.length > 0 && (
@@ -134,32 +134,10 @@ const MovieDetail = () => {
             </div>
           </div>
         )}
-
-        {movie.reviews?.results?.length > 0 && (
-          <div>
-            <h3 className="font-bold mb-2">Reviews</h3>
-            <div className="space-y-2">
-              {movie.reviews.results.slice(0, 3).map((review: any) => (
-                <div key={review.id} className="p-3 bg-card rounded-md">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium">{review.author}</span>
-                    {review.author_details?.rating && (
-                      <div className="flex items-center gap-0.5 text-xs">
-                        <Star className="h-3 w-3 text-primary fill-primary" />
-                        <span>{review.author_details.rating}</span>
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground line-clamp-3">{review.content}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
-      {similarMovies.length > 0 && (
-        <TMDBContentRow title="More Like This" movies={similarMovies} />
+      {similarShows.length > 0 && (
+        <TMDBContentRow title="More Like This" movies={similarShows} />
       )}
 
       <MobileNav />
@@ -167,4 +145,4 @@ const MovieDetail = () => {
   );
 };
 
-export default MovieDetail;
+export default TVDetail;
