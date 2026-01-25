@@ -97,18 +97,36 @@ export const useTopRatedTV = (page = 1) => {
 export const useMovieDetails = (movieId: number) => {
   return useQuery({
     queryKey: ["tmdb", "movie", movieId],
-    queryFn: () => fetchTMDB(`/movie/${movieId}`, { append_to_response: "credits,videos,similar,reviews" }),
+    queryFn: () => fetchTMDB(`/movie/${movieId}`, { append_to_response: "credits,videos,similar,reviews,watch/providers" }),
     enabled: !!movieId,
     staleTime: 10 * 60 * 1000,
+  });
+};
+
+export const useMovieProviders = (movieId: number) => {
+  return useQuery({
+    queryKey: ["tmdb", "movie", movieId, "providers"],
+    queryFn: () => fetchTMDB(`/movie/${movieId}/watch/providers`),
+    enabled: !!movieId,
+    staleTime: 60 * 60 * 1000,
   });
 };
 
 export const useTVDetails = (tvId: number) => {
   return useQuery({
     queryKey: ["tmdb", "tv", tvId],
-    queryFn: () => fetchTMDB(`/tv/${tvId}`, { append_to_response: "credits,videos,similar,reviews" }),
+    queryFn: () => fetchTMDB(`/tv/${tvId}`, { append_to_response: "credits,videos,similar,reviews,watch/providers" }),
     enabled: !!tvId,
     staleTime: 10 * 60 * 1000,
+  });
+};
+
+export const useTVProviders = (tvId: number) => {
+  return useQuery({
+    queryKey: ["tmdb", "tv", tvId, "providers"],
+    queryFn: () => fetchTMDB(`/tv/${tvId}/watch/providers`),
+    enabled: !!tvId,
+    staleTime: 60 * 60 * 1000,
   });
 };
 
