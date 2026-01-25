@@ -21,15 +21,17 @@ serve(async (req) => {
     const { endpoint, params } = await req.json();
     console.log('TMDB request:', endpoint, params);
 
-    const queryParams = new URLSearchParams({
-      api_key: TMDB_API_KEY,
-      ...params,
-    });
-
+    const queryParams = new URLSearchParams(params || {});
     const url = `${TMDB_BASE_URL}${endpoint}?${queryParams}`;
-    console.log('Fetching:', url.replace(TMDB_API_KEY, '***'));
+    console.log('Fetching:', url);
 
-    const response = await fetch(url);
+    // Use Bearer token authentication (v4 auth) instead of api_key parameter
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${TMDB_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    });
     
     if (!response.ok) {
       const errorText = await response.text();
