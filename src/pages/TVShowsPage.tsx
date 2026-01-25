@@ -1,42 +1,26 @@
-import { Link } from "react-router-dom";
 import Header from "@/components/Header";
-import CategoryTabs from "@/components/CategoryTabs";
-import ContentRow from "@/components/ContentRow";
 import MobileNav from "@/components/MobileNav";
-import { allMovies, dramaMovies, sciFiMovies, actionMovies } from "@/data/movies";
-
-const tvShows = allMovies.slice(0, 20);
+import TMDBContentRow from "@/components/TMDBContentRow";
+import TMDBHeroCarousel from "@/components/TMDBHeroCarousel";
+import { usePopularTV, useTopRatedTV, useTrending } from "@/hooks/useTMDB";
 
 const TVShowsPage = () => {
+  const { data: popular, isLoading: popularLoading } = usePopularTV();
+  const { data: topRated, isLoading: topRatedLoading } = useTopRatedTV();
+  const { data: trending, isLoading: trendingLoading } = useTrending("tv", "week");
+
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Header />
       
       <main className="pt-12">
-        <CategoryTabs />
+        <TMDBHeroCarousel movies={popular?.results} isLoading={popularLoading} />
         
-        <div className="px-3 py-3">
-          <h1 className="text-xl font-bold">TV Shows</h1>
-          <p className="text-xs text-muted-foreground">{tvShows.length} series available</p>
+        <div className="space-y-1 mt-2">
+          <TMDBContentRow title="Popular TV Shows" movies={popular?.results} isLoading={popularLoading} />
+          <TMDBContentRow title="Top Rated" movies={topRated?.results} isLoading={topRatedLoading} showRanks />
+          <TMDBContentRow title="Trending This Week" movies={trending?.results} isLoading={trendingLoading} />
         </div>
-
-        <div className="px-3 pb-4">
-          <div className="grid grid-cols-3 gap-2">
-            {tvShows.slice(0, 9).map((show) => (
-              <Link key={show.id} to={`/movie/${show.id}`}>
-                <div className="aspect-[2/3] rounded-lg overflow-hidden bg-card">
-                  <img src={show.image} alt={show.title} className="w-full h-full object-cover" />
-                </div>
-                <p className="text-xs font-medium mt-1 line-clamp-1">{show.title}</p>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        <ContentRow title="Popular Series" movies={tvShows.slice(0, 8)} href="/tv-shows" />
-        <ContentRow title="Drama Series" movies={dramaMovies} href="/genre/drama" />
-        <ContentRow title="Sci-Fi Series" movies={sciFiMovies} href="/genre/sci-fi" />
-        <ContentRow title="Action Series" movies={actionMovies} href="/genre/action" />
       </main>
 
       <MobileNav />
