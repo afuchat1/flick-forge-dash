@@ -189,6 +189,129 @@ export const useInfiniteMoviesByGenre = (genreId: number) => {
   });
 };
 
+export const useInfinitePopularMovies = () => {
+  return useInfiniteQuery<TMDBResponse>({
+    queryKey: ["tmdb", "movies", "popular", "infinite"],
+    queryFn: ({ pageParam = 1 }) => fetchTMDB("/movie/popular", { page: String(pageParam) }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages && lastPage.page < 500) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useInfiniteTopRatedMovies = () => {
+  return useInfiniteQuery<TMDBResponse>({
+    queryKey: ["tmdb", "movies", "top_rated", "infinite"],
+    queryFn: ({ pageParam = 1 }) => fetchTMDB("/movie/top_rated", { page: String(pageParam) }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages && lastPage.page < 500) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useInfiniteNowPlayingMovies = () => {
+  return useInfiniteQuery<TMDBResponse>({
+    queryKey: ["tmdb", "movies", "now_playing", "infinite"],
+    queryFn: ({ pageParam = 1 }) => fetchTMDB("/movie/now_playing", { page: String(pageParam) }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages && lastPage.page < 500) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useInfiniteUpcomingMovies = () => {
+  return useInfiniteQuery<TMDBResponse>({
+    queryKey: ["tmdb", "movies", "upcoming", "infinite"],
+    queryFn: ({ pageParam = 1 }) => fetchTMDB("/movie/upcoming", { page: String(pageParam) }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages && lastPage.page < 500) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useInfinitePopularTV = () => {
+  return useInfiniteQuery<TMDBResponse>({
+    queryKey: ["tmdb", "tv", "popular", "infinite"],
+    queryFn: ({ pageParam = 1 }) => fetchTMDB("/tv/popular", { page: String(pageParam) }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages && lastPage.page < 500) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useInfiniteTopRatedTV = () => {
+  return useInfiniteQuery<TMDBResponse>({
+    queryKey: ["tmdb", "tv", "top_rated", "infinite"],
+    queryFn: ({ pageParam = 1 }) => fetchTMDB("/tv/top_rated", { page: String(pageParam) }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages && lastPage.page < 500) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useInfiniteTrending = (mediaType: "all" | "movie" | "tv" = "all", timeWindow: "day" | "week" = "week") => {
+  return useInfiniteQuery<TMDBResponse>({
+    queryKey: ["tmdb", "trending", "infinite", mediaType, timeWindow],
+    queryFn: ({ pageParam = 1 }) => fetchTMDB(`/trending/${mediaType}/${timeWindow}`, { page: String(pageParam) }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages && lastPage.page < 500) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useInfiniteDiscover = (type: "movie" | "tv", sortBy: string = "popularity.desc") => {
+  return useInfiniteQuery<TMDBResponse>({
+    queryKey: ["tmdb", "discover", "infinite", type, sortBy],
+    queryFn: ({ pageParam = 1 }) => fetchTMDB(`/discover/${type}`, { 
+      page: String(pageParam),
+      sort_by: sortBy 
+    }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages && lastPage.page < 500) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
 export const useGenres = () => {
   return useQuery({
     queryKey: ["tmdb", "genres"],

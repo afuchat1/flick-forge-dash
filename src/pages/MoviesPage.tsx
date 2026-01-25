@@ -1,8 +1,11 @@
+import { Link } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import TMDBHeroCarousel from "@/components/TMDBHeroCarousel";
 import { usePopularMovies, useTopRatedMovies, useNowPlayingMovies, useUpcomingMovies } from "@/hooks/useTMDB";
+import { Button } from "@/components/ui/button";
 
 const MoviesPage = () => {
   const { data: popular, isLoading: popularLoading } = usePopularMovies();
@@ -17,7 +20,17 @@ const MoviesPage = () => {
       <main className="pt-12">
         <TMDBHeroCarousel movies={popular?.results} isLoading={popularLoading} />
         
-        <div className="space-y-1 mt-2">
+        {/* Browse All CTA */}
+        <div className="px-3 py-4">
+          <Link to="/browse?type=movie">
+            <Button variant="outline" className="w-full justify-between text-sm">
+              Browse All Movies
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+        
+        <div className="space-y-1">
           <TMDBContentRow title="Popular Movies" movies={popular?.results} isLoading={popularLoading} />
           <TMDBContentRow title="Top Rated" movies={topRated?.results} isLoading={topRatedLoading} showRanks />
           <TMDBContentRow title="Now Playing" movies={nowPlaying?.results} isLoading={nowPlayingLoading} />
