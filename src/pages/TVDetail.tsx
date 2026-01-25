@@ -5,6 +5,7 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
+import StreamingProviders from "@/components/StreamingProviders";
 import { useTVDetails, getImageUrl } from "@/hooks/useTMDB";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -44,6 +45,7 @@ const TVDetail = () => {
   const trailer = show.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
   const cast = show.credits?.cast?.slice(0, 10) || [];
   const similarShows = show.similar?.results?.slice(0, 10) || [];
+  const watchProviders = show["watch/providers"]?.results?.US || show["watch/providers"]?.results?.GB;
 
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
@@ -120,6 +122,8 @@ const TVDetail = () => {
             <p className="text-sm">{cast.map((c: any) => c.name).join(", ")}</p>
           </div>
         )}
+
+        <StreamingProviders providers={watchProviders} />
 
         {trailer && (
           <div>
