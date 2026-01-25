@@ -22,33 +22,28 @@ const NetflixRow = ({ title, movies, showRanks = false }: NetflixRowProps) => {
         ? rowRef.current.scrollLeft - scrollAmount 
         : rowRef.current.scrollLeft + scrollAmount;
       
-      rowRef.current.scrollTo({
-        left: newScrollLeft,
-        behavior: "smooth"
-      });
+      rowRef.current.scrollTo({ left: newScrollLeft, behavior: "smooth" });
     }
   };
 
   const handleScroll = () => {
     if (rowRef.current) {
       setShowLeftArrow(rowRef.current.scrollLeft > 0);
-      setShowRightArrow(
-        rowRef.current.scrollLeft < rowRef.current.scrollWidth - rowRef.current.clientWidth - 10
-      );
+      setShowRightArrow(rowRef.current.scrollLeft < rowRef.current.scrollWidth - rowRef.current.clientWidth - 10);
     }
   };
 
   return (
     <section 
-      className="relative py-4 md:py-6"
+      className="relative py-3 md:py-5"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Title */}
-      <div className="px-4 md:px-8 lg:px-12 mb-3 md:mb-4">
-        <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-foreground group cursor-pointer inline-flex items-center gap-2">
+      <div className="px-4 md:px-6 lg:px-8 mb-2 md:mb-3">
+        <h2 className="text-base md:text-lg lg:text-xl font-bold text-foreground group cursor-pointer inline-flex items-center gap-2">
           {title}
-          <span className={`text-primary text-sm font-medium transition-all duration-300 ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'}`}>
+          <span className={`text-primary text-xs md:text-sm font-medium transition-all duration-300 ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'}`}>
             Explore All →
           </span>
         </h2>
@@ -58,12 +53,12 @@ const NetflixRow = ({ title, movies, showRanks = false }: NetflixRowProps) => {
         {/* Left Arrow */}
         <button
           onClick={() => scroll("left")}
-          className={`absolute left-0 top-0 bottom-16 z-40 w-10 md:w-14 bg-gradient-to-r from-background via-background/80 to-transparent flex items-center justify-center transition-all duration-300 ${
+          className={`absolute left-0 top-0 bottom-12 md:bottom-14 z-40 w-8 md:w-12 bg-gradient-to-r from-background via-background/80 to-transparent flex items-center justify-center transition-all duration-300 ${
             showLeftArrow && isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         >
-          <div className="w-10 h-10 rounded-full bg-foreground/10 backdrop-blur-sm flex items-center justify-center hover:bg-foreground/20 transition-colors">
-            <ChevronLeft className="h-6 w-6 text-foreground" />
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-foreground/10 backdrop-blur-sm flex items-center justify-center hover:bg-foreground/20 transition-colors">
+            <ChevronLeft className="h-4 w-4 md:h-5 md:w-5 text-foreground" />
           </div>
         </button>
 
@@ -71,12 +66,12 @@ const NetflixRow = ({ title, movies, showRanks = false }: NetflixRowProps) => {
         <div
           ref={rowRef}
           onScroll={handleScroll}
-          className="flex gap-2 md:gap-3 overflow-x-scroll scrollbar-hide px-4 md:px-8 lg:px-12 pb-20"
+          className="flex gap-2 md:gap-3 overflow-x-scroll scrollbar-hide px-4 md:px-6 lg:px-8 pb-14 md:pb-16"
         >
           {movies.map((movie, index) => (
             <div 
               key={movie.id} 
-              className={`flex-shrink-0 ${showRanks ? 'w-[200px] md:w-[280px] lg:w-[320px]' : 'w-[200px] md:w-[260px] lg:w-[300px]'}`}
+              className={`flex-shrink-0 ${showRanks ? 'w-[160px] md:w-[220px] lg:w-[280px]' : 'w-[150px] md:w-[200px] lg:w-[260px]'}`}
             >
               <NetflixCard movie={movie} index={index} showRank={showRanks} />
             </div>
@@ -86,12 +81,12 @@ const NetflixRow = ({ title, movies, showRanks = false }: NetflixRowProps) => {
         {/* Right Arrow */}
         <button
           onClick={() => scroll("right")}
-          className={`absolute right-0 top-0 bottom-16 z-40 w-10 md:w-14 bg-gradient-to-l from-background via-background/80 to-transparent flex items-center justify-center transition-all duration-300 ${
+          className={`absolute right-0 top-0 bottom-12 md:bottom-14 z-40 w-8 md:w-12 bg-gradient-to-l from-background via-background/80 to-transparent flex items-center justify-center transition-all duration-300 ${
             showRightArrow && isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         >
-          <div className="w-10 h-10 rounded-full bg-foreground/10 backdrop-blur-sm flex items-center justify-center hover:bg-foreground/20 transition-colors">
-            <ChevronRight className="h-6 w-6 text-foreground" />
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-foreground/10 backdrop-blur-sm flex items-center justify-center hover:bg-foreground/20 transition-colors">
+            <ChevronRight className="h-4 w-4 md:h-5 md:w-5 text-foreground" />
           </div>
         </button>
       </div>
