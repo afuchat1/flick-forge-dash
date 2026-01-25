@@ -1,28 +1,23 @@
 import Header from "@/components/Header";
-import NetflixRow from "@/components/NetflixRow";
+import MovieRow from "@/components/MovieRow";
 import MobileNav from "@/components/MobileNav";
 import { newReleases, trendingMovies, topRatedMovies } from "@/data/movies";
 
 const NewPopularPage = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Header />
       
-      <main className="pt-20 pb-24 md:pb-16">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 mb-8">
-          {/* Page Header */}
-          <div className="space-y-2">
-            <h1 className="text-3xl md:text-4xl font-extrabold">New & Popular</h1>
-            <p className="text-muted-foreground">
-              The latest releases and trending titles
-            </p>
-          </div>
+      <main className="pt-14 pb-4">
+        <div className="px-4 mb-4">
+          <h1 className="text-2xl font-bold">New & Popular</h1>
+          <p className="text-xs text-muted-foreground">Trending and new releases</p>
         </div>
 
-        <div className="space-y-0">
-          <NetflixRow title="🔥 Trending This Week" movies={trendingMovies} />
-          <NetflixRow title="✨ New Releases" movies={newReleases} />
-          <NetflixRow title="🏆 Top Rated" movies={topRatedMovies} showRanks />
+        <div className="space-y-1">
+          <MovieRow title="Trending Now" movies={trendingMovies} />
+          <MovieRow title="New Releases" movies={newReleases} />
+          <MovieRow title="Top Rated" movies={topRatedMovies} showRanks />
         </div>
       </main>
 

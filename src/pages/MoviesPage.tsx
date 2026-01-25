@@ -1,31 +1,26 @@
 import Header from "@/components/Header";
-import NetflixCard from "@/components/NetflixCard";
+import MovieRow from "@/components/MovieRow";
 import MobileNav from "@/components/MobileNav";
 import { allMovies } from "@/data/movies";
 
 const MoviesPage = () => {
-  const sortedMovies = [...allMovies].sort((a, b) => b.rating - a.rating);
-
+  const sorted = [...allMovies].sort((a, b) => b.rating - a.rating);
+  const byYear = [...allMovies].sort((a, b) => parseInt(b.year) - parseInt(a.year));
+  
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Header />
       
-      <main className="pt-20 pb-24 md:pb-16">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8">
-          {/* Page Header */}
-          <div className="space-y-2 mb-8">
-            <h1 className="text-3xl md:text-4xl font-extrabold">All Movies</h1>
-            <p className="text-muted-foreground">
-              Browse our complete collection of {allMovies.length} movies
-            </p>
-          </div>
+      <main className="pt-14 pb-4">
+        <div className="px-4 mb-4">
+          <h1 className="text-2xl font-bold">All Movies</h1>
+          <p className="text-xs text-muted-foreground">{allMovies.length} titles available</p>
+        </div>
 
-          {/* Movies Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
-            {sortedMovies.map((movie, index) => (
-              <NetflixCard key={movie.id} movie={movie} index={index} />
-            ))}
-          </div>
+        <div className="space-y-1">
+          <MovieRow title="Top Rated" movies={sorted.slice(0, 10)} />
+          <MovieRow title="Latest" movies={byYear.slice(0, 10)} />
+          <MovieRow title="All Movies" movies={allMovies} />
         </div>
       </main>
 

@@ -1,69 +1,57 @@
-import { User, Settings, CreditCard, Bell, Shield, LogOut, ChevronRight } from "lucide-react";
+import { User, Settings, Bell, Shield, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 
-const menuItems = [
-  { icon: User, label: "Account", description: "Manage your account settings", href: "/profile" },
-  { icon: Bell, label: "Notifications", description: "Configure alerts and updates", href: "/notifications" },
-  { icon: CreditCard, label: "Subscription", description: "Free plan", href: "/profile" },
-  { icon: Shield, label: "Privacy & Security", description: "Manage your data", href: "/profile" },
-  { icon: Settings, label: "Preferences", description: "App settings and display", href: "/profile" },
-];
-
 const ProfilePage = () => {
+  const menuItems = [
+    { icon: User, label: "Account", href: "/profile" },
+    { icon: Bell, label: "Notifications", href: "/notifications" },
+    { icon: Shield, label: "Privacy", href: "/profile" },
+    { icon: Settings, label: "Settings", href: "/profile" },
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Header />
       
-      <main className="pt-20 pb-24 md:pb-16">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-2xl">
+      <main className="pt-14 pb-4">
+        <div className="px-4">
           {/* Profile Header */}
-          <div className="text-center py-8">
-            <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-4">
-              <User className="h-12 w-12 text-primary-foreground" />
+          <div className="text-center py-6">
+            <div className="w-16 h-16 mx-auto rounded-full bg-primary flex items-center justify-center mb-3">
+              <User className="h-8 w-8 text-primary-foreground" />
             </div>
-            <h1 className="text-2xl font-bold">Guest User</h1>
-            <p className="text-muted-foreground">Free Account</p>
-            <div className="mt-4 flex justify-center gap-3">
-              <Button>Sign Up</Button>
-              <Button variant="secondary">Log In</Button>
+            <h1 className="text-lg font-bold">Guest User</h1>
+            <p className="text-xs text-muted-foreground">Free Account</p>
+            <div className="flex justify-center gap-2 mt-3">
+              <Button size="sm">Sign Up</Button>
+              <Button size="sm" variant="secondary">Log In</Button>
             </div>
           </div>
 
-          {/* Menu Items */}
-          <div className="space-y-2 mt-8">
+          {/* Menu */}
+          <div className="space-y-1 mt-4">
             {menuItems.map((item) => (
               <Link
                 key={item.label}
                 to={item.href}
-                className="flex items-center gap-4 p-4 rounded-xl bg-card hover:bg-secondary/50 transition-colors"
+                className="flex items-center justify-between p-3 bg-card rounded-md"
               >
-                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
-                  <item.icon className="h-5 w-5 text-foreground" />
+                <div className="flex items-center gap-3">
+                  <item.icon className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">{item.label}</span>
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium">{item.label}</p>
-                  <p className="text-sm text-muted-foreground">{item.description}</p>
-                </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </Link>
             ))}
           </div>
 
-          {/* Logout */}
-          <button className="flex items-center gap-4 p-4 rounded-xl w-full mt-8 text-destructive hover:bg-destructive/10 transition-colors">
-            <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center">
-              <LogOut className="h-5 w-5" />
-            </div>
-            <span className="font-medium">Log Out</span>
-          </button>
-
           {/* App Info */}
-          <div className="mt-12 text-center text-sm text-muted-foreground">
-            <p>AfuChat Movies v1.0.0</p>
-            <p className="mt-1">© 2024 AfuChat Movies. All rights reserved.</p>
+          <div className="text-center mt-8 text-xs text-muted-foreground">
+            <p>AfuChat Movies v1.0</p>
+            <p className="mt-1">© 2024 AfuChat Movies</p>
           </div>
         </div>
       </main>
