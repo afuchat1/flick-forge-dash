@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from "react";
-import { Search, Sparkles, Film, Tv, X, Loader2 } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Search, Sparkles, Film, Tv, X, Loader2, Mic, MicOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface SearchAutocompleteProps {
   className?: string;
@@ -21,11 +22,76 @@ const SearchAutocomplete = ({ className }: SearchAutocompleteProps) => {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [showMoodPicker, setShowMoodPicker] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
   const navigate = useNavigate();
 
   const { data, isLoading } = useSearchSuggestions(debouncedQuery, selectedMood);
+
+  // Initialize speech recognition
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (SpeechRecognition) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = "en-US";
+
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = Array.from(event.results)
+          .map((result: any) => result[0].transcript)
+          .join("");
+        
+        setQuery(transcript);
+        setIsOpen(true);
+        
+        if (event.results[0].isFinal) {
+          setDebouncedQuery(transcript);
+        }
+      };
+
+      recognitionRef.current.onerror = (event: any) => {
+        console.error("Speech recognition error:", event.error);
+        setIsListening(false);
+        if (event.error === "not-allowed") {
+          toast.error("Microphone access denied");
+        }
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    };
+  }, []);
+
+  const toggleVoiceSearch = () => {
+    if (!recognitionRef.current) {
+      toast.error("Voice search not supported in this browser");
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+        toast.info("Listening... Speak now");
+      } catch (error) {
+        console.error("Failed to start recognition:", error);
+      }
+    }
+  };
 
   // Debounce query
   useEffect(() => {
@@ -77,12 +143,15 @@ const SearchAutocomplete = ({ className }: SearchAutocompleteProps) => {
 
   return (
     <div ref={containerRef} className={cn("relative flex-1", className)}>
-      <div className="flex items-center gap-2 bg-card rounded-lg px-3 py-2">
+      <div className={cn(
+        "flex items-center gap-2 bg-card rounded-lg px-3 py-2 transition-all",
+        isListening && "ring-2 ring-primary animate-pulse"
+      )}>
         <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         <input
           ref={inputRef}
           type="text"
-          placeholder="Search movies, series..."
+          placeholder={isListening ? "Listening..." : "Search movies, series..."}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -98,6 +167,25 @@ const SearchAutocomplete = ({ className }: SearchAutocompleteProps) => {
             <X className="h-3 w-3 text-muted-foreground" />
           </button>
         )}
+        
+        {/* Voice Search Button */}
+        <button
+          onClick={toggleVoiceSearch}
+          className={cn(
+            "p-1 rounded-full transition-colors",
+            isListening 
+              ? "bg-primary text-primary-foreground" 
+              : "hover:bg-muted text-muted-foreground"
+          )}
+          title="Voice search"
+        >
+          {isListening ? (
+            <Mic className="h-4 w-4 animate-pulse" />
+          ) : (
+            <MicOff className="h-4 w-4" />
+          )}
+        </button>
+        
         <button
           onClick={() => setShowMoodPicker(!showMoodPicker)}
           className={cn(
@@ -112,7 +200,7 @@ const SearchAutocomplete = ({ className }: SearchAutocompleteProps) => {
 
       {/* Mood Picker */}
       {showMoodPicker && (
-        <div className="absolute top-full left-0 right-0 mt-1 p-2 bg-card rounded-lg border border-border shadow-lg z-50">
+        <div className="absolute top-full left-0 right-0 mt-1 p-2 bg-card rounded-lg border border-border shadow-lg z-50 animate-fade-in">
           <p className="text-xs text-muted-foreground mb-2 px-1">Filter by mood:</p>
           <div className="flex gap-1 flex-wrap">
             {moods.map((mood) => (
@@ -149,7 +237,7 @@ const SearchAutocomplete = ({ className }: SearchAutocompleteProps) => {
 
       {/* Suggestions Dropdown */}
       {isOpen && query.length >= 2 && data?.suggestions && data.suggestions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-card rounded-lg border border-border shadow-lg z-50 overflow-hidden">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-card rounded-lg border border-border shadow-lg z-50 overflow-hidden animate-fade-in">
           <div className="p-2 border-b border-border">
             <p className="text-xs text-muted-foreground flex items-center gap-1">
               <Sparkles className="h-3 w-3 text-primary" />
