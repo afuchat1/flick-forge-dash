@@ -1,21 +1,31 @@
+import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, Plus, Star, Download, Share2, Check, ExternalLink } from "lucide-react";
+import { ArrowLeft, Play, Plus, Star, Download, Share2, Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import StreamingProviders from "@/components/StreamingProviders";
-import { useTVDetails, getImageUrl } from "@/hooks/useTMDB";
+import { useTVDetails, useTVSeason, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useDownloads } from "@/hooks/useDownloads";
 import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const TVDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [selectedSeason, setSelectedSeason] = useState(1);
   const { data: show, isLoading } = useTVDetails(Number(id));
+  const { data: seasonData, isLoading: seasonLoading } = useTVSeason(Number(id), selectedSeason);
   const { user } = useAuth();
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const { isDownloaded, startDownload } = useDownloads();
@@ -125,6 +135,8 @@ const TVDetail = () => {
   const watchProviders = show["watch/providers"]?.results?.US || show["watch/providers"]?.results?.GB;
   const inWatchlist = isInWatchlist(show.id, "tv");
   const downloaded = isDownloaded(show.id, "tv");
+  const seasons = show.seasons?.filter((s: any) => s.season_number > 0) || [];
+  const episodes = seasonData?.episodes || [];
 
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
@@ -222,6 +234,80 @@ const TVDetail = () => {
         )}
 
         <StreamingProviders providers={watchProviders} />
+
+        {/* Seasons & Episodes Section */}
+        {seasons.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold">Episodes</h3>
+              <Select
+                value={String(selectedSeason)}
+                onValueChange={(val) => setSelectedSeason(Number(val))}
+              >
+                <SelectTrigger className="w-40 h-8 text-xs">
+                  <SelectValue placeholder="Select Season" />
+                </SelectTrigger>
+                <SelectContent>
+                  {seasons.map((season: any) => (
+                    <SelectItem key={season.season_number} value={String(season.season_number)}>
+                      Season {season.season_number} ({season.episode_count} eps)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {seasonLoading ? (
+              <div className="space-y-2">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-20 rounded-lg" />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-[400px] overflow-y-auto scrollbar-hide">
+                {episodes.map((episode: any) => (
+                  <div 
+                    key={episode.id}
+                    className="flex gap-3 p-2 rounded-lg bg-card hover:bg-accent transition-colors cursor-pointer"
+                    onClick={handlePlay}
+                  >
+                    <div className="relative w-28 flex-shrink-0">
+                      <img
+                        src={getImageUrl(episode.still_path, "w342")}
+                        alt={episode.name}
+                        className="w-full aspect-video object-cover rounded-md"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-background/50 opacity-0 hover:opacity-100 transition-opacity rounded-md">
+                        <Play className="h-6 w-6 fill-current" />
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className="text-xs font-medium line-clamp-1">
+                            {episode.episode_number}. {episode.name}
+                          </p>
+                          {episode.runtime && (
+                            <p className="text-[10px] text-muted-foreground">{episode.runtime} min</p>
+                          )}
+                        </div>
+                        {episode.vote_average > 0 && (
+                          <div className="flex items-center gap-0.5 text-[10px]">
+                            <Star className="h-2.5 w-2.5 fill-primary text-primary" />
+                            {episode.vote_average.toFixed(1)}
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground line-clamp-2 mt-1">
+                        {episode.overview || "No description available."}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {trailer && (
           <div>

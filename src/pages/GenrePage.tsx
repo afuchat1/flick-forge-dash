@@ -1,15 +1,15 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Play, Star } from "lucide-react";
+import { ArrowLeft, Play, Star, Loader2 } from "lucide-react";
+import { useEffect, useRef, useCallback } from "react";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
-import { useMoviesByGenre, useGenres, getImageUrl, useMovieProviders } from "@/hooks/useTMDB";
+import { useInfiniteMoviesByGenre, useGenres, getImageUrl, useMovieProviders } from "@/hooks/useTMDB";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
 const MovieCard = ({ movie }: { movie: any }) => {
   const { data: providers } = useMovieProviders(movie.id);
   const countryProviders = providers?.results?.US || providers?.results?.GB;
-  const streamingProvider = countryProviders?.flatrate?.[0] || countryProviders?.rent?.[0] || countryProviders?.buy?.[0];
   const watchLink = countryProviders?.link;
 
   const handleWatch = (e: React.MouseEvent) => {
@@ -61,9 +61,47 @@ const GenrePage = () => {
   const { genre } = useParams<{ genre: string }>();
   const genreId = parseInt(genre || "0", 10);
   const { data: genres } = useGenres();
-  const { data: movies, isLoading } = useMoviesByGenre(genreId);
+  const { 
+    data, 
+    isLoading, 
+    fetchNextPage, 
+    hasNextPage, 
+    isFetchingNextPage 
+  } = useInfiniteMoviesByGenre(genreId);
   
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
   const genreName = genres?.find((g: { id: number; name: string }) => g.id === genreId)?.name || "Genre";
+  
+  const allMovies = data?.pages.flatMap(page => page.results) || [];
+  const totalResults = data?.pages[0]?.total_results || 0;
+
+  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    const [target] = entries;
+    if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  useEffect(() => {
+    const element = loadMoreRef.current;
+    if (!element) return;
+
+    observerRef.current = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: "100px",
+      threshold: 0,
+    });
+
+    observerRef.current.observe(element);
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [handleObserver]);
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
@@ -76,7 +114,7 @@ const GenrePage = () => {
           </Link>
           <h1 className="text-xl font-bold">{genreName}</h1>
           <p className="text-xs text-muted-foreground">
-            {movies?.total_results ? `${movies.total_results} titles` : "Loading..."}
+            {totalResults ? `${totalResults.toLocaleString()} titles` : "Loading..."}
           </p>
         </div>
 
@@ -92,11 +130,26 @@ const GenrePage = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-2">
-              {movies?.results?.map((movie) => (
-                <MovieCard key={movie.id} movie={movie} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-3 gap-2">
+                {allMovies.map((movie, index) => (
+                  <MovieCard key={`${movie.id}-${index}`} movie={movie} />
+                ))}
+              </div>
+              
+              {/* Infinite scroll trigger */}
+              <div ref={loadMoreRef} className="py-8 flex justify-center">
+                {isFetchingNextPage && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm">Loading more...</span>
+                  </div>
+                )}
+                {!hasNextPage && allMovies.length > 0 && (
+                  <p className="text-xs text-muted-foreground">No more movies to load</p>
+                )}
+              </div>
+            </>
           )}
         </div>
       </main>
