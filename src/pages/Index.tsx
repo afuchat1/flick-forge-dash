@@ -4,6 +4,10 @@ import TMDBHeroCarousel from "@/components/TMDBHeroCarousel";
 import CategoryCards from "@/components/CategoryCards";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import MobileNav from "@/components/MobileNav";
+import MoodMatcher from "@/components/MoodMatcher";
+import QuickNavigation from "@/components/QuickNavigation";
+import RecentlyViewed from "@/components/RecentlyViewed";
+import WhyYoullLoveThis from "@/components/WhyYoullLoveThis";
 import { 
   useTrending, 
   usePopularMovies, 
@@ -28,6 +32,19 @@ const Index = () => {
       <main className="pt-12">
         <CategoryTabs />
         <TMDBHeroCarousel movies={trending?.results} isLoading={trendingLoading} />
+        
+        {/* Quick Navigation */}
+        <QuickNavigation />
+        
+        {/* AI Mood Matcher */}
+        <MoodMatcher />
+        
+        {/* Recently Viewed */}
+        <RecentlyViewed />
+        
+        {/* Personalized Recommendations */}
+        <WhyYoullLoveThis />
+        
         <CategoryCards />
         
         <div className="space-y-1">

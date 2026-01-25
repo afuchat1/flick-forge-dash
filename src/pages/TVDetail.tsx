@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Play, Plus, Star, Download, Share2, Check, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { useDownloads } from "@/hooks/useDownloads";
 import { useAuth } from "@/hooks/useAuth";
 import { useVideoPlayer } from "@/hooks/useVideoPlayer";
 import { useVideoLink } from "@/hooks/useVideoLinks";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +38,20 @@ const TVDetail = () => {
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const { isDownloaded, startDownload } = useDownloads();
   const { currentVideo, playVideo, closeVideo } = useVideoPlayer();
+  const { addToRecentlyViewed } = useRecentlyViewed();
+
+  // Track recently viewed
+  useEffect(() => {
+    if (show && user) {
+      addToRecentlyViewed({
+        tmdb_id: show.id,
+        media_type: "tv",
+        title: show.name,
+        poster_path: show.poster_path,
+        vote_average: show.vote_average,
+      });
+    }
+  }, [show?.id, user?.id]);
 
   const handlePlay = () => {
     // Priority: Admin-provided video > YouTube trailer
