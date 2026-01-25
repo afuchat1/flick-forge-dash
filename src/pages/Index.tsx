@@ -6,6 +6,7 @@ import InfiniteContentRow from "@/components/InfiniteContentRow";
 import MobileNav from "@/components/MobileNav";
 import RecentlyViewed from "@/components/RecentlyViewed";
 import WhyYoullLoveThis from "@/components/WhyYoullLoveThis";
+import ContinueWatching from "@/components/ContinueWatching";
 import { 
   useTrending, 
   useInfinitePopularMovies, 
@@ -72,6 +73,9 @@ const Index = () => {
       <main className="pt-12">
         <CategoryTabs />
         <TMDBHeroCarousel movies={trending?.results} isLoading={trendingLoading} />
+        
+        {/* Continue Watching */}
+        <ContinueWatching />
         
         {/* Recently Viewed */}
         <RecentlyViewed />

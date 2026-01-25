@@ -419,47 +419,50 @@ const TVDetail = () => {
                 ))}
               </div>
             ) : (
-              <div className="space-y-2 max-h-[400px] overflow-y-auto scrollbar-hide">
+              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
                 {episodes.map((episode: any) => {
                   const epLink = hasEpisodeVideo(episodeLinks, selectedSeason, episode.episode_number);
                   return (
-                  <div 
-                    key={episode.id}
-                    className="flex gap-3 p-2 rounded-lg bg-card hover:bg-accent transition-colors cursor-pointer group"
-                    onClick={() => handleEpisodePlay(episode)}
-                  >
-                    <div className="relative w-28 flex-shrink-0">
-                      <img
-                        src={getImageUrl(episode.still_path, "w342")}
-                        alt={episode.name}
-                        className="w-full aspect-video object-cover rounded-md"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center bg-background/50 opacity-0 hover:opacity-100 transition-opacity rounded-md">
-                        <Play className="h-6 w-6 fill-current" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="text-xs font-medium line-clamp-1">
-                            {episode.episode_number}. {episode.name}
-                          </p>
-                          {episode.runtime && (
-                            <p className="text-[10px] text-muted-foreground">{episode.runtime} min</p>
-                          )}
+                    <div 
+                      key={episode.id}
+                      className="flex-shrink-0 w-44 group cursor-pointer animate-fade-in"
+                      onClick={() => handleEpisodePlay(episode)}
+                    >
+                      <div className="relative">
+                        <img
+                          src={getImageUrl(episode.still_path, "w342")}
+                          alt={episode.name}
+                          className="w-full aspect-video object-cover rounded-lg"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-background/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                            <Play className="h-5 w-5 fill-current text-primary-foreground ml-0.5" />
+                          </div>
                         </div>
+                        {!epLink && (
+                          <div className="absolute top-1 right-1">
+                            <Badge variant="secondary" className="text-[8px] px-1 py-0">
+                              Coming Soon
+                            </Badge>
+                          </div>
+                        )}
                         {episode.vote_average > 0 && (
-                          <div className="flex items-center gap-0.5 text-[10px]">
+                          <div className="absolute bottom-1 left-1 flex items-center gap-0.5 px-1 py-0.5 rounded bg-background/80 text-[10px]">
                             <Star className="h-2.5 w-2.5 fill-primary text-primary" />
                             {episode.vote_average.toFixed(1)}
                           </div>
                         )}
                       </div>
-                      <p className="text-[10px] text-muted-foreground line-clamp-2 mt-1">
-                        {episode.overview || "No description available."}
-                      </p>
+                      <div className="mt-1.5">
+                        <p className="text-xs font-medium line-clamp-1">
+                          {episode.episode_number}. {episode.name}
+                        </p>
+                        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                          {episode.runtime && <span>{episode.runtime} min</span>}
+                          {episode.air_date && <span>{episode.air_date.slice(0, 4)}</span>}
+                        </div>
+                      </div>
                     </div>
-                  </div>
                   );
                 })}
               </div>

@@ -1,12 +1,14 @@
 import { useNavigate, Link } from "react-router-dom";
-import { User, Settings, LogOut, ChevronRight, Download, Heart, Bell, Shield, HelpCircle } from "lucide-react";
+import { User, Settings, LogOut, ChevronRight, Download, Heart, Bell, Shield, HelpCircle, ShieldCheck } from "lucide-react";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useDownloads } from "@/hooks/useDownloads";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
@@ -15,6 +17,7 @@ const ProfilePage = () => {
   const { user, loading, signOut } = useAuth();
   const { watchlist } = useWatchlist();
   const { downloads } = useDownloads();
+  const { isAdmin } = useUserRole();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -61,7 +64,12 @@ const ProfilePage = () => {
           <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-primary/20 flex items-center justify-center">
             <User className="h-10 w-10 text-primary" />
           </div>
-          <h1 className="text-lg font-bold">{user.email}</h1>
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <h1 className="text-lg font-bold">{user.email}</h1>
+            {isAdmin && (
+              <Badge className="bg-primary text-primary-foreground text-[10px]">Admin</Badge>
+            )}
+          </div>
           <p className="text-xs text-muted-foreground">Member since {new Date(user.created_at).toLocaleDateString()}</p>
         </div>
 
@@ -79,6 +87,22 @@ const ProfilePage = () => {
             </div>
           </div>
         </div>
+
+        {/* Admin Dashboard Link */}
+        {isAdmin && (
+          <div className="px-3 mb-2">
+            <Link
+              to="/admin"
+              className="flex items-center gap-3 p-3 bg-gradient-to-r from-primary/20 to-primary/10 border border-primary/30 rounded-lg"
+            >
+              <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center">
+                <ShieldCheck className="h-4 w-4 text-primary" />
+              </div>
+              <span className="flex-1 text-sm font-medium text-primary">Admin Dashboard</span>
+              <ChevronRight className="h-4 w-4 text-primary" />
+            </Link>
+          </div>
+        )}
 
         {/* Menu Items */}
         <div className="px-3 space-y-1">
@@ -100,15 +124,15 @@ const ProfilePage = () => {
           ))}
         </div>
 
-        {/* Sign Out */}
-        <div className="px-3 mt-6">
+        {/* Sign Out Button */}
+        <div className="px-3 mt-4">
           <Button
-            variant="destructive"
-            className="w-full"
+            variant="outline"
+            className="w-full justify-start gap-3 h-12"
             onClick={handleSignOut}
           >
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
+            <LogOut className="h-4 w-4 text-destructive" />
+            <span className="text-destructive">Sign Out</span>
           </Button>
         </div>
       </main>
