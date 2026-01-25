@@ -1,22 +1,25 @@
-import { Star, Play, Download, Plus, ChevronDown } from "lucide-react";
+import { Star, Play, Download, Plus, ChevronDown, Check } from "lucide-react";
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Movie } from "@/data/movies";
 
 interface NetflixCardProps {
   movie: Movie;
+  index?: number;
+  showRank?: boolean;
 }
 
-const NetflixCard = ({ movie }: NetflixCardProps) => {
+const NetflixCard = ({ movie, index = 0, showRank = false }: NetflixCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [isInList, setIsInList] = useState(false);
   const hoverTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const handleMouseEnter = () => {
     setIsHovered(true);
     hoverTimeout.current = setTimeout(() => {
       setShowPreview(true);
-    }, 500);
+    }, 600);
   };
 
   const handleMouseLeave = () => {
@@ -29,7 +32,7 @@ const NetflixCard = ({ movie }: NetflixCardProps) => {
 
   const getCastNames = () => {
     if (!movie.cast || movie.cast.length === 0) return "";
-    return movie.cast.slice(0, 3).map(c => c.name).join(", ");
+    return movie.cast.slice(0, 2).map(c => c.name).join(", ");
   };
 
   return (
@@ -37,19 +40,38 @@ const NetflixCard = ({ movie }: NetflixCardProps) => {
       className="group relative cursor-pointer"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      style={{ animationDelay: `${index * 50}ms` }}
     >
+      {/* Rank Number */}
+      {showRank && (
+        <div className="absolute -left-4 md:-left-8 top-0 bottom-0 flex items-center z-10">
+          <span className="text-6xl md:text-8xl font-black text-foreground/10 select-none" style={{ 
+            WebkitTextStroke: '2px hsl(var(--foreground) / 0.3)',
+            WebkitTextFillColor: 'transparent'
+          }}>
+            {index + 1}
+          </span>
+        </div>
+      )}
+
       {/* Base Card */}
-      <div className="relative aspect-[16/9] rounded-md overflow-hidden bg-card transition-all duration-300">
+      <div className={`relative aspect-[16/9] rounded-xl overflow-hidden bg-card transition-all duration-300 ${showRank ? 'ml-6 md:ml-10' : ''}`}>
         <img
           src={movie.image}
           alt={movie.title}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-60" />
+        
+        {/* Quick Info Overlay */}
+        <div className="absolute bottom-0 left-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <h3 className="font-bold text-sm text-foreground line-clamp-1">{movie.title}</h3>
+        </div>
       </div>
 
-      {/* Expanded Hover Card */}
+      {/* Expanded Hover Card - Desktop Only */}
       {isHovered && (
-        <div className="absolute -top-4 -left-4 -right-4 z-50 bg-card rounded-lg shadow-2xl overflow-hidden animate-scale-in origin-center">
+        <div className="hidden md:block absolute -top-6 -left-6 -right-6 z-50 glass-card rounded-xl overflow-hidden animate-scale-in origin-center shadow-2xl">
           {/* Video Preview */}
           <div className="relative aspect-[16/9] overflow-hidden">
             {showPreview && movie.trailerUrl ? (
@@ -68,30 +90,35 @@ const NetflixCard = ({ movie }: NetflixCardProps) => {
             <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
             
             {/* Title Overlay */}
-            <div className="absolute bottom-2 left-3 right-3">
-              <h3 className="font-bold text-foreground text-sm line-clamp-1">{movie.title}</h3>
+            <div className="absolute bottom-3 left-4 right-4">
+              <h3 className="font-bold text-foreground text-base line-clamp-1">{movie.title}</h3>
             </div>
           </div>
 
           {/* Card Content */}
-          <div className="p-3 space-y-3">
+          <div className="p-4 space-y-3">
             {/* Action Buttons */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Link to={`/movie/${movie.id}`}>
-                  <button className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center hover:bg-foreground/90 transition-colors">
+                  <button className="w-9 h-9 rounded-full bg-foreground flex items-center justify-center hover:bg-foreground/90 transition-all hover:scale-105 shadow-lg">
                     <Play className="h-4 w-4 text-background ml-0.5" fill="currentColor" />
                   </button>
                 </Link>
-                <button className="w-8 h-8 rounded-full border-2 border-muted-foreground flex items-center justify-center hover:border-foreground transition-colors">
-                  <Plus className="h-4 w-4 text-foreground" />
+                <button 
+                  onClick={() => setIsInList(!isInList)}
+                  className={`w-9 h-9 rounded-full border-2 flex items-center justify-center transition-all hover:scale-105 ${
+                    isInList ? 'bg-primary border-primary' : 'border-muted-foreground/50 hover:border-foreground'
+                  }`}
+                >
+                  {isInList ? <Check className="h-4 w-4 text-primary-foreground" /> : <Plus className="h-4 w-4 text-foreground" />}
                 </button>
-                <button className="w-8 h-8 rounded-full border-2 border-muted-foreground flex items-center justify-center hover:border-foreground transition-colors group/download">
+                <button className="w-9 h-9 rounded-full border-2 border-muted-foreground/50 flex items-center justify-center hover:border-foreground transition-all hover:scale-105">
                   <Download className="h-4 w-4 text-foreground" />
                 </button>
               </div>
               <Link to={`/movie/${movie.id}`}>
-                <button className="w-8 h-8 rounded-full border-2 border-muted-foreground flex items-center justify-center hover:border-foreground transition-colors">
+                <button className="w-9 h-9 rounded-full border-2 border-muted-foreground/50 flex items-center justify-center hover:border-foreground transition-all hover:scale-105">
                   <ChevronDown className="h-4 w-4 text-foreground" />
                 </button>
               </Link>
@@ -99,23 +126,23 @@ const NetflixCard = ({ movie }: NetflixCardProps) => {
 
             {/* Meta Info */}
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-primary font-semibold">{Math.round(movie.rating * 10)}% Match</span>
-              <span className="px-1 border border-muted-foreground text-muted-foreground">
+              <span className="text-primary font-bold">{Math.round(movie.rating * 10)}%</span>
+              <span className="px-1.5 py-0.5 border border-muted-foreground/50 text-muted-foreground rounded text-[10px]">
                 HD
               </span>
               <span className="text-muted-foreground">{movie.duration || "2h"}</span>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 ml-auto">
                 <Star className="h-3 w-3 text-primary fill-primary" />
-                <span className="text-foreground">{movie.rating}</span>
+                <span className="text-foreground font-medium">{movie.rating}</span>
               </div>
             </div>
 
             {/* Genres */}
             {movie.genre && (
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-1.5">
                 {movie.genre.slice(0, 3).map((g, i) => (
-                  <span key={g} className="text-xs text-foreground">
-                    {g}{i < Math.min(movie.genre!.length, 3) - 1 && <span className="text-muted-foreground mx-1">•</span>}
+                  <span key={g} className="text-xs text-foreground/80 after:content-['•'] after:ml-1.5 after:text-muted-foreground last:after:content-none">
+                    {g}
                   </span>
                 ))}
               </div>
@@ -124,14 +151,7 @@ const NetflixCard = ({ movie }: NetflixCardProps) => {
             {/* Cast */}
             {movie.cast && movie.cast.length > 0 && (
               <p className="text-xs text-muted-foreground line-clamp-1">
-                <span className="text-muted-foreground/70">Starring:</span> {getCastNames()}
-              </p>
-            )}
-
-            {/* Description */}
-            {movie.description && (
-              <p className="text-xs text-muted-foreground line-clamp-2">
-                {movie.description}
+                {getCastNames()}
               </p>
             )}
           </div>

@@ -6,27 +6,30 @@ interface CastSectionProps {
 
 const CastSection = ({ cast }: CastSectionProps) => {
   return (
-    <section className="space-y-6">
-      <h2 className="text-2xl font-bold">Cast</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+    <div className="space-y-4 md:space-y-6">
+      <h2 className="text-xl md:text-2xl font-bold">Cast & Crew</h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
         {cast.map((member) => (
-          <div 
-            key={member.id} 
-            className="group cursor-pointer"
+          <div
+            key={member.id}
+            className="group glass-card rounded-xl overflow-hidden hover:scale-105 transition-transform duration-300 cursor-pointer"
           >
-            <div className="aspect-square rounded-xl overflow-hidden bg-card mb-3">
+            <div className="aspect-square relative overflow-hidden">
               <img
                 src={member.image}
                 alt={member.name}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
             </div>
-            <h3 className="font-semibold text-foreground line-clamp-1">{member.name}</h3>
-            <p className="text-sm text-muted-foreground line-clamp-1">{member.character}</p>
+            <div className="p-3 space-y-0.5">
+              <p className="font-semibold text-sm text-foreground line-clamp-1">{member.name}</p>
+              <p className="text-xs text-muted-foreground line-clamp-1">{member.character}</p>
+            </div>
           </div>
         ))}
       </div>
-    </section>
+    </div>
   );
 };
 
