@@ -2,3 +2,6 @@ project_id = "jljooqbfmvohcpdbgaac"
 
 [functions.tmdb]
 verify_jwt = false
+
+[functions.movie-insights]
+verify_jwt = false

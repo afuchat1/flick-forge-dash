@@ -7,6 +7,7 @@ import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import VideoPlayer from "@/components/VideoPlayer";
 import AddVideoLinkModal from "@/components/AddVideoLinkModal";
+import AIInsights from "@/components/AIInsights";
 import { useTVDetails, useTVSeason, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useDownloads } from "@/hooks/useDownloads";
@@ -278,6 +279,9 @@ const TVDetail = () => {
         {show.overview && (
           <p className="text-sm text-foreground/80">{show.overview}</p>
         )}
+
+        {/* AI-Powered Insights */}
+        <AIInsights movie={show} />
 
         {/* Cast Section with Photos */}
         {cast.length > 0 && (
