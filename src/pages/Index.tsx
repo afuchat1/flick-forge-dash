@@ -1,15 +1,46 @@
 import Header from "@/components/Header";
 import NetflixHero from "@/components/NetflixHero";
 import NetflixRow from "@/components/NetflixRow";
-import { trendingMovies, popularMovies, newReleases, allMovies } from "@/data/movies";
+import GenreShowcase from "@/components/GenreShowcase";
+import FeaturedBanner from "@/components/FeaturedBanner";
+import { 
+  trendingMovies, 
+  popularMovies, 
+  newReleases, 
+  topRatedMovies,
+  allMovies,
+  actionMovies,
+  dramaMovies,
+  sciFiMovies,
+  thrillerMovies,
+  comedyMovies,
+  horrorMovies,
+  romanceMovies,
+  animationMovies,
+  fantasyMovies,
+  crimeMovies,
+  mysteryMovies,
+  warMovies
+} from "@/data/movies";
 
 const Index = () => {
-  // Create curated lists
-  const top10Movies = [...allMovies].sort((a, b) => b.rating - a.rating).slice(0, 10);
-  const actionMovies = allMovies.filter(m => m.genre?.includes("Action") || m.genre?.includes("Thriller"));
-  const dramaMovies = allMovies.filter(m => m.genre?.includes("Drama"));
-  const sciFiMovies = allMovies.filter(m => m.genre?.includes("Sci-Fi"));
-  const continueWatching = allMovies.slice(0, 4);
+  // Continue watching (simulated)
+  const continueWatching = allMovies.slice(0, 6);
+  
+  // My List (simulated)
+  const myList = allMovies.slice(10, 16);
+  
+  // Because you watched (simulated)
+  const becauseYouWatched = allMovies.slice(20, 26);
+  
+  // Award Winners
+  const awardWinners = allMovies.filter(m => m.rating >= 8.5);
+  
+  // 90s Classics
+  const classicMovies = allMovies.filter(m => parseInt(m.year) < 2000);
+  
+  // Recent Hits
+  const recentHits = allMovies.filter(m => parseInt(m.year) >= 2020);
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
@@ -18,15 +49,81 @@ const Index = () => {
         <NetflixHero />
         
         {/* Content Rows */}
-        <div className="relative -mt-20 md:-mt-32 z-10 space-y-0 pb-16">
+        <div className="relative -mt-20 md:-mt-32 z-10 pb-24 md:pb-16">
+          {/* Continue Watching */}
           <NetflixRow title="Continue Watching for You" movies={continueWatching} />
-          <NetflixRow title="Trending Now" movies={trendingMovies} />
-          <NetflixRow title="Top 10 in Your Country Today" movies={top10Movies} showRanks />
-          <NetflixRow title="New Releases" movies={newReleases} />
-          <NetflixRow title="Popular on FlickForge" movies={popularMovies} />
-          <NetflixRow title="Action & Thriller" movies={actionMovies} />
-          <NetflixRow title="Award-Winning Dramas" movies={dramaMovies} />
-          <NetflixRow title="Sci-Fi Adventures" movies={sciFiMovies} />
+          
+          {/* Trending */}
+          <NetflixRow title="🔥 Trending Now" movies={trendingMovies} />
+          
+          {/* Top 10 */}
+          <NetflixRow title="Top 10 Movies Today" movies={topRatedMovies} showRanks />
+          
+          {/* Featured Banner */}
+          <FeaturedBanner movie={popularMovies[2] || allMovies[0]} />
+          
+          {/* New Releases */}
+          <NetflixRow title="✨ New Releases" movies={newReleases} />
+          
+          {/* Genre Showcase */}
+          <GenreShowcase />
+          
+          {/* Action */}
+          <NetflixRow title="💥 Action & Adventure" movies={actionMovies} />
+          
+          {/* My List */}
+          <NetflixRow title="My List" movies={myList} />
+          
+          {/* Sci-Fi */}
+          <NetflixRow title="🚀 Sci-Fi Epics" movies={sciFiMovies} />
+          
+          {/* Featured Banner 2 */}
+          <FeaturedBanner movie={allMovies[35]} variant="right" />
+          
+          {/* Thriller */}
+          <NetflixRow title="😱 Thrillers" movies={thrillerMovies} />
+          
+          {/* Drama */}
+          <NetflixRow title="🎭 Award-Winning Dramas" movies={dramaMovies} />
+          
+          {/* Comedy */}
+          <NetflixRow title="😂 Comedy Hits" movies={comedyMovies} />
+          
+          {/* Horror */}
+          <NetflixRow title="👻 Horror & Suspense" movies={horrorMovies} />
+          
+          {/* Romance */}
+          <NetflixRow title="💕 Romance" movies={romanceMovies} />
+          
+          {/* Animation */}
+          <NetflixRow title="🎨 Animation Masterpieces" movies={animationMovies} />
+          
+          {/* Because You Watched */}
+          <NetflixRow title="Because You Watched Inception" movies={becauseYouWatched} />
+          
+          {/* Fantasy */}
+          <NetflixRow title="🧙 Fantasy & Adventure" movies={fantasyMovies} />
+          
+          {/* Crime */}
+          <NetflixRow title="🔍 Crime & Mystery" movies={[...crimeMovies, ...mysteryMovies]} />
+          
+          {/* Award Winners */}
+          <NetflixRow title="🏆 Award Winners" movies={awardWinners} />
+          
+          {/* Classics */}
+          <NetflixRow title="📼 Timeless Classics" movies={classicMovies} />
+          
+          {/* War */}
+          <NetflixRow title="⚔️ War & History" movies={warMovies} />
+          
+          {/* Recent Hits */}
+          <NetflixRow title="🎬 Recent Blockbusters" movies={recentHits} />
+          
+          {/* Popular */}
+          <NetflixRow title="🌟 Popular on FlickForge" movies={popularMovies} />
+          
+          {/* All Movies */}
+          <NetflixRow title="📚 Explore All Movies" movies={allMovies} />
         </div>
       </main>
 
@@ -44,6 +141,12 @@ const Index = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <span className="text-[10px] font-medium">Search</span>
+          </button>
+          <button className="flex flex-col items-center gap-1 text-muted-foreground">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <span className="text-[10px] font-medium">Categories</span>
           </button>
           <button className="flex flex-col items-center gap-1 text-muted-foreground">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
