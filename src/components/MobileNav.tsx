@@ -7,7 +7,7 @@ const MobileNav = () => {
   const navItems = [
     { name: "Home", href: "/", icon: Home },
     { name: "TV Shows", href: "/tv-shows", icon: Tv },
-    { name: "Downloads", href: "/my-list", icon: Download },
+    { name: "Downloads", href: "/downloads", icon: Download },
     { name: "Me", href: "/profile", icon: User },
   ];
 
