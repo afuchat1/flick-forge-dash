@@ -1,13 +1,18 @@
 import { useState, useEffect } from "react";
-import { Search, X, Filter, SlidersHorizontal } from "lucide-react";
+import { Search, X, SlidersHorizontal } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import NetflixCard from "@/components/NetflixCard";
+import MobileNav from "@/components/MobileNav";
 import { searchMovies, allMovies, allGenres, Movie } from "@/data/movies";
 
 const SearchPage = () => {
-  const [query, setQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get("q") || "";
+  
+  const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<Movie[]>([]);
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -37,10 +42,10 @@ const SearchPage = () => {
       <Header />
       
       <main className="pt-20 pb-24 md:pb-16">
-        <div className="container mx-auto px-4 md:px-8 lg:px-12">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
           {/* Search Header */}
-          <div className="space-y-6 mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold">Search</h1>
+          <div className="space-y-4 md:space-y-6 mb-8">
+            <h1 className="text-3xl md:text-4xl font-extrabold">Search</h1>
             
             {/* Search Input */}
             <div className="relative max-w-2xl">
@@ -49,7 +54,7 @@ const SearchPage = () => {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search movies, actors, genres..."
-                className="h-14 pl-12 pr-12 text-lg bg-card border-border rounded-xl"
+                className="h-12 md:h-14 pl-12 pr-12 text-base md:text-lg bg-card border-border rounded-xl"
                 autoFocus
               />
               {query && (
@@ -63,7 +68,7 @@ const SearchPage = () => {
             </div>
 
             {/* Filter Toggle */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <Button
                 variant="secondary"
                 onClick={() => setShowFilters(!showFilters)}
@@ -89,7 +94,7 @@ const SearchPage = () => {
                   <button
                     key={genre}
                     onClick={() => setSelectedGenre(selectedGenre === genre ? null : genre)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all ${
                       selectedGenre === genre
                         ? "bg-primary text-primary-foreground"
                         : "bg-secondary/50 text-foreground hover:bg-secondary"
@@ -108,7 +113,7 @@ const SearchPage = () => {
               <p className="text-muted-foreground">
                 {results.length} result{results.length !== 1 ? 's' : ''} found
               </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
                 {results.map((movie, index) => (
                   <NetflixCard key={movie.id} movie={movie} index={index} />
                 ))}
@@ -128,7 +133,7 @@ const SearchPage = () => {
               <div>
                 <h3 className="text-lg font-semibold mb-4">Popular Searches</h3>
                 <div className="flex flex-wrap gap-2">
-                  {["Action", "Sci-Fi", "Drama", "Comedy", "Thriller", "Romance"].map((term) => (
+                  {["Action", "Sci-Fi", "Drama", "Comedy", "Thriller", "Romance", "Horror", "Animation"].map((term) => (
                     <button
                       key={term}
                       onClick={() => setSelectedGenre(term)}
@@ -143,7 +148,7 @@ const SearchPage = () => {
               {/* Browse All */}
               <div>
                 <h3 className="text-lg font-semibold mb-4">Browse All ({allMovies.length} movies)</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
                   {allMovies.slice(0, 18).map((movie, index) => (
                     <NetflixCard key={movie.id} movie={movie} index={index} />
                   ))}
@@ -154,33 +159,7 @@ const SearchPage = () => {
         </div>
       </main>
 
-      {/* Mobile Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border/50 md:hidden safe-area-bottom">
-        <div className="flex items-center justify-around py-3">
-          <a href="/" className="flex flex-col items-center gap-1 text-muted-foreground">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            <span className="text-[10px] font-medium">Home</span>
-          </a>
-          <button className="flex flex-col items-center gap-1 text-primary">
-            <Search className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Search</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 text-muted-foreground">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            <span className="text-[10px] font-medium">Downloads</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 text-muted-foreground">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            <span className="text-[10px] font-medium">Profile</span>
-          </button>
-        </div>
-      </nav>
+      <MobileNav />
     </div>
   );
 };

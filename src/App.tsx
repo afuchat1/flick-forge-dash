@@ -7,6 +7,13 @@ import Index from "./pages/Index";
 import MovieDetail from "./pages/MovieDetail";
 import SearchPage from "./pages/SearchPage";
 import GenrePage from "./pages/GenrePage";
+import MoviesPage from "./pages/MoviesPage";
+import TVShowsPage from "./pages/TVShowsPage";
+import CategoriesPage from "./pages/CategoriesPage";
+import NewPopularPage from "./pages/NewPopularPage";
+import MyListPage from "./pages/MyListPage";
+import ProfilePage from "./pages/ProfilePage";
+import NotificationsPage from "./pages/NotificationsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +29,13 @@ const App = () => (
           <Route path="/movie/:id" element={<MovieDetail />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/genre/:genre" element={<GenrePage />} />
+          <Route path="/movies" element={<MoviesPage />} />
+          <Route path="/tv-shows" element={<TVShowsPage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/new-popular" element={<NewPopularPage />} />
+          <Route path="/my-list" element={<MyListPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
