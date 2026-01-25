@@ -83,6 +83,39 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          media_type: string
+          rating: number
+          tmdb_id: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          media_type: string
+          rating: number
+          tmdb_id: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          media_type?: string
+          rating?: number
+          tmdb_id?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       watchlist: {
         Row: {
           added_at: string

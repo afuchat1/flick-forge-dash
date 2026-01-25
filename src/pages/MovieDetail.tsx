@@ -1,10 +1,11 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, Plus, Star, Download, Share2, Check, Loader2, ExternalLink } from "lucide-react";
+import { ArrowLeft, Play, Plus, Star, Download, Share2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import StreamingProviders from "@/components/StreamingProviders";
+import UserReviews from "@/components/UserReviews";
 import { useMovieDetails, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useDownloads } from "@/hooks/useDownloads";
@@ -222,17 +223,21 @@ const MovieDetail = () => {
             <h3 className="font-bold mb-2">Cast</h3>
             <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
               {cast.map((actor: any) => (
-                <div key={actor.id} className="flex-shrink-0 w-20 text-center">
-                  <div className="w-20 h-20 rounded-full overflow-hidden bg-card mb-1.5">
+                <Link 
+                  key={actor.id} 
+                  to={`/person/${actor.id}`}
+                  className="flex-shrink-0 w-20 text-center group"
+                >
+                  <div className="w-20 h-20 rounded-full overflow-hidden bg-card mb-1.5 ring-2 ring-transparent group-hover:ring-primary transition-all">
                     <img
                       src={getImageUrl(actor.profile_path, "w185")}
                       alt={actor.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <p className="text-xs font-medium line-clamp-1">{actor.name}</p>
+                  <p className="text-xs font-medium line-clamp-1 group-hover:text-primary transition-colors">{actor.name}</p>
                   <p className="text-[10px] text-muted-foreground line-clamp-1">{actor.character}</p>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -254,9 +259,12 @@ const MovieDetail = () => {
           </div>
         )}
 
+        {/* User Reviews */}
+        <UserReviews tmdbId={movie.id} mediaType="movie" title={movie.title} />
+
         {movie.reviews?.results?.length > 0 && (
           <div>
-            <h3 className="font-bold mb-2">Reviews</h3>
+            <h3 className="font-bold mb-2">TMDB Reviews</h3>
             <div className="space-y-2">
               {movie.reviews.results.slice(0, 3).map((review: any) => (
                 <div key={review.id} className="p-3 bg-card rounded-md">
