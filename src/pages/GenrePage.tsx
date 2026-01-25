@@ -10,27 +10,27 @@ const GenrePage = () => {
   const movies = getMoviesByGenre(actualGenre);
 
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Header />
       
-      <main className="pt-14 pb-4">
-        <div className="px-4 mb-4">
+      <main className="pt-14">
+        <div className="px-3 py-3">
           <Link to="/categories" className="inline-flex items-center gap-1 text-xs text-muted-foreground mb-2">
-            <ArrowLeft className="h-3 w-3" /> Categories
+            <ArrowLeft className="h-3 w-3" /> Back
           </Link>
-          <h1 className="text-2xl font-bold">{actualGenre}</h1>
+          <h1 className="text-xl font-bold">{actualGenre}</h1>
           <p className="text-xs text-muted-foreground">{movies.length} titles</p>
         </div>
 
-        <div className="px-4">
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+        <div className="px-3">
+          <div className="grid grid-cols-3 gap-2">
             {movies.map((movie) => (
-              <Link key={movie.id} to={`/movie/${movie.id}`} className="relative aspect-[2/3] rounded-md overflow-hidden">
-                <img src={movie.image} alt={movie.title} className="w-full h-full object-cover" />
-                <div className="absolute inset-x-0 bottom-0 p-1.5 bg-gradient-to-t from-background via-background/80 to-transparent">
-                  <p className="text-[10px] font-medium line-clamp-1">{movie.title}</p>
-                  <p className="text-[8px] text-muted-foreground">{movie.year}</p>
+              <Link key={movie.id} to={`/movie/${movie.id}`}>
+                <div className="aspect-[2/3] rounded-lg overflow-hidden bg-card">
+                  <img src={movie.image} alt={movie.title} className="w-full h-full object-cover" />
                 </div>
+                <p className="text-xs font-medium mt-1 line-clamp-1">{movie.title}</p>
+                <p className="text-[10px] text-muted-foreground">{movie.year}</p>
               </Link>
             ))}
           </div>
