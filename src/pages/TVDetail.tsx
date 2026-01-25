@@ -7,6 +7,8 @@ import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import VideoPlayer from "@/components/VideoPlayer";
 import AddVideoLinkModal from "@/components/AddVideoLinkModal";
+import AddEpisodeVideoModal from "@/components/AddEpisodeVideoModal";
+import EpisodeCard from "@/components/EpisodeCard";
 import AIInsights from "@/components/AIInsights";
 import { useTVDetails, useTVSeason, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
@@ -14,6 +16,7 @@ import { useDownloads } from "@/hooks/useDownloads";
 import { useAuth } from "@/hooks/useAuth";
 import { useVideoPlayer } from "@/hooks/useVideoPlayer";
 import { useVideoLink } from "@/hooks/useVideoLinks";
+import { useShowEpisodeLinks, hasEpisodeVideo } from "@/hooks/useEpisodeVideoLinks";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -26,14 +29,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+interface SelectedEpisode {
+  seasonNumber: number;
+  episodeNumber: number;
+  episodeName: string;
+}
+
 const TVDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [selectedSeason, setSelectedSeason] = useState(1);
   const [showAddVideoModal, setShowAddVideoModal] = useState(false);
+  const [showAddEpisodeModal, setShowAddEpisodeModal] = useState(false);
+  const [selectedEpisode, setSelectedEpisode] = useState<SelectedEpisode | null>(null);
   const { data: show, isLoading } = useTVDetails(Number(id));
   const { data: seasonData, isLoading: seasonLoading } = useTVSeason(Number(id), selectedSeason);
   const { data: videoLink } = useVideoLink(Number(id), "tv");
+  const { data: episodeLinks } = useShowEpisodeLinks(Number(id));
   const { user } = useAuth();
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const { isDownloaded, startDownload } = useDownloads();
@@ -54,7 +66,7 @@ const TVDetail = () => {
   }, [show?.id, user?.id]);
 
   const handlePlay = () => {
-    // Priority: Admin-provided video > YouTube trailer
+    // Priority: Show video > YouTube trailer
     if (videoLink?.video_url) {
       playVideo(videoLink.video_url, show?.name || "TV Show");
     } else {
@@ -62,9 +74,39 @@ const TVDetail = () => {
       if (trailer) {
         playVideo(trailer.key, show?.name || "TV Show");
       } else {
-        toast.info("No video available for this show");
+        toast.info("No video available for this show yet");
       }
     }
+  };
+
+  const handleEpisodePlay = (episode: any) => {
+    const epLink = hasEpisodeVideo(episodeLinks, selectedSeason, episode.episode_number);
+    if (epLink) {
+      playVideo(epLink.video_url, `${show?.name} - S${selectedSeason}E${episode.episode_number}`);
+    } else {
+      // Play trailer with coming soon message
+      const trailer = show?.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
+      if (trailer) {
+        toast.info("Full episode coming soon! Playing trailer instead.");
+        playVideo(trailer.key, show?.name || "TV Show");
+      } else {
+        toast.info("This episode is coming soon!");
+      }
+    }
+  };
+
+  const handleAddEpisodeLink = (episode: any) => {
+    if (!user) {
+      toast.error("Please sign in to add video links");
+      navigate("/auth");
+      return;
+    }
+    setSelectedEpisode({
+      seasonNumber: selectedSeason,
+      episodeNumber: episode.episode_number,
+      episodeName: episode.name,
+    });
+    setShowAddEpisodeModal(true);
   };
 
   const handleDownload = () => {
@@ -188,6 +230,21 @@ const TVDetail = () => {
           mediaType="tv"
           title={show.name}
           onClose={() => setShowAddVideoModal(false)}
+        />
+      )}
+
+      {/* Add Episode Video Modal */}
+      {showAddEpisodeModal && show && selectedEpisode && (
+        <AddEpisodeVideoModal
+          tmdbId={show.id}
+          showTitle={show.name}
+          seasonNumber={selectedEpisode.seasonNumber}
+          episodeNumber={selectedEpisode.episodeNumber}
+          episodeTitle={selectedEpisode.episodeName}
+          onClose={() => {
+            setShowAddEpisodeModal(false);
+            setSelectedEpisode(null);
+          }}
         />
       )}
       
@@ -354,11 +411,13 @@ const TVDetail = () => {
               </div>
             ) : (
               <div className="space-y-2 max-h-[400px] overflow-y-auto scrollbar-hide">
-                {episodes.map((episode: any) => (
+                {episodes.map((episode: any) => {
+                  const epLink = hasEpisodeVideo(episodeLinks, selectedSeason, episode.episode_number);
+                  return (
                   <div 
                     key={episode.id}
-                    className="flex gap-3 p-2 rounded-lg bg-card hover:bg-accent transition-colors cursor-pointer"
-                    onClick={handlePlay}
+                    className="flex gap-3 p-2 rounded-lg bg-card hover:bg-accent transition-colors cursor-pointer group"
+                    onClick={() => handleEpisodePlay(episode)}
                   >
                     <div className="relative w-28 flex-shrink-0">
                       <img
@@ -392,7 +451,8 @@ const TVDetail = () => {
                       </p>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

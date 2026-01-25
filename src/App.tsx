@@ -18,6 +18,9 @@ import MyListPage from "./pages/MyListPage";
 import DownloadsPage from "./pages/DownloadsPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotificationsPage from "./pages/NotificationsPage";
+import SettingsPage from "./pages/SettingsPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import HelpPage from "./pages/HelpPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 
@@ -46,6 +49,9 @@ const App = () => (
           <Route path="/downloads" element={<DownloadsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/help" element={<HelpPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
