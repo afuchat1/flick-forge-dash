@@ -199,15 +199,24 @@ const AdminDashboard = () => {
     );
   });
 
-  // Redirect if not admin
+  // Redirect if not logged in
   useEffect(() => {
-    if (!roleLoading && !isAdmin && user) {
+    if (!user && !roleLoading) {
+      navigate("/auth");
+      toast.error("Please sign in to access admin dashboard.");
+    }
+  }, [user, roleLoading, navigate]);
+
+  // Redirect if not admin (after role check completes)
+  useEffect(() => {
+    if (user && !roleLoading && !isAdmin) {
       navigate("/");
       toast.error("Access denied. Admin privileges required.");
     }
   }, [isAdmin, roleLoading, navigate, user]);
 
-  if (roleLoading) {
+  // Show loading while checking auth or roles
+  if (roleLoading || (!user && !roleLoading)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
