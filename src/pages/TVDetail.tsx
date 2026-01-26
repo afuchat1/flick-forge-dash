@@ -125,6 +125,7 @@ const TVDetail = () => {
         poster_path: show.poster_path,
         vote_average: show.vote_average,
         release_date: show.first_air_date,
+        video_url: videoLink?.video_url,
       });
     }
   };
