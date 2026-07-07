@@ -38,7 +38,7 @@ const TVShowsPage = () => {
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Header />
       
-      <main className="pt-12">
+      <main className="pt-32">
         <TMDBHeroCarousel movies={trending?.results} isLoading={trendingLoading} />
         
         {/* Browse All CTA */}

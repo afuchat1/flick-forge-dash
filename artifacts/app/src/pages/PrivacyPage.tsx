@@ -15,7 +15,7 @@ const PrivacyPage = () => {
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Header />
       
-      <main className="pt-14 px-4">
+      <main className="pt-32 px-4">
         <div className="flex items-center gap-3 py-4">
           <Link to="/profile" className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />

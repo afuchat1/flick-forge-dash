@@ -1,5 +1,4 @@
 import Header from "@/components/Header";
-import CategoryTabs from "@/components/CategoryTabs";
 import TMDBHeroCarousel from "@/components/TMDBHeroCarousel";
 import CategoryCards from "@/components/CategoryCards";
 import InfiniteContentRow from "@/components/InfiniteContentRow";
@@ -70,8 +69,7 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Header />
       
-      <main className="pt-12">
-        <CategoryTabs />
+      <main className="pt-32">
         <TMDBHeroCarousel movies={trending?.results} isLoading={trendingLoading} />
         
         
