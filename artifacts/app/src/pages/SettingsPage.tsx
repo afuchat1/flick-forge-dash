@@ -12,7 +12,8 @@ const SettingsPage = () => {
   const [autoplay, setAutoplay] = useState(true);
   const [hdStreaming, setHdStreaming] = useState(true);
 
-  const settingsGroups = [
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const settingsGroups: Array<{ title: string; items: any[] }> = [
     {
       title: "Account",
       items: [
