@@ -36,7 +36,6 @@ const TMDBHeroCarousel = ({ movies, isLoading }: TMDBHeroCarouselProps) => {
     goToSlide(prev, "left");
   }, [currentIndex, heroMovies.length, goToSlide]);
 
-  // Auto-slide every 5 seconds
   useEffect(() => {
     if (!heroMovies.length) return;
     const interval = setInterval(nextSlide, 5000);
@@ -45,14 +44,13 @@ const TMDBHeroCarousel = ({ movies, isLoading }: TMDBHeroCarouselProps) => {
 
   if (isLoading) {
     return (
-      <div className="relative h-[50vh] w-full">
+      <div className="relative h-[58vh] md:h-[60vh] w-full">
         <Skeleton className="w-full h-full" />
         <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
-          <Skeleton className="h-6 w-48" />
+          <Skeleton className="h-7 w-48" />
           <Skeleton className="h-3 w-32" />
           <div className="flex gap-2">
-            <Skeleton className="h-9 w-20" />
-            <Skeleton className="h-9 w-20" />
+            <Skeleton className="h-10 w-28" />
           </div>
         </div>
       </div>
@@ -68,7 +66,7 @@ const TMDBHeroCarousel = ({ movies, isLoading }: TMDBHeroCarouselProps) => {
   return (
     <div className="relative overflow-hidden">
       {/* Background slides */}
-      <div className="relative h-[50vh] w-full">
+      <div className="relative h-[58vh] md:h-[60vh] w-full">
         {heroMovies.map((movie, index) => {
           const movieTitle = movie.title || movie.name || "Untitled";
           return (
@@ -76,10 +74,10 @@ const TMDBHeroCarousel = ({ movies, isLoading }: TMDBHeroCarouselProps) => {
               key={movie.id}
               className={cn(
                 "absolute inset-0 transition-all duration-500 ease-out",
-                index === currentIndex 
-                  ? "opacity-100 translate-x-0 scale-100" 
+                index === currentIndex
+                  ? "opacity-100 translate-x-0 scale-100"
                   : slideDirection === "right"
-                    ? index < currentIndex 
+                    ? index < currentIndex
                       ? "opacity-0 -translate-x-full scale-95"
                       : "opacity-0 translate-x-full scale-95"
                     : index > currentIndex
@@ -90,7 +88,7 @@ const TMDBHeroCarousel = ({ movies, isLoading }: TMDBHeroCarouselProps) => {
               <img
                 src={getImageUrl(movie.backdrop_path || movie.poster_path, "original")}
                 alt={movieTitle}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-top"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
               <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-transparent" />
@@ -99,27 +97,26 @@ const TMDBHeroCarousel = ({ movies, isLoading }: TMDBHeroCarouselProps) => {
         })}
       </div>
 
-      {/* Navigation arrows */}
+      {/* Nav arrows — larger tap targets on mobile */}
       <button
         onClick={prevSlide}
-        className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/60 backdrop-blur-sm flex items-center justify-center hover:bg-background/80 transition-colors z-10"
+        className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 md:w-8 md:h-8 rounded-full bg-background/60 backdrop-blur-sm flex items-center justify-center hover:bg-background/80 active:scale-95 transition-all z-10 touch-manipulation"
+        aria-label="Previous"
       >
-        <ChevronLeft className="h-5 w-5" />
+        <ChevronLeft className="h-5 w-5 md:h-4 md:w-4" />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/60 backdrop-blur-sm flex items-center justify-center hover:bg-background/80 transition-colors z-10"
+        className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 md:w-8 md:h-8 rounded-full bg-background/60 backdrop-blur-sm flex items-center justify-center hover:bg-background/80 active:scale-95 transition-all z-10 touch-manipulation"
+        aria-label="Next"
       >
-        <ChevronRight className="h-5 w-5" />
+        <ChevronRight className="h-5 w-5 md:h-4 md:w-4" />
       </button>
 
       {/* Content overlay */}
-      <div className="absolute bottom-0 left-0 right-0 p-4">
-        <div
-          key={currentIndex}
-          className="animate-fade-in"
-        >
-          <h2 className="text-xl md:text-3xl font-bold mb-1 line-clamp-2">{title}</h2>
+      <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+        <div key={currentIndex} className="animate-fade-in">
+          <h2 className="text-2xl md:text-3xl font-bold mb-1 line-clamp-2 drop-shadow-lg">{title}</h2>
           <p className="text-xs md:text-sm text-muted-foreground line-clamp-2 mb-2 max-w-lg">
             {featuredMovie.overview}
           </p>
@@ -128,43 +125,38 @@ const TMDBHeroCarousel = ({ movies, isLoading }: TMDBHeroCarouselProps) => {
             <span>{(featuredMovie.release_date || featuredMovie.first_air_date)?.slice(0, 4)}</span>
             <span className="px-1 border border-muted-foreground/50 rounded text-[10px]">HD</span>
           </div>
-          <div className="flex gap-2">
-            <Link to={detailPath}>
-              <Button size="sm" className="h-9 px-4 bg-foreground text-background hover:bg-foreground/90">
-                <Info className="h-4 w-4 mr-1.5" /> View Details
-              </Button>
-            </Link>
-          </div>
+          <Link to={detailPath}>
+            <Button size="sm" className="h-10 md:h-9 px-5 md:px-4 bg-foreground text-background hover:bg-foreground/90 text-sm font-semibold touch-manipulation">
+              <Info className="h-4 w-4 mr-1.5" /> View Details
+            </Button>
+          </Link>
         </div>
       </div>
 
-      {/* Slide indicators with progress */}
-      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+      {/* Dot indicators */}
+      <div className="absolute bottom-[100px] md:bottom-24 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
         {heroMovies.map((_, i) => (
           <button
             key={i}
             onClick={() => goToSlide(i, i > currentIndex ? "right" : "left")}
             className={cn(
-              "h-1 rounded-full transition-all duration-300",
-              i === currentIndex 
-                ? "w-6 bg-primary" 
-                : "w-1.5 bg-foreground/40 hover:bg-foreground/60"
+              "h-1 rounded-full transition-all duration-300 touch-manipulation",
+              i === currentIndex ? "w-6 bg-primary" : "w-1.5 bg-foreground/40"
             )}
+            aria-label={`Slide ${i + 1}`}
           />
         ))}
       </div>
 
-      {/* Thumbnail strip */}
-      <div className="absolute bottom-2 right-3 flex gap-1.5 z-10">
+      {/* Thumbnail strip — hidden on mobile to reduce clutter */}
+      <div className="absolute bottom-2 right-3 hidden sm:flex gap-1.5 z-10">
         {heroMovies.slice(0, 5).map((movie, i) => (
           <button
             key={movie.id}
             onClick={() => goToSlide(i, i > currentIndex ? "right" : "left")}
             className={cn(
               "w-10 h-14 rounded overflow-hidden transition-all duration-300",
-              i === currentIndex 
-                ? "ring-2 ring-primary scale-110" 
-                : "opacity-50 hover:opacity-80"
+              i === currentIndex ? "ring-2 ring-primary scale-110" : "opacity-50 hover:opacity-80"
             )}
           >
             <img
