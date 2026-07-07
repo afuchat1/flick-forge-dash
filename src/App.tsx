@@ -15,14 +15,12 @@ import BrowseAllPage from "./pages/BrowseAllPage";
 import CategoriesPage from "./pages/CategoriesPage";
 import NewPopularPage from "./pages/NewPopularPage";
 import MyListPage from "./pages/MyListPage";
-import DownloadsPage from "./pages/DownloadsPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotificationsPage from "./pages/NotificationsPage";
 import SettingsPage from "./pages/SettingsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import HelpPage from "./pages/HelpPage";
 import AuthPage from "./pages/AuthPage";
-import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,13 +45,11 @@ const App = () => (
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/new-popular" element={<NewPopularPage />} />
           <Route path="/my-list" element={<MyListPage />} />
-          <Route path="/downloads" element={<DownloadsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/help" element={<HelpPage />} />
-          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
