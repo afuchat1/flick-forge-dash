@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Play, Info, Download, ChevronLeft, ChevronRight } from "lucide-react";
+import { Info, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TMDBMovie, getImageUrl } from "@/hooks/useTMDB";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -131,12 +131,7 @@ const TMDBHeroCarousel = ({ movies, isLoading }: TMDBHeroCarouselProps) => {
           <div className="flex gap-2">
             <Link to={detailPath}>
               <Button size="sm" className="h-9 px-4 bg-foreground text-background hover:bg-foreground/90">
-                <Play className="h-4 w-4 mr-1.5" fill="currentColor" /> Play
-              </Button>
-            </Link>
-            <Link to={detailPath}>
-              <Button size="sm" variant="secondary" className="h-9 px-4">
-                <Info className="h-4 w-4 mr-1.5" /> More Info
+                <Info className="h-4 w-4 mr-1.5" /> View Details
               </Button>
             </Link>
           </div>

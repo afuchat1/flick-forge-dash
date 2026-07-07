@@ -1,27 +1,18 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, Plus, Star, Download, Share2, Check, Link2 } from "lucide-react";
+import { ArrowLeft, Plus, Star, Share2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
-import VideoPlayer from "@/components/VideoPlayer";
-import AddVideoLinkModal from "@/components/AddVideoLinkModal";
-import AddEpisodeVideoModal from "@/components/AddEpisodeVideoModal";
-import EpisodeCard from "@/components/EpisodeCard";
 import AIInsights from "@/components/AIInsights";
 import ContentMatcher from "@/components/ContentMatcher";
 import { useTVDetails, useTVSeason, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
-import { useDownloads } from "@/hooks/useDownloads";
 import { useAuth } from "@/hooks/useAuth";
-import { useVideoPlayer } from "@/hooks/useVideoPlayer";
-import { useVideoLink } from "@/hooks/useVideoLinks";
-import { useShowEpisodeLinks, hasEpisodeVideo } from "@/hooks/useEpisodeVideoLinks";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -30,30 +21,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface SelectedEpisode {
-  seasonNumber: number;
-  episodeNumber: number;
-  episodeName: string;
-}
-
 const TVDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [selectedSeason, setSelectedSeason] = useState(1);
-  const [showAddVideoModal, setShowAddVideoModal] = useState(false);
-  const [showAddEpisodeModal, setShowAddEpisodeModal] = useState(false);
-  const [selectedEpisode, setSelectedEpisode] = useState<SelectedEpisode | null>(null);
   const { data: show, isLoading } = useTVDetails(Number(id));
   const { data: seasonData, isLoading: seasonLoading } = useTVSeason(Number(id), selectedSeason);
-  const { data: videoLink } = useVideoLink(Number(id), "tv");
-  const { data: episodeLinks } = useShowEpisodeLinks(Number(id));
   const { user } = useAuth();
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
-  const { isDownloaded, startDownload } = useDownloads();
-  const { currentVideo, playVideo, closeVideo } = useVideoPlayer();
   const { addToRecentlyViewed } = useRecentlyViewed();
 
-  // Track recently viewed
   useEffect(() => {
     if (show && user) {
       addToRecentlyViewed({
@@ -66,77 +43,12 @@ const TVDetail = () => {
     }
   }, [show?.id, user?.id]);
 
-  const handlePlay = () => {
-    // Priority: Show video > YouTube trailer
-    if (videoLink?.video_url) {
-      playVideo(videoLink.video_url, show?.name || "TV Show");
-    } else {
-      const trailer = show?.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
-      if (trailer) {
-        playVideo(trailer.key, show?.name || "TV Show");
-      } else {
-        toast.info("No video available for this show yet");
-      }
-    }
-  };
-
-  const handleEpisodePlay = (episode: any) => {
-    const epLink = hasEpisodeVideo(episodeLinks, selectedSeason, episode.episode_number);
-    if (epLink) {
-      playVideo(epLink.video_url, `${show?.name} - S${selectedSeason}E${episode.episode_number}`);
-    } else {
-      // Play trailer with coming soon message
-      const trailer = show?.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
-      if (trailer) {
-        toast.info("Full episode coming soon! Playing trailer instead.");
-        playVideo(trailer.key, show?.name || "TV Show");
-      } else {
-        toast.info("This episode is coming soon!");
-      }
-    }
-  };
-
-  const handleAddEpisodeLink = (episode: any) => {
-    if (!user) {
-      toast.error("Please sign in to add video links");
-      navigate("/auth");
-      return;
-    }
-    setSelectedEpisode({
-      seasonNumber: selectedSeason,
-      episodeNumber: episode.episode_number,
-      episodeName: episode.name,
-    });
-    setShowAddEpisodeModal(true);
-  };
-
-  const handleDownload = () => {
-    if (!user) {
-      toast.error("Please sign in to download");
-      navigate("/auth");
-      return;
-    }
-    
-    if (show) {
-      startDownload({
-        tmdb_id: show.id,
-        media_type: "tv",
-        title: show.name,
-        poster_path: show.poster_path,
-        vote_average: show.vote_average,
-        release_date: show.first_air_date,
-        video_url: videoLink?.video_url,
-      });
-    }
-  };
-
   const handleToggleWatchlist = () => {
     if (!user) {
-      toast.error("Please sign in to add to your list");
+      toast.error("Please sign in to save to your list");
       navigate("/auth");
       return;
     }
-    
     if (show) {
       toggleWatchlist({
         tmdb_id: show.id,
@@ -158,21 +70,12 @@ const TVDetail = () => {
           url: window.location.href,
         });
       } catch {
-        // User cancelled
+        // cancelled
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
       toast.success("Link copied to clipboard!");
     }
-  };
-
-  const handleAddVideoLink = () => {
-    if (!user) {
-      toast.error("Please sign in to add video links");
-      navigate("/auth");
-      return;
-    }
-    setShowAddVideoModal(true);
   };
 
   if (isLoading) {
@@ -205,57 +108,22 @@ const TVDetail = () => {
 
   const trailer = show.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
   const cast = show.credits?.cast?.slice(0, 10) || [];
+  const creator = show.created_by?.[0];
   const similarShows = show.similar?.results?.slice(0, 10) || [];
   const inWatchlist = isInWatchlist(show.id, "tv");
-  const downloaded = isDownloaded(show.id, "tv");
   const seasons = show.seasons?.filter((s: any) => s.season_number > 0) || [];
   const episodes = seasonData?.episodes || [];
-  const hasFullShow = !!videoLink?.video_url;
 
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Header />
-      
-      {/* Video Player Modal */}
-      {currentVideo && (
-        <VideoPlayer
-          videoKey={currentVideo.key}
-          title={currentVideo.title}
-          onClose={closeVideo}
-        />
-      )}
 
-      {/* Add Video Link Modal */}
-      {showAddVideoModal && show && (
-        <AddVideoLinkModal
-          tmdbId={show.id}
-          mediaType="tv"
-          title={show.name}
-          onClose={() => setShowAddVideoModal(false)}
-        />
-      )}
-
-      {/* Add Episode Video Modal */}
-      {showAddEpisodeModal && show && selectedEpisode && (
-        <AddEpisodeVideoModal
-          tmdbId={show.id}
-          showTitle={show.name}
-          seasonNumber={selectedEpisode.seasonNumber}
-          episodeNumber={selectedEpisode.episodeNumber}
-          episodeTitle={selectedEpisode.episodeName}
-          onClose={() => {
-            setShowAddEpisodeModal(false);
-            setSelectedEpisode(null);
-          }}
-        />
-      )}
-      
       <div className="relative">
         <div className="h-[50vh] md:h-[60vh] w-full">
-          <img 
-            src={getImageUrl(show.backdrop_path || show.poster_path, "w780")} 
-            alt={show.name} 
-            className="w-full h-full object-cover" 
+          <img
+            src={getImageUrl(show.backdrop_path || show.poster_path, "w780")}
+            alt={show.name}
+            className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         </div>
@@ -264,22 +132,15 @@ const TVDetail = () => {
           <Link to="/tv-shows" className="inline-flex items-center gap-1 text-xs text-muted-foreground mb-3">
             <ArrowLeft className="h-3 w-3" /> Back
           </Link>
-          
-          <div className="flex items-center gap-2 mb-2">
-            <h1 className="text-2xl md:text-4xl font-bold">{show.name}</h1>
-            {hasFullShow && (
-              <Badge variant="default" className="bg-primary text-primary-foreground text-[10px]">
-                Full Show
-              </Badge>
-            )}
-          </div>
-          
+
+          <h1 className="text-2xl md:text-4xl font-bold mb-2">{show.name}</h1>
+          {show.tagline && (
+            <p className="text-sm text-muted-foreground italic mb-2">{show.tagline}</p>
+          )}
+
           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
             <span className="text-primary font-semibold">{Math.round(show.vote_average * 10)}%</span>
             <span>{show.first_air_date?.slice(0, 4)}</span>
-            <span className="px-1 border border-muted-foreground/50 rounded text-[10px]">
-              {videoLink?.quality || "HD"}
-            </span>
             <span>{show.number_of_seasons} Season{show.number_of_seasons > 1 ? "s" : ""}</span>
             <div className="flex items-center gap-0.5">
               <Star className="h-3 w-3 text-primary fill-primary" />
@@ -298,81 +159,87 @@ const TVDetail = () => {
           )}
 
           <div className="flex items-center gap-2 flex-wrap">
-            <Button 
-              size="sm" 
-              className="bg-foreground text-background h-9 px-5 font-semibold"
-              onClick={handlePlay}
-            >
-              <Play className="mr-1.5 h-4 w-4" fill="currentColor" /> 
-              {hasFullShow ? "Watch Show" : "Play Trailer"}
-            </Button>
-            <Button 
-              size="sm" 
-              variant="secondary" 
-              className={`h-9 px-4 ${downloaded ? 'bg-primary text-primary-foreground' : ''}`}
-              onClick={handleDownload}
-              disabled={downloaded}
-            >
-              {downloaded ? (
-                <>
-                  <Check className="mr-1.5 h-4 w-4" /> Downloaded
-                </>
-              ) : (
-                <>
-                  <Download className="mr-1.5 h-4 w-4" /> Download
-                </>
-              )}
-            </Button>
-            <Button 
-              size="sm" 
-              variant="secondary" 
-              className={`h-9 w-9 p-0 ${inWatchlist ? 'bg-primary text-primary-foreground' : ''}`}
+            <Button
+              size="sm"
+              className={`h-9 px-4 font-semibold ${inWatchlist ? "bg-primary text-primary-foreground" : "bg-foreground text-background"}`}
               onClick={handleToggleWatchlist}
             >
-              {inWatchlist ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+              {inWatchlist ? (
+                <><Check className="mr-1.5 h-4 w-4" /> In My List</>
+              ) : (
+                <><Plus className="mr-1.5 h-4 w-4" /> Add to My List</>
+              )}
             </Button>
             <Button size="sm" variant="secondary" className="h-9 w-9 p-0" onClick={handleShare}>
               <Share2 className="h-4 w-4" />
             </Button>
-            {user && (
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className="h-9 px-3"
-                onClick={handleAddVideoLink}
-              >
-                <Link2 className="mr-1.5 h-4 w-4" /> 
-                {hasFullShow ? "Update Link" : "Add Video"}
-              </Button>
-            )}
           </div>
         </div>
       </div>
 
       <div className="p-4 space-y-4">
         {show.overview && (
-          <p className="text-sm text-foreground/80">{show.overview}</p>
+          <div>
+            <h3 className="font-bold mb-1">Synopsis</h3>
+            <p className="text-sm text-foreground/80">{show.overview}</p>
+          </div>
         )}
 
-        {/* AI-Powered Insights */}
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          {creator && (
+            <div>
+              <p className="text-muted-foreground">Created By</p>
+              <p className="font-medium">{creator.name}</p>
+            </div>
+          )}
+          {show.first_air_date && (
+            <div>
+              <p className="text-muted-foreground">First Aired</p>
+              <p className="font-medium">{new Date(show.first_air_date).toLocaleDateString()}</p>
+            </div>
+          )}
+          {show.number_of_episodes && (
+            <div>
+              <p className="text-muted-foreground">Episodes</p>
+              <p className="font-medium">{show.number_of_episodes}</p>
+            </div>
+          )}
+          {show.status && (
+            <div>
+              <p className="text-muted-foreground">Status</p>
+              <p className="font-medium">{show.status}</p>
+            </div>
+          )}
+          {show.networks?.[0] && (
+            <div>
+              <p className="text-muted-foreground">Network</p>
+              <p className="font-medium">{show.networks[0].name}</p>
+            </div>
+          )}
+          {show.original_language && (
+            <div>
+              <p className="text-muted-foreground">Language</p>
+              <p className="font-medium uppercase">{show.original_language}</p>
+            </div>
+          )}
+        </div>
+
         <AIInsights movie={show} />
 
-        {/* AI Content Matcher */}
-        <ContentMatcher 
+        <ContentMatcher
           title={show.name}
           type="tv"
           genres={show.genres?.map((g: any) => g.name)}
           overview={show.overview}
         />
 
-        {/* Cast Section with Photos */}
         {cast.length > 0 && (
           <div>
             <h3 className="font-bold mb-2">Cast</h3>
             <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
               {cast.map((actor: any) => (
-                <Link 
-                  key={actor.id} 
+                <Link
+                  key={actor.id}
                   to={`/person/${actor.id}`}
                   className="flex-shrink-0 w-20 text-center group"
                 >
@@ -391,7 +258,6 @@ const TVDetail = () => {
           </div>
         )}
 
-        {/* Seasons & Episodes Section */}
         {seasons.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -421,83 +287,56 @@ const TVDetail = () => {
               </div>
             ) : (
               <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-                {episodes.map((episode: any) => {
-                  const epLink = hasEpisodeVideo(episodeLinks, selectedSeason, episode.episode_number);
-                  return (
-                    <div 
-                      key={episode.id}
-                      className="flex-shrink-0 w-44 group cursor-pointer animate-fade-in"
-                      onClick={() => handleEpisodePlay(episode)}
-                    >
-                      <div className="relative">
-                        <img
-                          src={getImageUrl(episode.still_path, "w342")}
-                          alt={episode.name}
-                          className="w-full aspect-video object-cover rounded-lg"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center bg-background/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
-                          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                            <Play className="h-5 w-5 fill-current text-primary-foreground ml-0.5" />
-                          </div>
+                {episodes.map((episode: any) => (
+                  <div
+                    key={episode.id}
+                    className="flex-shrink-0 w-44 animate-fade-in"
+                  >
+                    <div className="relative">
+                      <img
+                        src={getImageUrl(episode.still_path, "w342")}
+                        alt={episode.name}
+                        className="w-full aspect-video object-cover rounded-lg"
+                      />
+                      {episode.vote_average > 0 && (
+                        <div className="absolute bottom-1 left-1 flex items-center gap-0.5 px-1 py-0.5 rounded bg-background/80 text-[10px]">
+                          <Star className="h-2.5 w-2.5 fill-primary text-primary" />
+                          {episode.vote_average.toFixed(1)}
                         </div>
-                        {!epLink && (
-                          <div className="absolute top-1 right-1">
-                            <Badge variant="secondary" className="text-[8px] px-1 py-0">
-                              Coming Soon
-                            </Badge>
-                          </div>
-                        )}
-                        {episode.vote_average > 0 && (
-                          <div className="absolute bottom-1 left-1 flex items-center gap-0.5 px-1 py-0.5 rounded bg-background/80 text-[10px]">
-                            <Star className="h-2.5 w-2.5 fill-primary text-primary" />
-                            {episode.vote_average.toFixed(1)}
-                          </div>
-                        )}
-                      </div>
-                      <div className="mt-1.5">
-                        <p className="text-xs font-medium line-clamp-1">
-                          {episode.episode_number}. {episode.name}
-                        </p>
-                        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                          {episode.runtime && <span>{episode.runtime} min</span>}
-                          {episode.air_date && <span>{episode.air_date.slice(0, 4)}</span>}
-                        </div>
-                      </div>
+                      )}
                     </div>
-                  );
-                })}
+                    <div className="mt-1.5">
+                      <p className="text-xs font-medium line-clamp-1">
+                        {episode.episode_number}. {episode.name}
+                      </p>
+                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                        {episode.runtime && <span>{episode.runtime} min</span>}
+                        {episode.air_date && <span>{episode.air_date.slice(0, 4)}</span>}
+                      </div>
+                      {episode.overview && (
+                        <p className="text-[10px] text-muted-foreground line-clamp-2 mt-1">
+                          {episode.overview}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
         )}
 
-        {/* Video Player Section */}
-        {(hasFullShow || trailer) && (
+        {trailer && (
           <div>
-            <h3 className="font-bold mb-2">
-              {hasFullShow ? "Watch Full Show" : "Trailer"}
-            </h3>
-            <div 
-              className="aspect-video rounded-md overflow-hidden bg-card relative group cursor-pointer"
-              onClick={handlePlay}
-            >
-              <img
-                src={`https://img.youtube.com/vi/${hasFullShow ? videoLink.video_url : trailer?.key}/maxresdefault.jpg`}
-                alt="Video thumbnail"
-                className="w-full h-full object-cover"
+            <h3 className="font-bold mb-2">Trailer</h3>
+            <div className="aspect-video rounded-md overflow-hidden bg-card">
+              <iframe
+                src={`https://www.youtube.com/embed/${trailer.key}?rel=0&modestbranding=1`}
+                title={`${show.name} trailer`}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
               />
-              <div className="absolute inset-0 bg-background/40 flex items-center justify-center group-hover:bg-background/60 transition-colors">
-                <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Play className="h-8 w-8 text-primary-foreground fill-current ml-1" />
-                </div>
-              </div>
-              {hasFullShow && (
-                <div className="absolute top-2 right-2">
-                  <Badge className="bg-primary text-primary-foreground text-[10px]">
-                    {videoLink.quality}
-                  </Badge>
-                </div>
-              )}
             </div>
           </div>
         )}
