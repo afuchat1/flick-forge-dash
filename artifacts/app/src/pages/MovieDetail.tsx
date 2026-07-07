@@ -1,12 +1,13 @@
 import { useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Star, Share2, Check } from "lucide-react";
+import { ArrowLeft, Plus, Star, Share2, Check, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import AIInsights from "@/components/AIInsights";
 import ContentMatcher from "@/components/ContentMatcher";
+import StreamingProviders from "@/components/StreamingProviders";
 import { useMovieDetails, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/hooks/useAuth";
@@ -159,6 +160,16 @@ const MovieDetail = () => {
                 <><Plus className="mr-1.5 h-4 w-4" /> Add to My List</>
               )}
             </Button>
+            {trailer && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9 px-4 font-semibold border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                onClick={() => window.open(`https://www.youtube.com/watch?v=${trailer.key}`, "_blank")}
+              >
+                <Play className="mr-1.5 h-4 w-4 fill-current" /> Watch Trailer
+              </Button>
+            )}
             <Button size="sm" variant="secondary" className="h-9 w-9 p-0" onClick={handleShare}>
               <Share2 className="h-4 w-4" />
             </Button>
@@ -173,6 +184,11 @@ const MovieDetail = () => {
             <p className="text-sm text-foreground/80">{movie.overview}</p>
           </div>
         )}
+
+        <StreamingProviders
+          watchProviders={movie["watch/providers"]}
+          title={movie.title}
+        />
 
         <div className="grid grid-cols-2 gap-3 text-xs">
           {director && (
