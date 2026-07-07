@@ -9,7 +9,7 @@ const Header = () => {
       <div className="flex items-center gap-2 px-3 py-2">
         {/* Logo */}
         <Link to="/" className="flex-shrink-0">
-          <img src="/logo.png" alt="AfuChat Movies" className="h-8 w-auto" />
+          <img src="/logo.png" alt="AfuChat Movies" className="h-14 w-auto max-w-[220px]" />
         </Link>
 
         {/* AI-Powered Search */}
