@@ -151,7 +151,7 @@ const SearchAutocomplete = ({ className }: SearchAutocompleteProps) => {
         <input
           ref={inputRef}
           type="text"
-          placeholder={isListening ? "Listening..." : "Search movies, series..."}
+          placeholder={isListening ? "Listening..." : "Search movies, TV shows, actors..."}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
