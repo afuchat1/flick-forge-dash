@@ -1,38 +1,27 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, Plus, Star, Download, Share2, Check, Link2 } from "lucide-react";
+import { ArrowLeft, Plus, Star, Share2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
-import VideoPlayer from "@/components/VideoPlayer";
-import AddVideoLinkModal from "@/components/AddVideoLinkModal";
 import AIInsights from "@/components/AIInsights";
 import ContentMatcher from "@/components/ContentMatcher";
 import { useMovieDetails, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
-import { useDownloads } from "@/hooks/useDownloads";
 import { useAuth } from "@/hooks/useAuth";
-import { useVideoPlayer } from "@/hooks/useVideoPlayer";
-import { useVideoLink } from "@/hooks/useVideoLinks";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 
 const MovieDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [showAddVideoModal, setShowAddVideoModal] = useState(false);
   const { data: movie, isLoading } = useMovieDetails(Number(id));
-  const { data: videoLink } = useVideoLink(Number(id), "movie");
   const { user } = useAuth();
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
-  const { isDownloaded, startDownload } = useDownloads();
-  const { currentVideo, playVideo, closeVideo } = useVideoPlayer();
   const { addToRecentlyViewed } = useRecentlyViewed();
 
-  // Track recently viewed
   useEffect(() => {
     if (movie && user) {
       addToRecentlyViewed({
@@ -45,47 +34,12 @@ const MovieDetail = () => {
     }
   }, [movie?.id, user?.id]);
 
-  const handlePlay = () => {
-    // Priority: Admin-provided video > YouTube trailer
-    if (videoLink?.video_url) {
-      playVideo(videoLink.video_url, movie?.title || "Movie");
-    } else {
-      const trailer = movie?.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
-      if (trailer) {
-        playVideo(trailer.key, movie?.title || "Movie");
-      } else {
-        toast.info("No video available for this movie");
-      }
-    }
-  };
-
-  const handleDownload = () => {
-    if (!user) {
-      toast.error("Please sign in to download");
-      navigate("/auth");
-      return;
-    }
-    
-    if (movie) {
-      startDownload({
-        tmdb_id: movie.id,
-        media_type: "movie",
-        title: movie.title,
-        poster_path: movie.poster_path,
-        vote_average: movie.vote_average,
-        release_date: movie.release_date,
-        video_url: videoLink?.video_url,
-      });
-    }
-  };
-
   const handleToggleWatchlist = () => {
     if (!user) {
-      toast.error("Please sign in to add to your list");
+      toast.error("Please sign in to save to your list");
       navigate("/auth");
       return;
     }
-    
     if (movie) {
       toggleWatchlist({
         tmdb_id: movie.id,
@@ -107,21 +61,12 @@ const MovieDetail = () => {
           url: window.location.href,
         });
       } catch {
-        // User cancelled
+        // cancelled
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
       toast.success("Link copied to clipboard!");
     }
-  };
-
-  const handleAddVideoLink = () => {
-    if (!user) {
-      toast.error("Please sign in to add video links");
-      navigate("/auth");
-      return;
-    }
-    setShowAddVideoModal(true);
   };
 
   if (isLoading) {
@@ -154,40 +99,20 @@ const MovieDetail = () => {
 
   const trailer = movie.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
   const cast = movie.credits?.cast?.slice(0, 10) || [];
+  const director = movie.credits?.crew?.find((c: any) => c.job === "Director");
   const similarMovies = movie.similar?.results?.slice(0, 10) || [];
   const inWatchlist = isInWatchlist(movie.id, "movie");
-  const downloaded = isDownloaded(movie.id, "movie");
-  const hasFullMovie = !!videoLink?.video_url;
 
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Header />
-      
-      {/* Video Player Modal */}
-      {currentVideo && (
-        <VideoPlayer
-          videoKey={currentVideo.key}
-          title={currentVideo.title}
-          onClose={closeVideo}
-        />
-      )}
 
-      {/* Add Video Link Modal */}
-      {showAddVideoModal && movie && (
-        <AddVideoLinkModal
-          tmdbId={movie.id}
-          mediaType="movie"
-          title={movie.title}
-          onClose={() => setShowAddVideoModal(false)}
-        />
-      )}
-      
       <div className="relative">
         <div className="h-[50vh] md:h-[60vh] w-full">
-          <img 
-            src={getImageUrl(movie.backdrop_path || movie.poster_path, "w780")} 
-            alt={movie.title} 
-            className="w-full h-full object-cover" 
+          <img
+            src={getImageUrl(movie.backdrop_path || movie.poster_path, "w780")}
+            alt={movie.title}
+            className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         </div>
@@ -196,23 +121,16 @@ const MovieDetail = () => {
           <Link to="/" className="inline-flex items-center gap-1 text-xs text-muted-foreground mb-3">
             <ArrowLeft className="h-3 w-3" /> Back
           </Link>
-          
-          <div className="flex items-center gap-2 mb-2">
-            <h1 className="text-2xl md:text-4xl font-bold">{movie.title}</h1>
-            {hasFullMovie && (
-              <Badge variant="default" className="bg-primary text-primary-foreground text-[10px]">
-                Full Movie
-              </Badge>
-            )}
-          </div>
-          
+
+          <h1 className="text-2xl md:text-4xl font-bold mb-2">{movie.title}</h1>
+          {movie.tagline && (
+            <p className="text-sm text-muted-foreground italic mb-2">{movie.tagline}</p>
+          )}
+
           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
             <span className="text-primary font-semibold">{Math.round(movie.vote_average * 10)}%</span>
             <span>{movie.release_date?.slice(0, 4)}</span>
-            <span className="px-1 border border-muted-foreground/50 rounded text-[10px]">
-              {videoLink?.quality || "HD"}
-            </span>
-            <span>{movie.runtime} min</span>
+            {movie.runtime ? <span>{movie.runtime} min</span> : null}
             <div className="flex items-center gap-0.5">
               <Star className="h-3 w-3 text-primary fill-primary" />
               <span>{movie.vote_average?.toFixed(1)}</span>
@@ -230,81 +148,87 @@ const MovieDetail = () => {
           )}
 
           <div className="flex items-center gap-2 flex-wrap">
-            <Button 
-              size="sm" 
-              className="bg-foreground text-background h-9 px-5 font-semibold"
-              onClick={handlePlay}
-            >
-              <Play className="mr-1.5 h-4 w-4" fill="currentColor" /> 
-              {hasFullMovie ? "Watch Movie" : "Play Trailer"}
-            </Button>
-            <Button 
-              size="sm" 
-              variant="secondary" 
-              className={`h-9 px-4 ${downloaded ? 'bg-primary text-primary-foreground' : ''}`}
-              onClick={handleDownload}
-              disabled={downloaded}
-            >
-              {downloaded ? (
-                <>
-                  <Check className="mr-1.5 h-4 w-4" /> Downloaded
-                </>
-              ) : (
-                <>
-                  <Download className="mr-1.5 h-4 w-4" /> Download
-                </>
-              )}
-            </Button>
-            <Button 
-              size="sm" 
-              variant="secondary" 
-              className={`h-9 w-9 p-0 ${inWatchlist ? 'bg-primary text-primary-foreground' : ''}`}
+            <Button
+              size="sm"
+              className={`h-9 px-4 font-semibold ${inWatchlist ? "bg-primary text-primary-foreground" : "bg-foreground text-background"}`}
               onClick={handleToggleWatchlist}
             >
-              {inWatchlist ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+              {inWatchlist ? (
+                <><Check className="mr-1.5 h-4 w-4" /> In My List</>
+              ) : (
+                <><Plus className="mr-1.5 h-4 w-4" /> Add to My List</>
+              )}
             </Button>
             <Button size="sm" variant="secondary" className="h-9 w-9 p-0" onClick={handleShare}>
               <Share2 className="h-4 w-4" />
             </Button>
-            {user && (
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className="h-9 px-3"
-                onClick={handleAddVideoLink}
-              >
-                <Link2 className="mr-1.5 h-4 w-4" /> 
-                {hasFullMovie ? "Update Link" : "Add Video"}
-              </Button>
-            )}
           </div>
         </div>
       </div>
 
       <div className="p-4 space-y-4">
         {movie.overview && (
-          <p className="text-sm text-foreground/80">{movie.overview}</p>
+          <div>
+            <h3 className="font-bold mb-1">Synopsis</h3>
+            <p className="text-sm text-foreground/80">{movie.overview}</p>
+          </div>
         )}
 
-        {/* AI-Powered Insights */}
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          {director && (
+            <div>
+              <p className="text-muted-foreground">Director</p>
+              <p className="font-medium">{director.name}</p>
+            </div>
+          )}
+          {movie.release_date && (
+            <div>
+              <p className="text-muted-foreground">Release Date</p>
+              <p className="font-medium">{new Date(movie.release_date).toLocaleDateString()}</p>
+            </div>
+          )}
+          {movie.original_language && (
+            <div>
+              <p className="text-muted-foreground">Language</p>
+              <p className="font-medium uppercase">{movie.original_language}</p>
+            </div>
+          )}
+          {movie.production_countries?.[0] && (
+            <div>
+              <p className="text-muted-foreground">Country</p>
+              <p className="font-medium">{movie.production_countries[0].name}</p>
+            </div>
+          )}
+          {movie.budget > 0 && (
+            <div>
+              <p className="text-muted-foreground">Budget</p>
+              <p className="font-medium">${movie.budget.toLocaleString()}</p>
+            </div>
+          )}
+          {movie.revenue > 0 && (
+            <div>
+              <p className="text-muted-foreground">Revenue</p>
+              <p className="font-medium">${movie.revenue.toLocaleString()}</p>
+            </div>
+          )}
+        </div>
+
         <AIInsights movie={movie} />
 
-        {/* AI Content Matcher */}
-        <ContentMatcher 
+        <ContentMatcher
           title={movie.title}
           type="movie"
           genres={movie.genres?.map((g: any) => g.name)}
           overview={movie.overview}
         />
 
-        {/* Cast Section with Photos */}
         {cast.length > 0 && (
           <div>
             <h3 className="font-bold mb-2">Cast</h3>
             <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
               {cast.map((actor: any) => (
-                <Link 
-                  key={actor.id} 
+                <Link
+                  key={actor.id}
                   to={`/person/${actor.id}`}
                   className="flex-shrink-0 w-20 text-center group"
                 >
@@ -323,33 +247,17 @@ const MovieDetail = () => {
           </div>
         )}
 
-        {/* Video Player Section */}
-        {(hasFullMovie || trailer) && (
+        {trailer && (
           <div>
-            <h3 className="font-bold mb-2">
-              {hasFullMovie ? "Watch Full Movie" : "Trailer"}
-            </h3>
-            <div 
-              className="aspect-video rounded-md overflow-hidden bg-card relative group cursor-pointer"
-              onClick={handlePlay}
-            >
-              <img
-                src={`https://img.youtube.com/vi/${hasFullMovie ? videoLink.video_url : trailer?.key}/maxresdefault.jpg`}
-                alt="Video thumbnail"
-                className="w-full h-full object-cover"
+            <h3 className="font-bold mb-2">Trailer</h3>
+            <div className="aspect-video rounded-md overflow-hidden bg-card">
+              <iframe
+                src={`https://www.youtube.com/embed/${trailer.key}?rel=0&modestbranding=1`}
+                title={`${movie.title} trailer`}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
               />
-              <div className="absolute inset-0 bg-background/40 flex items-center justify-center group-hover:bg-background/60 transition-colors">
-                <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Play className="h-8 w-8 text-primary-foreground fill-current ml-1" />
-                </div>
-              </div>
-              {hasFullMovie && (
-                <div className="absolute top-2 right-2">
-                  <Badge className="bg-primary text-primary-foreground text-[10px]">
-                    {videoLink.quality}
-                  </Badge>
-                </div>
-              )}
             </div>
           </div>
         )}

@@ -29,8 +29,8 @@ const HelpPage = () => {
       answer: "Our AI analyzes your watchlist, viewing history, and preferences to suggest personalized content. The more you use the app, the better our recommendations become.",
     },
     {
-      question: "Can I download content for offline viewing?",
-      answer: "Yes! Click the download button on any movie or show. Downloaded content appears in your Downloads section and can be watched without an internet connection.",
+      question: "Can I watch movies on this platform?",
+      answer: "This is a movie discovery platform. We help you discover movies and TV shows with rich information, cast, trailers, reviews, and AI-powered recommendations — but we don't stream or download content. Save titles to My List to keep track of what you want to watch.",
     },
   ];
 
