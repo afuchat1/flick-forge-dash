@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Star, Share2, Check, Play } from "lucide-react";
+import { ArrowLeft, Plus, Star, Share2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
@@ -8,6 +8,7 @@ import TMDBContentRow from "@/components/TMDBContentRow";
 import AIInsights from "@/components/AIInsights";
 import ContentMatcher from "@/components/ContentMatcher";
 import StreamingProviders from "@/components/StreamingProviders";
+import TrailerPlayer from "@/components/TrailerPlayer";
 import { useMovieDetails, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/hooks/useAuth";
@@ -160,16 +161,7 @@ const MovieDetail = () => {
                 <><Plus className="mr-1.5 h-4 w-4" /> Add to My List</>
               )}
             </Button>
-            {trailer && (
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-9 px-4 font-semibold border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                onClick={() => window.open(`https://www.youtube.com/watch?v=${trailer.key}`, "_blank")}
-              >
-                <Play className="mr-1.5 h-4 w-4 fill-current" /> Watch Trailer
-              </Button>
-            )}
+            {trailer && <TrailerPlayer trailerKey={trailer.key} title={movie.title} />}
             <Button size="sm" variant="secondary" className="h-9 w-9 p-0" onClick={handleShare}>
               <Share2 className="h-4 w-4" />
             </Button>
@@ -266,15 +258,7 @@ const MovieDetail = () => {
         {trailer && (
           <div>
             <h3 className="font-bold mb-2">Trailer</h3>
-            <div className="aspect-video rounded-md overflow-hidden bg-card">
-              <iframe
-                src={`https://www.youtube.com/embed/${trailer.key}?rel=0&modestbranding=1`}
-                title={`${movie.title} trailer`}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
+            <TrailerPlayer trailerKey={trailer.key} title={movie.title} inline />
           </div>
         )}
 
