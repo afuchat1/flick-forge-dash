@@ -161,15 +161,6 @@ const TVDetail = () => {
           )}
 
           <div className="flex items-center gap-2 flex-wrap">
-            {trailer && (
-              <Button
-                size="sm"
-                className="h-9 px-4 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
-                onClick={() => navigate(`/watch/tv/${show.id}`)}
-              >
-                <Play className="mr-1.5 h-4 w-4" fill="currentColor" /> Play
-              </Button>
-            )}
             <Button
               size="sm"
               variant={inWatchlist ? "default" : "secondary"}
@@ -182,7 +173,13 @@ const TVDetail = () => {
                 <><Plus className="mr-1.5 h-4 w-4" /> Add to My List</>
               )}
             </Button>
-            {trailer && <TrailerPlayer trailerKey={trailer.key} title={show.name} />}
+            {trailer && (
+              <TrailerPlayer
+                trailerKey={trailer.key}
+                title={show.name}
+                watchPath={`/watch/tv/${show.id}?trailer=1`}
+              />
+            )}
             <Button size="sm" variant="secondary" className="h-9 w-9 p-0" onClick={handleShare}>
               <Share2 className="h-4 w-4" />
             </Button>
