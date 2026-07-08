@@ -1,11 +1,14 @@
-import { useParams, useNavigate, Navigate } from "react-router-dom";
+import { useParams, useNavigate, Navigate, useSearchParams } from "react-router-dom";
 import { useMovieDetails, useTVDetails } from "@/hooks/useTMDB";
+import { usePublicDomainSource } from "@/hooks/usePublicDomainSource";
 import VideoPlayer from "@/components/VideoPlayer";
 import { Button } from "@/components/ui/button";
 import { Loader2, Film } from "lucide-react";
 
 const WatchPage = () => {
   const { type, id } = useParams<{ type: string; id: string }>();
+  const [searchParams] = useSearchParams();
+  const forceTrailer = searchParams.get("trailer") === "1";
   const navigate = useNavigate();
   const isTV = type === "tv";
   const mediaId = Number(id);
@@ -14,6 +17,13 @@ const WatchPage = () => {
   const tvQuery = useTVDetails(isTV ? mediaId : 0);
   const { data, isLoading } = isTV ? tvQuery : movieQuery;
 
+  const title = data?.title || data?.name || "";
+  const year = (data?.release_date || data?.first_air_date || "").slice(0, 4);
+  const { data: publicDomain, isLoading: pdLoading } = usePublicDomainSource(
+    !forceTrailer && !isTV ? title : undefined,
+    year
+  );
+
   const detailPath = isTV ? `/tv/${id}` : `/movie/${id}`;
   const handleBack = () => navigate(detailPath);
 
@@ -21,7 +31,7 @@ const WatchPage = () => {
     return <Navigate to="/" replace />;
   }
 
-  if (isLoading) {
+  if (isLoading || (!forceTrailer && !isTV && pdLoading)) {
     return (
       <div className="fixed inset-0 z-[100] bg-black flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-primary animate-spin" />
@@ -29,10 +39,24 @@ const WatchPage = () => {
     );
   }
 
-  const title = data?.title || data?.name || "Untitled";
   const trailer =
     data?.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube") ||
     data?.videos?.results?.find((v: any) => v.site === "YouTube");
+
+  // Prefer full public-domain film; else fall back to trailer.
+  if (data && !forceTrailer && publicDomain) {
+    return (
+      <div className="fixed inset-0 z-[100] bg-black">
+        <VideoPlayer
+          videoUrl={publicDomain.videoUrl}
+          mimeType={publicDomain.mimeType}
+          title={title}
+          subtitle={`Public Domain · ${publicDomain.year || year || "AfuChat Movies"}`}
+          onBack={handleBack}
+        />
+      </div>
+    );
+  }
 
   if (!data || !trailer) {
     return (
