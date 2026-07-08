@@ -9,12 +9,13 @@ interface TrailerPlayerProps {
   title: string;
   /** If provided, renders a full inline player instead of a trigger button */
   inline?: boolean;
+  /** If set, the trigger button navigates to this watch route instead of opening a modal — used to keep every player identical. */
+  watchPath?: string;
 }
 
-const TrailerPlayer = ({ trailerKey, title, inline = false }: TrailerPlayerProps) => {
+const TrailerPlayer = ({ trailerKey, title, inline = false, watchPath }: TrailerPlayerProps) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const embedUrl = `https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&color=red&controls=1`;
