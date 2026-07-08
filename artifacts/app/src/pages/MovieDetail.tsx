@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Star, Share2, Check } from "lucide-react";
+import { ArrowLeft, Plus, Star, Share2, Check, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
@@ -150,9 +150,19 @@ const MovieDetail = () => {
           )}
 
           <div className="flex items-center gap-2 flex-wrap">
+            {trailer && (
+              <Button
+                size="sm"
+                className="h-9 px-4 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+                onClick={() => navigate(`/watch/movie/${movie.id}`)}
+              >
+                <Play className="mr-1.5 h-4 w-4" fill="currentColor" /> Play
+              </Button>
+            )}
             <Button
               size="sm"
-              className={`h-9 px-4 font-semibold ${inWatchlist ? "bg-primary text-primary-foreground" : "bg-foreground text-background"}`}
+              variant={inWatchlist ? "default" : "secondary"}
+              className={`h-9 px-4 font-semibold ${inWatchlist ? "bg-primary text-primary-foreground" : ""}`}
               onClick={handleToggleWatchlist}
             >
               {inWatchlist ? (

@@ -1,0 +1,1 @@
+- [AfuChat Movies player](afuchat-movies-player.md) — no real film streams exist (TMDB metadata only); "watch" plays the official YouTube trailer through a custom-controlled player.

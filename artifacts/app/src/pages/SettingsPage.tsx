@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, User, Bell, Shield, Palette, Globe, HelpCircle, ChevronRight } from "lucide-react";
+import { ArrowLeft, Bell, Shield, Globe, HelpCircle, ChevronRight } from "lucide-react";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,14 +17,12 @@ const SettingsPage = () => {
     {
       title: "Account",
       items: [
-        { icon: User, label: "Edit Profile", href: "/settings/profile" },
-        { icon: Bell, label: "Notifications", href: "/settings/notifications", toggle: true, value: notifications, onChange: setNotifications },
+        { icon: Bell, label: "Notifications", toggle: true, value: notifications, onChange: setNotifications },
       ],
     },
     {
       title: "Preferences",
       items: [
-        { icon: Palette, label: "Appearance", href: "/settings/appearance" },
         { icon: Globe, label: "Language & Region", description: "English (US)" },
       ],
     },

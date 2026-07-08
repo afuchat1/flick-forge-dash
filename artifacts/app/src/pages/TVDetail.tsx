@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Star, Share2, Check } from "lucide-react";
+import { ArrowLeft, Plus, Star, Share2, Check, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
@@ -161,9 +161,19 @@ const TVDetail = () => {
           )}
 
           <div className="flex items-center gap-2 flex-wrap">
+            {trailer && (
+              <Button
+                size="sm"
+                className="h-9 px-4 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+                onClick={() => navigate(`/watch/tv/${show.id}`)}
+              >
+                <Play className="mr-1.5 h-4 w-4" fill="currentColor" /> Play
+              </Button>
+            )}
             <Button
               size="sm"
-              className={`h-9 px-4 font-semibold ${inWatchlist ? "bg-primary text-primary-foreground" : "bg-foreground text-background"}`}
+              variant={inWatchlist ? "default" : "secondary"}
+              className={`h-9 px-4 font-semibold ${inWatchlist ? "bg-primary text-primary-foreground" : ""}`}
               onClick={handleToggleWatchlist}
             >
               {inWatchlist ? (
@@ -296,9 +306,12 @@ const TVDetail = () => {
             ) : (
               <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
                 {episodes.map((episode: any) => (
-                  <div
+                  <button
                     key={episode.id}
-                    className="flex-shrink-0 w-44 animate-fade-in"
+                    onClick={() => trailer && navigate(`/watch/tv/${id}`)}
+                    disabled={!trailer}
+                    title={trailer ? "Play show trailer" : undefined}
+                    className="flex-shrink-0 w-44 text-left animate-fade-in group touch-manipulation disabled:cursor-default"
                   >
                     <div className="relative">
                       <img
@@ -306,6 +319,16 @@ const TVDetail = () => {
                         alt={episode.name}
                         className="w-full aspect-video object-cover rounded-lg"
                       />
+                      {trailer && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/0 group-hover:bg-black/40 transition-colors rounded-lg">
+                          <div className="w-9 h-9 rounded-full bg-primary/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Play className="h-4 w-4 text-primary-foreground ml-0.5" fill="currentColor" />
+                          </div>
+                          <span className="text-[9px] text-white font-medium opacity-0 group-hover:opacity-100 transition-opacity px-1 text-center">
+                            Play show trailer
+                          </span>
+                        </div>
+                      )}
                       {episode.vote_average > 0 && (
                         <div className="absolute bottom-1 left-1 flex items-center gap-0.5 px-1 py-0.5 rounded bg-background/80 text-[10px]">
                           <Star className="h-2.5 w-2.5 fill-primary text-primary" />
@@ -327,7 +350,7 @@ const TVDetail = () => {
                         </p>
                       )}
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             )}
