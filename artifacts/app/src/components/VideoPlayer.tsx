@@ -50,7 +50,7 @@ const formatTime = (seconds: number) => {
 interface VideoPlayerProps {
   /** YouTube video id — used when `videoUrl` is not set. */
   videoId?: string;
-  /** Direct media URL (mp4/webm) — takes precedence over `videoId`. */
+  /** Direct media URL (mp4/webm). Takes precedence over `videoId`. */
   videoUrl?: string;
   mimeType?: string;
   poster?: string;
@@ -60,12 +60,21 @@ interface VideoPlayerProps {
   onEnded?: () => void;
 }
 
-const VideoPlayer = ({ videoId, videoUrl, mimeType, poster, title, subtitle, onBack, onEnded }: VideoPlayerProps) => {
+const VideoPlayer = ({
+  videoId,
+  videoUrl,
+  mimeType,
+  poster,
+  title,
+  subtitle,
+  onBack,
+  onEnded,
+}: VideoPlayerProps) => {
   const isNative = !!videoUrl;
   const containerRef = useRef<HTMLDivElement>(null);
   const playerElRef = useRef<HTMLDivElement>(null);
   const nativeRef = useRef<HTMLVideoElement>(null);
-  const playerRef = useRef<any>(null);
+  const ytRef = useRef<any>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const pollRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const isPlayingRef = useRef(false);
@@ -84,14 +93,15 @@ const VideoPlayer = ({ videoId, videoUrl, mimeType, poster, title, subtitle, onB
     isPlayingRef.current = isPlaying;
   }, [isPlaying]);
 
-  // Initialize the YouTube player
+  // Init YouTube player
   useEffect(() => {
+    if (isNative || !videoId) return;
     let cancelled = false;
     setReady(false);
     setError(false);
     loadYouTubeApi().then(() => {
       if (cancelled || !playerElRef.current) return;
-      playerRef.current = new window.YT.Player(playerElRef.current, {
+      ytRef.current = new window.YT.Player(playerElRef.current, {
         videoId,
         playerVars: {
           autoplay: 1,
@@ -127,30 +137,72 @@ const VideoPlayer = ({ videoId, videoUrl, mimeType, poster, title, subtitle, onB
     return () => {
       cancelled = true;
       try {
-        playerRef.current?.destroy?.();
+        ytRef.current?.destroy?.();
       } catch {
         /* noop */
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [videoId]);
+  }, [videoId, isNative]);
 
-  // Poll playback progress (YouTube API has no continuous timeupdate event)
+  // Poll YouTube progress
   useEffect(() => {
-    if (!ready) return;
+    if (isNative || !ready) return;
     pollRef.current = setInterval(() => {
-      const p = playerRef.current;
+      const p = ytRef.current;
       if (!p) return;
       try {
         setCurrentTime(p.getCurrentTime());
         const d = p.getDuration();
         if (d) setDuration(d);
       } catch {
-        /* player may be mid-teardown */
+        /* noop */
       }
     }, 400);
     return () => clearInterval(pollRef.current);
-  }, [ready]);
+  }, [ready, isNative]);
+
+  // Native <video> autoplay + attach listeners
+  useEffect(() => {
+    if (!isNative) return;
+    const v = nativeRef.current;
+    if (!v) return;
+    setReady(false);
+    setError(false);
+    const onLoaded = () => {
+      setReady(true);
+      setDuration(v.duration || 0);
+      v.play().catch(() => {
+        // Some browsers block autoplay with sound — retry muted.
+        v.muted = true;
+        setIsMuted(true);
+        v.play().catch(() => {});
+      });
+    };
+    const onTime = () => setCurrentTime(v.currentTime);
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    const onEndedNative = () => {
+      setIsPlaying(false);
+      onEnded?.();
+    };
+    const onErr = () => setError(true);
+    v.addEventListener("loadedmetadata", onLoaded);
+    v.addEventListener("timeupdate", onTime);
+    v.addEventListener("play", onPlay);
+    v.addEventListener("pause", onPause);
+    v.addEventListener("ended", onEndedNative);
+    v.addEventListener("error", onErr);
+    return () => {
+      v.removeEventListener("loadedmetadata", onLoaded);
+      v.removeEventListener("timeupdate", onTime);
+      v.removeEventListener("play", onPlay);
+      v.removeEventListener("pause", onPause;
+      v.removeEventListener("ended", onEndedNative);
+      v.removeEventListener("error", onErr);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isNative, videoUrl]);
 
   const resetHideTimer = useCallback(() => {
     setShowControls(true);
@@ -166,50 +218,70 @@ const VideoPlayer = ({ videoId, videoUrl, mimeType, poster, title, subtitle, onB
   }, [isPlaying, resetHideTimer]);
 
   const togglePlay = useCallback(() => {
-    const p = playerRef.current;
+    if (isNative) {
+      const v = nativeRef.current;
+      if (!v) return;
+      if (v.paused) v.play(); else v.pause();
+      return;
+    }
+    const p = ytRef.current;
     if (!p) return;
     if (isPlayingRef.current) p.pauseVideo();
     else p.playVideo();
-  }, []);
+  }, [isNative]);
 
   const toggleMute = useCallback(() => {
-    const p = playerRef.current;
+    if (isNative) {
+      const v = nativeRef.current;
+      if (!v) return;
+      v.muted = !v.muted;
+      setIsMuted(v.muted);
+      return;
+    }
+    const p = ytRef.current;
     if (!p) return;
     setIsMuted((prev) => {
       if (prev) p.unMute();
       else p.mute();
       return !prev;
     });
-  }, []);
+  }, [isNative]);
 
-  const handleVolumeChange = (v: number) => {
-    const p = playerRef.current;
-    setVolume(v);
-    if (!p) return;
-    p.setVolume(v);
-    if (v === 0) {
-      p.mute();
-      setIsMuted(true);
-    } else if (isMuted) {
-      p.unMute();
-      setIsMuted(false);
+  const handleVolumeChange = (val: number) => {
+    setVolume(val);
+    if (isNative) {
+      const v = nativeRef.current;
+      if (!v) return;
+      v.volume = val / 100;
+      if (val === 0) { v.muted = true; setIsMuted(true); }
+      else if (isMuted) { v.muted = false; setIsMuted(false); }
+      return;
     }
+    const p = ytRef.current;
+    if (!p) return;
+    p.setVolume(val);
+    if (val === 0) { p.mute(); setIsMuted(true); }
+    else if (isMuted) { p.unMute(); setIsMuted(false); }
   };
 
   const seekTo = (time: number) => {
     const clamped = Math.min(Math.max(time, 0), duration || time);
-    playerRef.current?.seekTo(clamped, true);
+    if (isNative) {
+      const v = nativeRef.current;
+      if (v) v.currentTime = clamped;
+    } else {
+      ytRef.current?.seekTo(clamped, true);
+    }
     setCurrentTime(clamped);
   };
 
   const skip = useCallback(
     (delta: number) => {
-      const p = playerRef.current;
-      if (!p) return;
-      const t = Math.min(Math.max(p.getCurrentTime() + delta, 0), duration);
-      seekTo(t);
+      const cur = isNative ? (nativeRef.current?.currentTime ?? 0) : (ytRef.current?.getCurrentTime?.() ?? 0);
+      seekTo(Math.min(Math.max(cur + delta, 0), duration));
     },
-    [duration]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [duration, isNative]
   );
 
   const toggleFullscreen = useCallback(() => {
@@ -225,7 +297,6 @@ const VideoPlayer = ({ videoId, videoUrl, mimeType, poster, title, subtitle, onB
     return () => document.removeEventListener("fullscreenchange", handler);
   }, []);
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
@@ -269,7 +340,21 @@ const VideoPlayer = ({ videoId, videoUrl, mimeType, poster, title, subtitle, onB
       onMouseMove={resetHideTimer}
       onTouchStart={resetHideTimer}
     >
-      <div ref={playerElRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+      {isNative ? (
+        <video
+          ref={nativeRef}
+          src={videoUrl}
+          poster={poster}
+          className="absolute inset-0 w-full h-full object-contain bg-black"
+          playsInline
+          preload="metadata"
+          crossOrigin="anonymous"
+        >
+          {mimeType && <source src={videoUrl} type={mimeType} />}
+        </video>
+      ) : (
+        <div ref={playerElRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+      )}
 
       {/* Tap/click anywhere toggles play */}
       <button
@@ -325,9 +410,8 @@ const VideoPlayer = ({ videoId, videoUrl, mimeType, poster, title, subtitle, onB
           showControls ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         )}
       >
-        {/* Progress bar */}
         <div
-          className="group relative h-1.5 md:h-1.5 w-full bg-white/25 rounded-full cursor-pointer mb-3 touch-manipulation"
+          className="group relative h-1.5 w-full bg-white/25 rounded-full cursor-pointer mb-3 touch-manipulation"
           onClick={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
             const ratio = (e.clientX - rect.left) / rect.width;
@@ -348,31 +432,15 @@ const VideoPlayer = ({ videoId, videoUrl, mimeType, poster, title, subtitle, onB
               className="text-white p-1.5 touch-manipulation active:scale-90 transition-transform"
               aria-label={isPlaying ? "Pause" : "Play"}
             >
-              {isPlaying ? (
-                <Pause className="h-6 w-6 md:h-5 md:w-5" fill="currentColor" />
-              ) : (
-                <Play className="h-6 w-6 md:h-5 md:w-5" fill="currentColor" />
-              )}
+              {isPlaying ? <Pause className="h-6 w-6 md:h-5 md:w-5" fill="currentColor" /> : <Play className="h-6 w-6 md:h-5 md:w-5" fill="currentColor" />}
             </button>
-            <button
-              onClick={() => skip(-10)}
-              className="text-white p-1.5 touch-manipulation hidden sm:block active:scale-90 transition-transform"
-              aria-label="Rewind 10 seconds"
-            >
+            <button onClick={() => skip(-10)} className="text-white p-1.5 hidden sm:block active:scale-90 transition-transform" aria-label="Rewind 10 seconds">
               <RotateCcw className="h-5 w-5" />
             </button>
-            <button
-              onClick={() => skip(10)}
-              className="text-white p-1.5 touch-manipulation hidden sm:block active:scale-90 transition-transform"
-              aria-label="Forward 10 seconds"
-            >
+            <button onClick={() => skip(10)} className="text-white p-1.5 hidden sm:block active:scale-90 transition-transform" aria-label="Forward 10 seconds">
               <RotateCw className="h-5 w-5" />
             </button>
-            <button
-              onClick={toggleMute}
-              className="text-white p-1.5 touch-manipulation active:scale-90 transition-transform"
-              aria-label={isMuted ? "Unmute" : "Mute"}
-            >
+            <button onClick={toggleMute} className="text-white p-1.5 active:scale-90 transition-transform" aria-label={isMuted ? "Unmute" : "Mute"}>
               {isMuted || volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
             </button>
             <input
@@ -389,11 +457,7 @@ const VideoPlayer = ({ videoId, videoUrl, mimeType, poster, title, subtitle, onB
             </span>
           </div>
 
-          <button
-            onClick={toggleFullscreen}
-            className="text-white p-1.5 touch-manipulation active:scale-90 transition-transform"
-            aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-          >
+          <button onClick={toggleFullscreen} className="text-white p-1.5 active:scale-90 transition-transform" aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}>
             {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
           </button>
         </div>
