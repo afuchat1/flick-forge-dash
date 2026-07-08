@@ -24,6 +24,10 @@ const MovieDetail = () => {
   const { user } = useAuth();
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const { addToRecentlyViewed } = useRecentlyViewed();
+  const { data: publicDomain } = usePublicDomainSource(
+    movie?.title,
+    movie?.release_date?.slice(0, 4)
+  );
 
   useEffect(() => {
     if (movie && user) {
