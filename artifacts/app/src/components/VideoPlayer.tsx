@@ -197,7 +197,7 @@ const VideoPlayer = ({
       v.removeEventListener("loadedmetadata", onLoaded);
       v.removeEventListener("timeupdate", onTime);
       v.removeEventListener("play", onPlay);
-      v.removeEventListener("pause", onPause;
+      v.removeEventListener("pause", onPause);
       v.removeEventListener("ended", onEndedNative);
       v.removeEventListener("error", onErr);
     };
