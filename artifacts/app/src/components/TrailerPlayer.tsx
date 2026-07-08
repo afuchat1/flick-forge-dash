@@ -45,7 +45,7 @@ const TrailerPlayer = ({ trailerKey, title, inline = false, watchPath }: Trailer
       <Button
         size="sm"
         className="h-9 px-4 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
-        onClick={() => setOpen(true)}
+        onClick={() => (watchPath ? navigate(watchPath) : setOpen(true))}
       >
         <Play className="h-4 w-4 fill-current" />
         Watch Trailer
