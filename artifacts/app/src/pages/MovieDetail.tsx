@@ -10,6 +10,7 @@ import ContentMatcher from "@/components/ContentMatcher";
 import StreamingProviders from "@/components/StreamingProviders";
 import TrailerPlayer from "@/components/TrailerPlayer";
 import { useMovieDetails, getImageUrl } from "@/hooks/useTMDB";
+import { usePublicDomainSource } from "@/hooks/usePublicDomainSource";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/hooks/useAuth";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
