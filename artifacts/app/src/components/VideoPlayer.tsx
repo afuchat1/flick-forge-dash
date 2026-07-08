@@ -48,16 +48,23 @@ const formatTime = (seconds: number) => {
 };
 
 interface VideoPlayerProps {
-  videoId: string;
+  /** YouTube video id — used when `videoUrl` is not set. */
+  videoId?: string;
+  /** Direct media URL (mp4/webm) — takes precedence over `videoId`. */
+  videoUrl?: string;
+  mimeType?: string;
+  poster?: string;
   title: string;
   subtitle?: string;
   onBack?: () => void;
   onEnded?: () => void;
 }
 
-const VideoPlayer = ({ videoId, title, subtitle, onBack, onEnded }: VideoPlayerProps) => {
+const VideoPlayer = ({ videoId, videoUrl, mimeType, poster, title, subtitle, onBack, onEnded }: VideoPlayerProps) => {
+  const isNative = !!videoUrl;
   const containerRef = useRef<HTMLDivElement>(null);
   const playerElRef = useRef<HTMLDivElement>(null);
+  const nativeRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<any>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const pollRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
