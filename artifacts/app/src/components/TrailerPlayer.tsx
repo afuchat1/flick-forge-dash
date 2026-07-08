@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
-import { Play, X, Volume2, VolumeX, Maximize2 } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Play, X, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
@@ -12,6 +13,8 @@ interface TrailerPlayerProps {
 
 const TrailerPlayer = ({ trailerKey, title, inline = false }: TrailerPlayerProps) => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const embedUrl = `https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&color=red&controls=1`;
