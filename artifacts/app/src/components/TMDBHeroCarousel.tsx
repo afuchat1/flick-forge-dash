@@ -139,12 +139,16 @@ const TMDBHeroCarousel = ({ movies, isLoading }: TMDBHeroCarouselProps) => {
           <button
             key={i}
             onClick={() => goToSlide(i, i > currentIndex ? "right" : "left")}
-            className={cn(
-              "h-1 rounded-full transition-all duration-300 touch-manipulation",
-              i === currentIndex ? "w-6 bg-primary" : "w-1.5 bg-foreground/40"
-            )}
+            className="flex items-center justify-center h-6 w-6 touch-manipulation"
             aria-label={`Slide ${i + 1}`}
-          />
+          >
+            <span
+              className={cn(
+                "h-1 rounded-full transition-all duration-300",
+                i === currentIndex ? "w-6 bg-primary" : "w-1.5 bg-foreground/40"
+              )}
+            />
+          </button>
         ))}
       </div>
 

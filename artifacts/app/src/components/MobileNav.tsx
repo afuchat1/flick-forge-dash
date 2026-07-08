@@ -13,7 +13,10 @@ const MobileNav = () => {
   const location = useLocation();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/95 backdrop-blur-md border-t border-border/40 safe-area-inset-bottom">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/95 backdrop-blur-md border-t border-border/40"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
       <div className="flex items-stretch justify-around">
         {navItems.map(({ name, href, icon: Icon }) => {
           const isActive = location.pathname === href;
@@ -21,7 +24,7 @@ const MobileNav = () => {
             <Link
               key={href}
               to={href}
-              className={`flex flex-col items-center justify-center gap-1 py-2.5 flex-1 min-w-0 transition-colors ${
+              className={`relative flex flex-col items-center justify-center gap-1 py-2.5 flex-1 min-w-0 transition-colors ${
                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >

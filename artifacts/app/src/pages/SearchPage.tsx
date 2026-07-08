@@ -162,7 +162,7 @@ const SearchPage = () => {
 
         <div className="px-3 pt-2">
           {searchLoading && debouncedQuery ? (
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
               {[...Array(12)].map((_, i) => (
                 <div key={i}>
                   <Skeleton className="aspect-[2/3] rounded-lg" />
@@ -177,14 +177,14 @@ const SearchPage = () => {
                   ? `${totalResults.toLocaleString()} results for "${debouncedQuery}"` 
                   : `${displayResults.length} results`}
               </p>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
                 {displayResults.map((item, index) => {
                   const isTV = item.media_type === "tv" || item.first_air_date;
                   const path = isTV ? `/tv/${item.id}` : `/movie/${item.id}`;
                   const title = item.title || item.name || "Untitled";
                   
                   return (
-                    <Link key={`${item.id}-${index}`} to={path}>
+                    <Link key={`${item.id}-${index}`} to={path} className="touch-manipulation">
                       <div className="aspect-[2/3] rounded-lg overflow-hidden bg-card">
                         <img 
                           src={getImageUrl(item.poster_path)} 
@@ -193,8 +193,8 @@ const SearchPage = () => {
                           loading="lazy"
                         />
                       </div>
-                      <p className="text-xs font-medium mt-1 line-clamp-1">{title}</p>
-                      <div className="flex items-center gap-1 text-[9px] text-muted-foreground">
+                      <p className="text-sm md:text-xs font-medium mt-1.5 line-clamp-1">{title}</p>
+                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
                         <span className="text-primary">{Math.round(item.vote_average * 10)}%</span>
                         <span>{(item.release_date || item.first_air_date)?.slice(0, 4)}</span>
                         <span className="capitalize">{item.media_type}</span>
