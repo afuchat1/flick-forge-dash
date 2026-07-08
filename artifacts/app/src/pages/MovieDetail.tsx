@@ -10,6 +10,7 @@ import ContentMatcher from "@/components/ContentMatcher";
 import StreamingProviders from "@/components/StreamingProviders";
 import TrailerPlayer from "@/components/TrailerPlayer";
 import { useMovieDetails, getImageUrl } from "@/hooks/useTMDB";
+import { usePublicDomainSource } from "@/hooks/usePublicDomainSource";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/hooks/useAuth";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
@@ -23,6 +24,10 @@ const MovieDetail = () => {
   const { user } = useAuth();
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const { addToRecentlyViewed } = useRecentlyViewed();
+  const { data: publicDomain } = usePublicDomainSource(
+    movie?.title,
+    movie?.release_date?.slice(0, 4)
+  );
 
   useEffect(() => {
     if (movie && user) {
@@ -150,7 +155,7 @@ const MovieDetail = () => {
           )}
 
           <div className="flex items-center gap-2 flex-wrap">
-            {trailer && (
+            {publicDomain && (
               <Button
                 size="sm"
                 className="h-9 px-4 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
@@ -171,7 +176,13 @@ const MovieDetail = () => {
                 <><Plus className="mr-1.5 h-4 w-4" /> Add to My List</>
               )}
             </Button>
-            {trailer && <TrailerPlayer trailerKey={trailer.key} title={movie.title} />}
+            {trailer && (
+              <TrailerPlayer
+                trailerKey={trailer.key}
+                title={movie.title}
+                watchPath={`/watch/movie/${movie.id}?trailer=1`}
+              />
+            )}
             <Button size="sm" variant="secondary" className="h-9 w-9 p-0" onClick={handleShare}>
               <Share2 className="h-4 w-4" />
             </Button>

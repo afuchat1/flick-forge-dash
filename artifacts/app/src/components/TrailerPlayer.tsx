@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
-import { Play, X, Volume2, VolumeX, Maximize2 } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Play, X, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
@@ -8,10 +9,13 @@ interface TrailerPlayerProps {
   title: string;
   /** If provided, renders a full inline player instead of a trigger button */
   inline?: boolean;
+  /** If set, the trigger button navigates to this watch route instead of opening a modal — used to keep every player identical. */
+  watchPath?: string;
 }
 
-const TrailerPlayer = ({ trailerKey, title, inline = false }: TrailerPlayerProps) => {
+const TrailerPlayer = ({ trailerKey, title, inline = false, watchPath }: TrailerPlayerProps) => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const embedUrl = `https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&color=red&controls=1`;
@@ -41,7 +45,7 @@ const TrailerPlayer = ({ trailerKey, title, inline = false }: TrailerPlayerProps
       <Button
         size="sm"
         className="h-9 px-4 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
-        onClick={() => setOpen(true)}
+        onClick={() => (watchPath ? navigate(watchPath) : setOpen(true))}
       >
         <Play className="h-4 w-4 fill-current" />
         Watch Trailer
