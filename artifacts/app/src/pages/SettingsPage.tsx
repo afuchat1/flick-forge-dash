@@ -68,6 +68,42 @@ const SettingsPage = () => {
         </div>
 
         <div className="space-y-6">
+          {/* Engagera AI Setup */}
+          <div>
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+              AI (Engagera)
+            </h2>
+            <div className="p-4 bg-card rounded-lg space-y-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">Engagera API Key</span>
+                {engageraConnected && (
+                  <span className="ml-auto inline-flex items-center gap-1 text-xs text-emerald-400">
+                    <Check className="h-3 w-3" /> Connected
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                All AI recommendations, mood matches, and search suggestions are powered by Engagera AI (AfuBot). Paste your key from{" "}
+                <a href="https://engagera.com/dashboard" target="_blank" rel="noreferrer" className="text-primary underline">
+                  engagera.com/dashboard
+                </a>
+                . Stored only in this browser.
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  type="password"
+                  placeholder="eng_..."
+                  value={engageraKey}
+                  onChange={(e) => setLocalEngageraKey(e.target.value)}
+                  className="flex-1"
+                />
+                <Button onClick={saveEngageraKey} size="sm">Save</Button>
+              </div>
+            </div>
+          </div>
+
+
           {settingsGroups.map((group) => (
             <div key={group.title}>
               <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
