@@ -1,16 +1,29 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Bell, Shield, Globe, HelpCircle, ChevronRight } from "lucide-react";
+import { ArrowLeft, Bell, Shield, Globe, HelpCircle, ChevronRight, Sparkles, Check } from "lucide-react";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import { useAuth } from "@/hooks/useAuth";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { getStoredEngageraKey, setEngageraApiKey, hasEngagera } from "@/lib/engagera";
+import { toast } from "sonner";
 
 const SettingsPage = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState(true);
   const [autoplay, setAutoplay] = useState(true);
   const [hdStreaming, setHdStreaming] = useState(true);
+  const [engageraKey, setLocalEngageraKey] = useState(getStoredEngageraKey());
+  const [engageraConnected, setEngageraConnected] = useState(hasEngagera());
+
+  const saveEngageraKey = () => {
+    setEngageraApiKey(engageraKey);
+    setEngageraConnected(hasEngagera());
+    toast.success(engageraKey.trim() ? "Engagera AI connected" : "Engagera AI key cleared");
+  };
+
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const settingsGroups: Array<{ title: string; items: any[] }> = [
