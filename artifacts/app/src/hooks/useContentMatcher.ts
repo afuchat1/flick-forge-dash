@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { askEngageraJson, hasEngagera } from "@/lib/engagera";
 
 interface ContentMatch {
   title: string;
@@ -18,22 +18,23 @@ interface ContentMatcherParams {
 
 export const useContentMatcher = (params: ContentMatcherParams | null) => {
   return useQuery({
-    queryKey: ["content-matcher", params?.title],
+    queryKey: ["engagera-content-matcher", params?.title],
     queryFn: async () => {
-      if (!params?.title) return { matches: [] };
-      
-      const { data, error } = await supabase.functions.invoke("content-matcher", {
-        body: params,
-      });
-      
-      if (error) {
-        console.error("Content matcher error:", error);
-        return { matches: [] };
-      }
-      
-      return data as { matches: ContentMatch[] };
+      if (!params?.title || !hasEngagera()) return { matches: [] as ContentMatch[] };
+
+      const prompt = `Suggest 6 movies or TV shows similar to "${params.title}"${
+        params.type ? ` (${params.type})` : ""
+      }.
+Genres: ${params.genres?.join(", ") || "unknown"}
+Overview: ${params.overview?.slice(0, 400) || "n/a"}
+
+Return JSON of shape:
+{"matches":[{"title":"...","type":"movie"|"tv","matchScore":0-100,"reason":"one sentence","sharedThemes":["theme1","theme2"]}]}`;
+
+      const data = await askEngageraJson<{ matches: ContentMatch[] }>(prompt, { matches: [] });
+      return { matches: Array.isArray(data.matches) ? data.matches : [] };
     },
     enabled: !!params?.title,
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 10 * 60 * 1000,
   });
 };

@@ -3,9 +3,9 @@ import { Sparkles, Smile, Frown, Heart, Zap, Moon, Coffee, Flame, Brain } from "
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { askEngageraJson, hasEngagera } from "@/lib/engagera";
 
 const moods = [
   { id: "happy", label: "Happy", icon: Smile, color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
@@ -28,20 +28,17 @@ const MoodMatcher = () => {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
 
   const { data: suggestions, isLoading, isFetching } = useQuery({
-    queryKey: ["mood-suggestions", selectedMood],
+    queryKey: ["engagera-mood-suggestions", selectedMood],
     queryFn: async () => {
-      if (!selectedMood) return null;
-      
-      const { data, error } = await supabase.functions.invoke("mood-matcher", {
-        body: { mood: selectedMood },
-      });
-      
-      if (error) throw error;
-      return data as { suggestions: MoodSuggestion[] };
+      if (!selectedMood || !hasEngagera()) return { suggestions: [] as MoodSuggestion[] };
+      const prompt = `A viewer is feeling "${selectedMood}". Recommend exactly 3 movies perfect for this mood.
+Return JSON: {"suggestions":[{"title":"...","reason":"one short sentence, max 15 words","genres":["Genre1","Genre2"]}]}`;
+      return askEngageraJson<{ suggestions: MoodSuggestion[] }>(prompt, { suggestions: [] });
     },
     enabled: !!selectedMood,
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 10 * 60 * 1000,
   });
+
 
   return (
     <section className="px-4 py-6">

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { askEngageraJson, hasEngagera } from "@/lib/engagera";
 
 interface MovieData {
   title: string;
@@ -18,32 +18,58 @@ interface InsightResponse {
 
 type InsightType = "insights" | "why-watch" | "mood" | "trivia";
 
+const buildPrompt = (movie: MovieData, type: InsightType, watchlist?: MovieData[]): string => {
+  const base = `Movie/Show: "${movie.title}" (${movie.release_year})
+Genres: ${movie.genres.join(", ") || "n/a"}
+Rating: ${movie.rating}/10
+Overview: ${movie.overview?.slice(0, 500) || "n/a"}
+${movie.cast?.length ? `Cast: ${movie.cast.join(", ")}` : ""}`;
+
+  switch (type) {
+    case "insights":
+      return `${base}
+
+Return JSON: {"result":["insight 1","insight 2","insight 3"],"type":"insights"}
+Each insight is one short sentence highlighting themes, style, or notable elements.`;
+    case "why-watch":
+      return `${base}
+${watchlist?.length ? `User's watchlist: ${watchlist.map(m => m.title).join(", ")}` : ""}
+
+Return JSON: {"result":"one persuasive sentence explaining why to watch this","type":"why-watch"}`;
+    case "mood":
+      return `${base}
+
+Return JSON: {"result":"one short poetic sentence describing the mood/vibe","type":"mood"}`;
+    case "trivia":
+      return `${base}
+
+Return JSON: {"result":["fact 1","fact 2","fact 3"],"type":"trivia"} with interesting production trivia.`;
+  }
+};
+
 const fetchInsight = async (
   movie: MovieData,
   type: InsightType,
   watchlist?: MovieData[]
 ): Promise<InsightResponse> => {
-  const { data, error } = await supabase.functions.invoke("movie-insights", {
-    body: { movie, type, watchlist },
-  });
-
-  if (error) throw error;
-  return data;
+  if (!hasEngagera()) return { result: "", type };
+  const prompt = buildPrompt(movie, type, watchlist);
+  return askEngageraJson<InsightResponse>(prompt, { result: "", type });
 };
 
 export const useMovieInsights = (movie: MovieData | null, enabled = true) => {
   return useQuery({
-    queryKey: ["movie-insights", movie?.title],
+    queryKey: ["engagera-movie-insights", movie?.title],
     queryFn: () => fetchInsight(movie!, "insights"),
     enabled: enabled && !!movie,
-    staleTime: 24 * 60 * 60 * 1000, // Cache for 24 hours
+    staleTime: 24 * 60 * 60 * 1000,
     retry: 1,
   });
 };
 
 export const useWhyWatch = (movie: MovieData | null, watchlist: MovieData[] = [], enabled = true) => {
   return useQuery({
-    queryKey: ["why-watch", movie?.title, watchlist.length],
+    queryKey: ["engagera-why-watch", movie?.title, watchlist.length],
     queryFn: () => fetchInsight(movie!, "why-watch", watchlist),
     enabled: enabled && !!movie,
     staleTime: 24 * 60 * 60 * 1000,
@@ -53,7 +79,7 @@ export const useWhyWatch = (movie: MovieData | null, watchlist: MovieData[] = []
 
 export const useMovieMood = (movie: MovieData | null, enabled = true) => {
   return useQuery({
-    queryKey: ["movie-mood", movie?.title],
+    queryKey: ["engagera-movie-mood", movie?.title],
     queryFn: () => fetchInsight(movie!, "mood"),
     enabled: enabled && !!movie,
     staleTime: 24 * 60 * 60 * 1000,
@@ -63,7 +89,7 @@ export const useMovieMood = (movie: MovieData | null, enabled = true) => {
 
 export const useMovieTrivia = (movie: MovieData | null, enabled = true) => {
   return useQuery({
-    queryKey: ["movie-trivia", movie?.title],
+    queryKey: ["engagera-movie-trivia", movie?.title],
     queryFn: () => fetchInsight(movie!, "trivia"),
     enabled: enabled && !!movie,
     staleTime: 24 * 60 * 60 * 1000,
@@ -71,7 +97,6 @@ export const useMovieTrivia = (movie: MovieData | null, enabled = true) => {
   });
 };
 
-// Helper to convert TMDB movie data to our format
 export const toMovieData = (movie: any): MovieData => ({
   title: movie.title || movie.name || "",
   overview: movie.overview || "",
