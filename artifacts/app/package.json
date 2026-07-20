@@ -76,6 +76,7 @@
     "zod": "catalog:"
   },
   "dependencies": {
+    "@afuchat1/engagera": "0.1.2",
     "@supabase/supabase-js": "^2.110.0",
     "react-router-dom": "^7.18.1"
   }
