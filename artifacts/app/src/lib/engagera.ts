@@ -46,11 +46,11 @@ export const getStoredEngageraKey = (): string => {
 export const engagera = getEngagera();
 
 
-/** Ask AfuBot for a JSON payload matching an inline schema description. */
 export async function askEngageraJson<T>(prompt: string, fallback: T): Promise<T> {
-  if (!engagera) return fallback;
+  const client = getEngagera();
+  if (!client) return fallback;
   try {
-    const reply = await engagera.chat.create({
+    const reply = await client.chat.create({
       messages: [
         {
           role: "system",
@@ -69,3 +69,4 @@ export async function askEngageraJson<T>(prompt: string, fallback: T): Promise<T
     return fallback;
   }
 }
+
