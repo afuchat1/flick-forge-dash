@@ -52,7 +52,7 @@ const ProfilePage = () => {
     <div className="min-h-screen bg-background pb-24 md:pb-0">
       <Header />
 
-      <main className="pt-14 md:pt-28">
+      <main className="pt-24 md:pt-40">
         <div className="px-4 py-6 text-center">
           <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-primary/20 flex items-center justify-center">
             <User className="h-10 w-10 text-primary" />
