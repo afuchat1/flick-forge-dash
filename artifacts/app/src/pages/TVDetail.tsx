@@ -82,7 +82,7 @@ const TVDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background pb-16 md:pb-0 pt-32">
+      <div className="min-h-screen bg-background pb-16 md:pb-0 pt-14 md:pt-28">
         <Header />
         <div className="relative h-[50vh]">
           <Skeleton className="w-full h-full" />
@@ -99,7 +99,7 @@ const TVDetail = () => {
 
   if (!show) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4 pt-32">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4 pt-14 md:pt-28">
         <div className="text-center">
           <h1 className="text-xl font-bold mb-2">TV Show not found</h1>
           <Link to="/" className="text-primary text-sm">Go Home</Link>
@@ -117,7 +117,7 @@ const TVDetail = () => {
   const episodes = seasonData?.episodes || [];
 
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0 pt-32">
+    <div className="min-h-screen bg-background pb-16 md:pb-0 pt-14 md:pt-28">
       <Header />
 
       <div className="relative">

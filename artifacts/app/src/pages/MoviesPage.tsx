@@ -17,7 +17,7 @@ const MoviesPage = () => {
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Header />
       
-      <main className="pt-32">
+      <main className="pt-14 md:pt-28">
         <TMDBHeroCarousel movies={popular?.results} isLoading={popularLoading} />
         
         {/* Browse All CTA */}
