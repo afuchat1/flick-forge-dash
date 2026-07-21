@@ -10,10 +10,10 @@ const NewPopularPage = () => {
   const { data: upcoming, isLoading: upcomingLoading } = useUpcomingMovies();
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-24 md:pb-0">
       <Header />
       
-      <main className="pt-32">
+      <main className="pt-14 md:pt-28">
         <div className="px-3 py-3">
           <h1 className="text-xl font-bold">New & Popular</h1>
           <p className="text-xs text-muted-foreground">Trending and top-rated content</p>

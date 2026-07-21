@@ -56,10 +56,10 @@ const SettingsPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-24 md:pb-0">
       <Header />
       
-      <main className="pt-32 px-4">
+      <main className="pt-14 md:pt-28 px-4">
         <div className="flex items-center gap-3 py-4">
           <Link to="/profile" className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
@@ -84,11 +84,15 @@ const SettingsPage = () => {
                 )}
               </div>
               <p className="text-xs text-muted-foreground">
-                All AI recommendations, mood matches, and search suggestions are powered by Engagera AI (AfuBot). Paste your key from{" "}
-                <a href="https://engagera.com/dashboard" target="_blank" rel="noreferrer" className="text-primary underline">
-                  engagera.com/dashboard
+                All AI recommendations, mood matches, and search suggestions are powered by Engagera AI (AfuBot). Get your key from{" "}
+                <a href="https://engagera.afuchat.com" target="_blank" rel="noreferrer" className="text-primary underline">
+                  engagera.afuchat.com
                 </a>
-                . Stored only in this browser.
+                {" "}(source: {" "}
+                <a href="https://github.com/afuchat1/EngageraAi" target="_blank" rel="noreferrer" className="text-primary underline">
+                  afuchat1/EngageraAi
+                </a>
+                ). Stored only in this browser.
               </p>
               <div className="flex gap-2">
                 <Input

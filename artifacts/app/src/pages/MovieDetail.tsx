@@ -78,7 +78,7 @@ const MovieDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background pb-16 md:pb-0 pt-32">
+      <div className="min-h-screen bg-background pb-24 md:pb-0 pt-14 md:pt-28">
         <Header />
         <div className="relative h-[50vh]">
           <Skeleton className="w-full h-full" />
@@ -95,7 +95,7 @@ const MovieDetail = () => {
 
   if (!movie) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4 pt-32">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4 pt-14 md:pt-28">
         <div className="text-center">
           <h1 className="text-xl font-bold mb-2">Movie not found</h1>
           <Link to="/" className="text-primary text-sm">Go Home</Link>
@@ -111,7 +111,7 @@ const MovieDetail = () => {
   const inWatchlist = isInWatchlist(movie.id, "movie");
 
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0 pt-32">
+    <div className="min-h-screen bg-background pb-24 md:pb-0 pt-14 md:pt-28">
       <Header />
 
       <div className="relative">

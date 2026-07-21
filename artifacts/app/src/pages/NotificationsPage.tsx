@@ -10,10 +10,10 @@ const notifications = [
 
 const NotificationsPage = () => {
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0">
+    <div className="min-h-screen bg-background pb-24 md:pb-0">
       <Header />
       
-      <main className="pt-32 pb-4">
+      <main className="pt-14 md:pt-28 pb-4">
         <div className="px-4 mb-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold">Notifications</h1>
           <button className="text-xs text-primary">Mark all read</button>

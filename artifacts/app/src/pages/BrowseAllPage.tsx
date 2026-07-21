@@ -137,10 +137,10 @@ const BrowseAllPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-24 md:pb-0">
       <Header />
       
-      <main className="pt-32">
+      <main className="pt-14 md:pt-28">
         <div className="px-3 py-3">
           <Link to={mediaType === "movie" ? "/movies" : "/tv-shows"} className="inline-flex items-center gap-1 text-xs text-muted-foreground mb-2">
             <ArrowLeft className="h-3 w-3" /> Back
