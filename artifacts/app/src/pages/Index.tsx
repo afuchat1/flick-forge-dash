@@ -69,7 +69,7 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-24 md:pb-0">
       <Header />
       
-      <main className="pt-14 md:pt-28">
+      <main className="pt-24 md:pt-40">
         <TMDBHeroCarousel movies={trending?.results} isLoading={trendingLoading} />
         
         

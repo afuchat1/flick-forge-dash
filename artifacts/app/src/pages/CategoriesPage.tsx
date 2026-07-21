@@ -40,7 +40,7 @@ const CategoriesPage = () => {
     <div className="min-h-screen bg-background pb-24 md:pb-0">
       <Header />
       
-      <main className="pt-14 md:pt-28">
+      <main className="pt-24 md:pt-40">
         <div className="px-3 py-3">
           <h1 className="text-xl font-bold">Categories</h1>
           <p className="text-xs text-muted-foreground">Browse by genre</p>

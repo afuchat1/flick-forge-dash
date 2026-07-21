@@ -100,7 +100,7 @@ const SearchPage = () => {
     <div className="min-h-screen bg-background pb-24 md:pb-0">
       <Header />
       
-      <main className="pt-14 md:pt-28">
+      <main className="pt-24 md:pt-40">
         <div className="px-3 py-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
