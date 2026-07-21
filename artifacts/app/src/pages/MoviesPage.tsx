@@ -14,7 +14,7 @@ const MoviesPage = () => {
   const { data: upcoming, isLoading: upcomingLoading } = useUpcomingMovies();
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-24 md:pb-0">
       <Header />
       
       <main className="pt-14 md:pt-28">

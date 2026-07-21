@@ -35,7 +35,7 @@ const ActorDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background pb-16 md:pb-0 pt-14 md:pt-28">
+      <div className="min-h-screen bg-background pb-24 md:pb-0 pt-14 md:pt-28">
         <Header />
         <div className="p-4 space-y-4">
           <Skeleton className="w-32 h-32 rounded-full mx-auto" />
@@ -62,7 +62,7 @@ const ActorDetail = () => {
   const age = calculateAge(person.birthday, person.deathday);
 
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0 pt-14 md:pt-28">
+    <div className="min-h-screen bg-background pb-24 md:pb-0 pt-14 md:pt-28">
       <Header />
       
       <div className="p-4">
