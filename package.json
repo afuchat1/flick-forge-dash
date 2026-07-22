@@ -5,11 +5,11 @@
   "scripts": {
     "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
     "dev": "PORT=8080 BASE_PATH=/ pnpm --filter @workspace/app run dev",
-    "ensure:deps": "test -x artifacts/app/node_modules/.bin/vite && test -x artifacts/mockup-sandbox/node_modules/.bin/vite || pnpm install --frozen-lockfile",
-    "build": "pnpm run ensure:deps && pnpm run typecheck && pnpm -r --if-present run build",
-    "build:dev": "pnpm run ensure:deps && pnpm -r --if-present --filter \"./artifacts/**\" run build",
+    "ensure:deps": "test -x artifacts/app/node_modules/.bin/vite || pnpm install --frozen-lockfile=false",
+    "build": "pnpm run ensure:deps && pnpm --filter @workspace/app run build",
+    "build:dev": "pnpm run ensure:deps && pnpm --filter @workspace/app run build",
     "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
+    "typecheck": "pnpm run typecheck:libs && pnpm --filter @workspace/app run typecheck"
   },
   "private": true,
   "dependencies": {

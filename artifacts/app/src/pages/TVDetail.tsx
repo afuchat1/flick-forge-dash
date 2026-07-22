@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Star, Share2, Check, Play } from "lucide-react";
+import { ArrowLeft, Plus, Star, Share2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
@@ -8,7 +8,7 @@ import TMDBContentRow from "@/components/TMDBContentRow";
 import AIInsights from "@/components/AIInsights";
 import ContentMatcher from "@/components/ContentMatcher";
 import StreamingProviders from "@/components/StreamingProviders";
-import TrailerPlayer from "@/components/TrailerPlayer";
+
 import { useTVDetails, useTVSeason, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/hooks/useAuth";
@@ -173,13 +173,6 @@ const TVDetail = () => {
                 <><Plus className="mr-1.5 h-4 w-4" /> Add to My List</>
               )}
             </Button>
-            {trailer && (
-              <TrailerPlayer
-                trailerKey={trailer.key}
-                title={show.name}
-                watchPath={`/watch/tv/${show.id}?trailer=1`}
-              />
-            )}
             <Button size="sm" variant="secondary" className="h-9 w-9 p-0" onClick={handleShare}>
               <Share2 className="h-4 w-4" />
             </Button>
@@ -303,12 +296,9 @@ const TVDetail = () => {
             ) : (
               <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
                 {episodes.map((episode: any) => (
-                  <button
+                  <div
                     key={episode.id}
-                    onClick={() => trailer && navigate(`/watch/tv/${id}`)}
-                    disabled={!trailer}
-                    title={trailer ? "Play show trailer" : undefined}
-                    className="flex-shrink-0 w-44 text-left animate-fade-in group touch-manipulation disabled:cursor-default"
+                    className="flex-shrink-0 w-44 text-left animate-fade-in"
                   >
                     <div className="relative">
                       <img
@@ -316,16 +306,6 @@ const TVDetail = () => {
                         alt={episode.name}
                         className="w-full aspect-video object-cover rounded-lg"
                       />
-                      {trailer && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/0 group-hover:bg-black/40 transition-colors rounded-lg">
-                          <div className="w-9 h-9 rounded-full bg-primary/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Play className="h-4 w-4 text-primary-foreground ml-0.5" fill="currentColor" />
-                          </div>
-                          <span className="text-[9px] text-white font-medium opacity-0 group-hover:opacity-100 transition-opacity px-1 text-center">
-                            Play show trailer
-                          </span>
-                        </div>
-                      )}
                       {episode.vote_average > 0 && (
                         <div className="absolute bottom-1 left-1 flex items-center gap-0.5 px-1 py-0.5 rounded bg-background/80 text-[10px]">
                           <Star className="h-2.5 w-2.5 fill-primary text-primary" />
@@ -347,7 +327,7 @@ const TVDetail = () => {
                         </p>
                       )}
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
             )}
@@ -357,7 +337,15 @@ const TVDetail = () => {
         {trailer && (
           <div>
             <h3 className="font-bold mb-2">Trailer</h3>
-            <TrailerPlayer trailerKey={trailer.key} title={show.name} inline />
+            <div className="w-full aspect-video rounded-xl overflow-hidden bg-black shadow-2xl">
+              <iframe
+                src={`https://www.youtube.com/embed/${trailer.key}?rel=0&modestbranding=1&iv_load_policy=3`}
+                title={`${show.name} — Official Trailer`}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowFullScreen
+              />
+            </div>
           </div>
         )}
       </div>
