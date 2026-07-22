@@ -126,14 +126,9 @@ const TMDBHeroCarousel = ({ movies, isLoading }: TMDBHeroCarouselProps) => {
             <span className="px-1 border border-muted-foreground/50 rounded text-[10px]">HD</span>
           </div>
           <div className="flex gap-2">
-            <Link to={`/watch/${isTV ? "tv" : "movie"}/${featuredMovie.id}`}>
-              <Button size="sm" className="h-10 md:h-9 px-5 md:px-4 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold touch-manipulation">
-                <Play className="h-4 w-4 mr-1.5" fill="currentColor" /> Play
-              </Button>
-            </Link>
             <Link to={detailPath}>
-              <Button size="sm" variant="secondary" className="h-10 md:h-9 px-5 md:px-4 text-sm font-semibold touch-manipulation">
-                <Info className="h-4 w-4 mr-1.5" /> Details
+              <Button size="sm" className="h-10 md:h-9 px-5 md:px-4 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold touch-manipulation">
+                <Info className="h-4 w-4 mr-1.5" /> View Details
               </Button>
             </Link>
           </div>
