@@ -259,7 +259,15 @@ const MovieDetail = () => {
         {trailer && (
           <div>
             <h3 className="font-bold mb-2">Trailer</h3>
-            <TrailerPlayer trailerKey={trailer.key} title={movie.title} inline />
+            <div className="w-full aspect-video rounded-xl overflow-hidden bg-black shadow-2xl">
+              <iframe
+                src={`https://www.youtube.com/embed/${trailer.key}?rel=0&modestbranding=1&iv_load_policy=3`}
+                title={`${movie.title} — Official Trailer`}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowFullScreen
+              />
+            </div>
           </div>
         )}
 
