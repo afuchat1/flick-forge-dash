@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import MovieDetail from "./pages/MovieDetail";
 import TVDetail from "./pages/TVDetail";
-import WatchPage from "./pages/WatchPage";
+
 import ActorDetail from "./pages/ActorDetail";
 import SearchPage from "./pages/SearchPage";
 import GenrePage from "./pages/GenrePage";
