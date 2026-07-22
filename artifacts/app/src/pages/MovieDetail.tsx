@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Star, Share2, Check, Play } from "lucide-react";
+import { ArrowLeft, Plus, Star, Share2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
@@ -8,9 +8,7 @@ import TMDBContentRow from "@/components/TMDBContentRow";
 import AIInsights from "@/components/AIInsights";
 import ContentMatcher from "@/components/ContentMatcher";
 import StreamingProviders from "@/components/StreamingProviders";
-import TrailerPlayer from "@/components/TrailerPlayer";
 import { useMovieDetails, getImageUrl } from "@/hooks/useTMDB";
-import { usePublicDomainSource } from "@/hooks/usePublicDomainSource";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/hooks/useAuth";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
