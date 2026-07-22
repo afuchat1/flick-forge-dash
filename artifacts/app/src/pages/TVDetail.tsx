@@ -173,13 +173,6 @@ const TVDetail = () => {
                 <><Plus className="mr-1.5 h-4 w-4" /> Add to My List</>
               )}
             </Button>
-            {trailer && (
-              <TrailerPlayer
-                trailerKey={trailer.key}
-                title={show.name}
-                watchPath={`/watch/tv/${show.id}?trailer=1`}
-              />
-            )}
             <Button size="sm" variant="secondary" className="h-9 w-9 p-0" onClick={handleShare}>
               <Share2 className="h-4 w-4" />
             </Button>
