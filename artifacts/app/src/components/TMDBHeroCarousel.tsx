@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Info, ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { Info, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TMDBMovie, getImageUrl } from "@/hooks/useTMDB";
 import { Skeleton } from "@/components/ui/skeleton";
