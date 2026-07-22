@@ -296,12 +296,9 @@ const TVDetail = () => {
             ) : (
               <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
                 {episodes.map((episode: any) => (
-                  <button
+                  <div
                     key={episode.id}
-                    onClick={() => trailer && navigate(`/watch/tv/${id}`)}
-                    disabled={!trailer}
-                    title={trailer ? "Play show trailer" : undefined}
-                    className="flex-shrink-0 w-44 text-left animate-fade-in group touch-manipulation disabled:cursor-default"
+                    className="flex-shrink-0 w-44 text-left animate-fade-in"
                   >
                     <div className="relative">
                       <img
@@ -309,16 +306,6 @@ const TVDetail = () => {
                         alt={episode.name}
                         className="w-full aspect-video object-cover rounded-lg"
                       />
-                      {trailer && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/0 group-hover:bg-black/40 transition-colors rounded-lg">
-                          <div className="w-9 h-9 rounded-full bg-primary/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Play className="h-4 w-4 text-primary-foreground ml-0.5" fill="currentColor" />
-                          </div>
-                          <span className="text-[9px] text-white font-medium opacity-0 group-hover:opacity-100 transition-opacity px-1 text-center">
-                            Play show trailer
-                          </span>
-                        </div>
-                      )}
                       {episode.vote_average > 0 && (
                         <div className="absolute bottom-1 left-1 flex items-center gap-0.5 px-1 py-0.5 rounded bg-background/80 text-[10px]">
                           <Star className="h-2.5 w-2.5 fill-primary text-primary" />
@@ -340,7 +327,7 @@ const TVDetail = () => {
                         </p>
                       )}
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
             )}
