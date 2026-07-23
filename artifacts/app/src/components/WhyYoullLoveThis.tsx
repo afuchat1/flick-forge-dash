@@ -2,10 +2,10 @@ import { Heart, Sparkles } from "lucide-react";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { useTrending } from "@/hooks/useTMDB";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { askEngageraJson, hasEngagera } from "@/lib/engagera";
 
 interface PersonalizedRecommendation {
   tmdb_id: number;
@@ -22,33 +22,39 @@ const WhyYoullLoveThis = () => {
   const { data: trending } = useTrending("all", "week");
 
   const { data: recommendations, isLoading } = useQuery({
-    queryKey: ["personalized-recommendations", watchlist.length],
+    queryKey: ["engagera-personalized-recommendations", watchlist.length],
     queryFn: async () => {
-      if (watchlist.length === 0) return null;
+      if (watchlist.length === 0 || !hasEngagera()) return null;
 
-      // Get some trending items to recommend
-      const trendingItems = trending?.results?.slice(0, 10) || [];
-      
-      const { data, error } = await supabase.functions.invoke("personalized-recommendations", {
-        body: { 
-          watchlist: watchlist.map(w => ({
-            title: w.title,
-            media_type: w.media_type,
-          })),
-          candidates: trendingItems.map((item: any) => ({
-            tmdb_id: item.id,
-            title: item.title || item.name,
-            poster_path: item.poster_path,
-            media_type: item.media_type || (item.title ? "movie" : "tv"),
-            overview: item.overview,
-          })),
-        },
+      const trendingItems = trending?.results?.slice(0, 15) || [];
+
+      const prompt = `Based on the user's watchlist, recommend up to 6 titles from the candidates list that they would love.
+
+User watchlist:
+${watchlist.map(w => `- ${w.title} (${w.media_type})`).join("\n")}
+
+Candidates:
+${trendingItems.map((item: any) => `- ${item.title || item.name} (${item.media_type || (item.title ? "movie" : "tv")}) - TMDB ID: ${item.id}`).join("\n")}
+
+Return JSON of shape:
+{"recommendations":[{"tmdb_id":number,"title":"...","poster_path":"optional tmdb path","media_type":"movie"|"tv","reason":"one sentence why it matches","match_score":0-100}]}
+Only include candidates from the list. Use the exact TMDB ID from the candidate.`;
+
+      const data = await askEngageraJson<{ recommendations: PersonalizedRecommendation[] }>(
+        prompt,
+        { recommendations: [] }
+      );
+
+      // Enrich poster_path from candidates when missing
+      const enriched = (data.recommendations || []).map((rec) => {
+        if (rec.poster_path) return rec;
+        const candidate = trendingItems.find((item: any) => item.id === rec.tmdb_id);
+        return candidate ? { ...rec, poster_path: candidate.poster_path || "" } : rec;
       });
-      
-      if (error) throw error;
-      return data as { recommendations: PersonalizedRecommendation[] };
+
+      return { recommendations: enriched };
     },
-    enabled: !!user && watchlist.length > 0 && !!trending?.results,
+    enabled: !!user && watchlist.length > 0 && !!trending?.results && hasEngagera(),
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
 
@@ -86,7 +92,7 @@ const WhyYoullLoveThis = () => {
             >
               <div className="relative w-28 aspect-[2/3] rounded-lg overflow-hidden bg-card">
                 <img
-                  src={rec.poster_path 
+                  src={rec.poster_path
                     ? `https://image.tmdb.org/t/p/w342${rec.poster_path}`
                     : "/placeholder.svg"
                   }
