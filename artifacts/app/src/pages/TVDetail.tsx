@@ -7,21 +7,21 @@ import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import AIInsights from "@/components/AIInsights";
 import ContentMatcher from "@/components/ContentMatcher";
-import StreamingProviders from "@/components/StreamingProviders";
-
+import FactPanel from "@/components/FactPanel";
+import CreditsSection from "@/components/CreditsSection";
+import VideoGallery from "@/components/VideoGallery";
+import ImageGallery from "@/components/ImageGallery";
+import ReviewsSection from "@/components/ReviewsSection";
+import WhereToWatch from "@/components/WhereToWatch";
+import ExternalLinks from "@/components/ExternalLinks";
 import { useTVDetails, useTVSeason, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/hooks/useAuth";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { formatDate, formatLanguage, formatList, formatRuntime, getTVRating } from "@/lib/format";
 
 const TVDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,6 +34,10 @@ const TVDetail = () => {
   const { addToRecentlyViewed } = useRecentlyViewed();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
+  useEffect(() => {
     if (show && user) {
       addToRecentlyViewed({
         tmdb_id: show.id,
@@ -44,6 +48,13 @@ const TVDetail = () => {
       });
     }
   }, [show?.id, user?.id]);
+
+  useEffect(() => {
+    if (!show) return;
+    document.title = `${show.name}${show.first_air_date ? ` (${show.first_air_date.slice(0, 4)})` : ""} — AfuChat Movies`;
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc && show.overview) desc.setAttribute("content", show.overview.slice(0, 155));
+  }, [show?.id]);
 
   const handleToggleWatchlist = () => {
     if (!user) {
@@ -66,13 +77,9 @@ const TVDetail = () => {
   const handleShare = async () => {
     if (navigator.share && show) {
       try {
-        await navigator.share({
-          title: show.name,
-          text: show.overview,
-          url: window.location.href,
-        });
+        await navigator.share({ title: show.name, text: show.overview, url: window.location.href });
       } catch {
-        // cancelled
+        /* cancelled */
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
@@ -84,13 +91,11 @@ const TVDetail = () => {
     return (
       <div className="min-h-screen bg-background pb-24 md:pb-0 pt-24 md:pt-40">
         <Header />
-        <div className="relative h-[50vh]">
-          <Skeleton className="w-full h-full" />
-        </div>
-        <div className="p-4 space-y-3">
-          <Skeleton className="h-6 w-48" />
+        <Skeleton className="h-[45vh] w-full" />
+        <div className="mx-auto max-w-6xl space-y-3 p-4">
+          <Skeleton className="h-8 w-64" />
           <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-40 w-full" />
         </div>
         <MobileNav />
       </div>
@@ -99,137 +104,248 @@ const TVDetail = () => {
 
   if (!show) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4 pt-24 md:pt-40">
+      <div className="flex min-h-screen items-center justify-center bg-background p-4 pt-24 md:pt-40">
         <div className="text-center">
-          <h1 className="text-xl font-bold mb-2">TV Show not found</h1>
-          <Link to="/" className="text-primary text-sm">Go Home</Link>
+          <h1 className="mb-2 text-xl">TV Show not found</h1>
+          <Link to="/" className="text-sm text-primary">Go Home</Link>
         </div>
       </div>
     );
   }
 
-  const trailer = show.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
-  const cast = show.credits?.cast?.slice(0, 10) || [];
-  const creator = show.created_by?.[0];
-  const similarShows = show.similar?.results?.slice(0, 10) || [];
+  const rating = getTVRating(show.content_ratings);
+  const similarShows = [...(show.recommendations?.results ?? []), ...(show.similar?.results ?? [])]
+    .filter((s, i, arr) => arr.findIndex((x) => x.id === s.id) === i)
+    .slice(0, 20);
   const inWatchlist = isInWatchlist(show.id, "tv");
-  const seasons = show.seasons?.filter((s: any) => s.season_number > 0) || [];
-  const episodes = seasonData?.episodes || [];
+  const seasons = show.seasons?.filter((s: any) => s.season_number > 0) ?? [];
+  const episodes = seasonData?.episodes ?? [];
+  const currentSeason = seasons.find((s: any) => s.season_number === selectedSeason);
+
+  const productionFacts = [
+    { label: "Status", value: show.status },
+    { label: "Type", value: show.type },
+    { label: "First aired", value: formatDate(show.first_air_date) },
+    { label: "Last aired", value: formatDate(show.last_air_date) },
+    { label: "Seasons", value: show.number_of_seasons },
+    { label: "Episodes", value: show.number_of_episodes },
+    { label: "Episode runtime", value: formatRuntime(show.episode_run_time?.[0]) },
+    { label: "Content rating", value: rating },
+    { label: "In production", value: show.in_production ? "Yes" : "No" },
+    { label: "Original title", value: show.original_name !== show.name ? show.original_name : null },
+    { label: "Original language", value: formatLanguage(show.original_language) },
+    { label: "Spoken languages", value: formatList(show.spoken_languages) },
+    { label: "Countries", value: formatList(show.production_countries) },
+    { label: "Networks", value: formatList(show.networks) },
+    { label: "Studios", value: formatList(show.production_companies) },
+    { label: "Created by", value: formatList(show.created_by) },
+  ];
+
+  const scoring = [
+    { label: "TMDB score", value: show.vote_average ? `${show.vote_average.toFixed(1)} / 10` : null },
+    { label: "Vote count", value: show.vote_count ? show.vote_count.toLocaleString() : null },
+    { label: "Popularity", value: show.popularity ? show.popularity.toFixed(0) : null },
+    {
+      label: "Next episode",
+      value: show.next_episode_to_air
+        ? `S${show.next_episode_to_air.season_number}E${show.next_episode_to_air.episode_number} · ${formatDate(show.next_episode_to_air.air_date)}`
+        : null,
+    },
+    {
+      label: "Latest episode",
+      value: show.last_episode_to_air
+        ? `S${show.last_episode_to_air.season_number}E${show.last_episode_to_air.episode_number} · ${show.last_episode_to_air.name}`
+        : null,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0 pt-24 md:pt-40">
       <Header />
 
       <div className="relative">
-        <div className="h-[50vh] md:h-[60vh] w-full">
+        <div className="h-[42vh] max-h-[560px] min-h-[300px] w-full md:h-[55vh]">
           <img
-            src={getImageUrl(show.backdrop_path || show.poster_path, "w780")}
-            alt={show.name}
-            className="w-full h-full object-cover"
+            src={getImageUrl(show.backdrop_path || show.poster_path, "original")}
+            alt={`${show.name} backdrop`}
+            className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+          <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <Link to="/tv-shows" className="inline-flex items-center gap-1 text-xs text-muted-foreground mb-3">
-            <ArrowLeft className="h-3 w-3" /> Back
-          </Link>
-
-          <h1 className="text-2xl md:text-4xl font-bold mb-2">{show.name}</h1>
-          {show.tagline && (
-            <p className="text-sm text-muted-foreground italic mb-2">{show.tagline}</p>
-          )}
-
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-            <span className="text-primary font-semibold">{Math.round(show.vote_average * 10)}%</span>
-            <span>{show.first_air_date?.slice(0, 4)}</span>
-            <span>{show.number_of_seasons} Season{show.number_of_seasons > 1 ? "s" : ""}</span>
-            <div className="flex items-center gap-0.5">
-              <Star className="h-3 w-3 text-primary fill-primary" />
-              <span>{show.vote_average?.toFixed(1)}</span>
-            </div>
-          </div>
-
-          {show.genres && (
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              {show.genres.map((g: any) => (
-                <span key={g.id} className="px-2 py-0.5 bg-secondary rounded text-[10px]">
-                  {g.name}
-                </span>
-              ))}
-            </div>
-          )}
-
-          <div className="flex items-center gap-2 flex-wrap">
-            <Button
-              size="sm"
-              variant={inWatchlist ? "default" : "secondary"}
-              className={`h-9 px-4 font-semibold ${inWatchlist ? "bg-primary text-primary-foreground" : ""}`}
-              onClick={handleToggleWatchlist}
+        <div className="absolute inset-x-0 bottom-0">
+          <div className="mx-auto max-w-6xl px-4 pb-4">
+            <Link
+              to="/tv-shows"
+              className="mb-3 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
             >
-              {inWatchlist ? (
-                <><Check className="mr-1.5 h-4 w-4" /> In My List</>
-              ) : (
-                <><Plus className="mr-1.5 h-4 w-4" /> Add to My List</>
-              )}
-            </Button>
-            <Button size="sm" variant="secondary" className="h-9 w-9 p-0" onClick={handleShare}>
-              <Share2 className="h-4 w-4" />
-            </Button>
+              <ArrowLeft className="h-3 w-3" /> Back to discovery
+            </Link>
+
+            <div className="flex items-end gap-4">
+              <img
+                src={getImageUrl(show.poster_path, "w342")}
+                alt={`${show.name} poster`}
+                className="hidden w-32 shrink-0 rounded-lg border border-border shadow-2xl md:block lg:w-40"
+              />
+
+              <div className="min-w-0 flex-1">
+                <h1 className="text-2xl leading-tight md:text-5xl">{show.name}</h1>
+                {show.tagline && <p className="mt-1.5 text-sm italic text-primary md:text-base">“{show.tagline}”</p>}
+
+                <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1 font-semibold text-foreground">
+                    <Star className="h-3.5 w-3.5 fill-primary text-primary" />
+                    {show.vote_average?.toFixed(1)}
+                  </span>
+                  {show.first_air_date && <span>{show.first_air_date.slice(0, 4)}</span>}
+                  <span>
+                    {show.number_of_seasons} season{show.number_of_seasons > 1 ? "s" : ""} ·{" "}
+                    {show.number_of_episodes} eps
+                  </span>
+                  {rating && (
+                    <span className="rounded border border-border px-1.5 py-0.5 font-semibold">{rating}</span>
+                  )}
+                </div>
+
+                {show.genres?.length > 0 && (
+                  <div className="mt-2.5 flex flex-wrap gap-1.5">
+                    {show.genres.map((g: any) => (
+                      <Link key={g.id} to={`/genre/${g.id}`} className="chip">
+                        {g.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="p-4 space-y-4">
+      <div className="mx-auto max-w-6xl space-y-8 px-4 py-5">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            size="sm"
+            variant={inWatchlist ? "default" : "secondary"}
+            className="h-9 px-4 font-semibold"
+            onClick={handleToggleWatchlist}
+          >
+            {inWatchlist ? (
+              <><Check className="mr-1.5 h-4 w-4" /> In My List</>
+            ) : (
+              <><Plus className="mr-1.5 h-4 w-4" /> Add to My List</>
+            )}
+          </Button>
+          <Button size="sm" variant="secondary" className="h-9 w-9 p-0" onClick={handleShare} aria-label="Share">
+            <Share2 className="h-4 w-4" />
+          </Button>
+        </div>
+
         {show.overview && (
-          <div>
-            <h3 className="font-bold mb-1">Synopsis</h3>
-            <p className="text-sm text-foreground/80">{show.overview}</p>
-          </div>
+          <section className="space-y-2.5">
+            <h2 className="section-title">Synopsis</h2>
+            <p className="max-w-3xl text-[15px] leading-relaxed text-foreground/85">{show.overview}</p>
+          </section>
         )}
 
-        <StreamingProviders
-          watchProviders={show["watch/providers"]}
-          title={show.name}
-        />
+        <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+          <div className="min-w-0 space-y-8">
+            <FactPanel title="Production Details" facts={productionFacts} />
 
-        <div className="grid grid-cols-2 gap-3 text-xs">
-          {creator && (
-            <div>
-              <p className="text-muted-foreground">Created By</p>
-              <p className="font-medium">{creator.name}</p>
-            </div>
-          )}
-          {show.first_air_date && (
-            <div>
-              <p className="text-muted-foreground">First Aired</p>
-              <p className="font-medium">{new Date(show.first_air_date).toLocaleDateString()}</p>
-            </div>
-          )}
-          {show.number_of_episodes && (
-            <div>
-              <p className="text-muted-foreground">Episodes</p>
-              <p className="font-medium">{show.number_of_episodes}</p>
-            </div>
-          )}
-          {show.status && (
-            <div>
-              <p className="text-muted-foreground">Status</p>
-              <p className="font-medium">{show.status}</p>
-            </div>
-          )}
-          {show.networks?.[0] && (
-            <div>
-              <p className="text-muted-foreground">Network</p>
-              <p className="font-medium">{show.networks[0].name}</p>
-            </div>
-          )}
-          {show.original_language && (
-            <div>
-              <p className="text-muted-foreground">Language</p>
-              <p className="font-medium uppercase">{show.original_language}</p>
-            </div>
-          )}
+            {/* Season & episode guide */}
+            {seasons.length > 0 && (
+              <section className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="section-title">Episode Guide</h2>
+                  <Select value={String(selectedSeason)} onValueChange={(v) => setSelectedSeason(Number(v))}>
+                    <SelectTrigger className="h-8 w-44 text-xs">
+                      <SelectValue placeholder="Select season" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {seasons.map((season: any) => (
+                        <SelectItem key={season.season_number} value={String(season.season_number)}>
+                          Season {season.season_number} ({season.episode_count} eps)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {currentSeason?.overview && (
+                  <p className="text-sm leading-relaxed text-muted-foreground">{currentSeason.overview}</p>
+                )}
+
+                {seasonLoading ? (
+                  <div className="space-y-2">
+                    {[...Array(4)].map((_, i) => (
+                      <Skeleton key={i} className="h-24 rounded-lg" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-2.5">
+                    {episodes.map((ep: any) => (
+                      <article key={ep.id} className="fact-panel flex gap-3 p-2.5">
+                        <img
+                          src={getImageUrl(ep.still_path, "w342")}
+                          alt={ep.name}
+                          loading="lazy"
+                          className="aspect-video w-32 shrink-0 rounded-md bg-secondary object-cover sm:w-44"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-sm font-semibold leading-tight">
+                              <span className="text-primary">E{ep.episode_number}</span> {ep.name}
+                            </p>
+                            {ep.vote_average > 0 && (
+                              <span className="flex shrink-0 items-center gap-0.5 text-[11px] text-muted-foreground">
+                                <Star className="h-3 w-3 fill-primary text-primary" />
+                                {ep.vote_average.toFixed(1)}
+                              </span>
+                            )}
+                          </div>
+                          <p className="mt-0.5 text-[11px] text-muted-foreground">
+                            {[formatDate(ep.air_date), ep.runtime ? `${ep.runtime} min` : null]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </p>
+                          {ep.overview && (
+                            <p className="mt-1 line-clamp-3 text-xs leading-relaxed text-foreground/75">
+                              {ep.overview}
+                            </p>
+                          )}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+
+            <VideoGallery videos={show.videos?.results ?? []} title={show.name} />
+            <CreditsSection cast={show.credits?.cast ?? []} crew={show.credits?.crew ?? []} />
+            <ImageGallery images={show.images ?? {}} />
+            <ReviewsSection
+              reviews={show.reviews?.results ?? []}
+              voteAverage={show.vote_average}
+              voteCount={show.vote_count}
+            />
+          </div>
+
+          <aside className="min-w-0 space-y-8">
+            <FactPanel title="Scoring &amp; Schedule" facts={scoring} columns={1} />
+            <WhereToWatch
+              providers={show["watch/providers"]}
+              title={show.name}
+              tmdbLink={`https://www.themoviedb.org/tv/${show.id}/watch`}
+            />
+            <ExternalLinks
+              externalIds={show.external_ids}
+              homepage={show.homepage}
+              keywords={show.keywords?.results ?? []}
+              mediaType="tv"
+            />
+          </aside>
         </div>
 
         <AIInsights movie={show} />
@@ -240,119 +356,9 @@ const TVDetail = () => {
           genres={show.genres?.map((g: any) => g.name)}
           overview={show.overview}
         />
-
-        {cast.length > 0 && (
-          <div>
-            <h3 className="font-bold mb-2">Cast</h3>
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-              {cast.map((actor: any) => (
-                <Link
-                  key={actor.id}
-                  to={`/person/${actor.id}`}
-                  className="flex-shrink-0 w-20 text-center group"
-                >
-                  <div className="w-20 h-20 rounded-full overflow-hidden bg-card mb-1.5 ring-2 ring-transparent group-hover:ring-primary transition-all">
-                    <img
-                      src={getImageUrl(actor.profile_path, "w185")}
-                      alt={actor.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <p className="text-xs font-medium line-clamp-1 group-hover:text-primary transition-colors">{actor.name}</p>
-                  <p className="text-[10px] text-muted-foreground line-clamp-1">{actor.character}</p>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {seasons.length > 0 && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold">Episodes</h3>
-              <Select
-                value={String(selectedSeason)}
-                onValueChange={(val) => setSelectedSeason(Number(val))}
-              >
-                <SelectTrigger className="w-40 h-8 text-xs">
-                  <SelectValue placeholder="Select Season" />
-                </SelectTrigger>
-                <SelectContent>
-                  {seasons.map((season: any) => (
-                    <SelectItem key={season.season_number} value={String(season.season_number)}>
-                      Season {season.season_number} ({season.episode_count} eps)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {seasonLoading ? (
-              <div className="space-y-2">
-                {[...Array(5)].map((_, i) => (
-                  <Skeleton key={i} className="h-20 rounded-lg" />
-                ))}
-              </div>
-            ) : (
-              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-                {episodes.map((episode: any) => (
-                  <div
-                    key={episode.id}
-                    className="flex-shrink-0 w-44 text-left animate-fade-in"
-                  >
-                    <div className="relative">
-                      <img
-                        src={getImageUrl(episode.still_path, "w342")}
-                        alt={episode.name}
-                        className="w-full aspect-video object-cover rounded-lg"
-                      />
-                      {episode.vote_average > 0 && (
-                        <div className="absolute bottom-1 left-1 flex items-center gap-0.5 px-1 py-0.5 rounded bg-background/80 text-[10px]">
-                          <Star className="h-2.5 w-2.5 fill-primary text-primary" />
-                          {episode.vote_average.toFixed(1)}
-                        </div>
-                      )}
-                    </div>
-                    <div className="mt-1.5">
-                      <p className="text-xs font-medium line-clamp-1">
-                        {episode.episode_number}. {episode.name}
-                      </p>
-                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                        {episode.runtime && <span>{episode.runtime} min</span>}
-                        {episode.air_date && <span>{episode.air_date.slice(0, 4)}</span>}
-                      </div>
-                      {episode.overview && (
-                        <p className="text-[10px] text-muted-foreground line-clamp-2 mt-1">
-                          {episode.overview}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {trailer && (
-          <div>
-            <h3 className="font-bold mb-2">Trailer</h3>
-            <div className="w-full aspect-video rounded-xl overflow-hidden bg-black shadow-2xl">
-              <iframe
-                src={`https://www.youtube.com/embed/${trailer.key}?rel=0&modestbranding=1&iv_load_policy=3`}
-                title={`${show.name} — Official Trailer`}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                allowFullScreen
-              />
-            </div>
-          </div>
-        )}
       </div>
 
-      {similarShows.length > 0 && (
-        <TMDBContentRow title="More Like This" movies={similarShows} />
-      )}
+      {similarShows.length > 0 && <TMDBContentRow title="More Like This" movies={similarShows} />}
 
       <MobileNav />
     </div>
