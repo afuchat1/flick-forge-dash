@@ -97,7 +97,7 @@ export const useTopRatedTV = (page = 1) => {
 export const useMovieDetails = (movieId: number) => {
   return useQuery({
     queryKey: ["tmdb", "movie", movieId],
-    queryFn: () => fetchTMDB(`/movie/${movieId}`, { append_to_response: "credits,videos,similar,reviews,watch/providers" }),
+    queryFn: () => fetchTMDB(`/movie/${movieId}`, { append_to_response: "credits,videos,similar,recommendations,reviews,keywords,images,external_ids,release_dates,watch/providers", include_image_language: "en,null" }),
     enabled: !!movieId,
     staleTime: 10 * 60 * 1000,
   });
@@ -115,7 +115,7 @@ export const useMovieProviders = (movieId: number) => {
 export const useTVDetails = (tvId: number) => {
   return useQuery({
     queryKey: ["tmdb", "tv", tvId],
-    queryFn: () => fetchTMDB(`/tv/${tvId}`, { append_to_response: "credits,videos,similar,reviews,watch/providers" }),
+    queryFn: () => fetchTMDB(`/tv/${tvId}`, { append_to_response: "credits,videos,similar,recommendations,reviews,keywords,images,external_ids,content_ratings,watch/providers", include_image_language: "en,null" }),
     enabled: !!tvId,
     staleTime: 10 * 60 * 1000,
   });

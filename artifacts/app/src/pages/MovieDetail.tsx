@@ -1,19 +1,34 @@
 import { useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Star, Share2, Check } from "lucide-react";
+import { ArrowLeft, Plus, Star, Share2, Check, Film } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import AIInsights from "@/components/AIInsights";
 import ContentMatcher from "@/components/ContentMatcher";
-import StreamingProviders from "@/components/StreamingProviders";
+import FactPanel from "@/components/FactPanel";
+import CreditsSection from "@/components/CreditsSection";
+import VideoGallery from "@/components/VideoGallery";
+import ImageGallery from "@/components/ImageGallery";
+import ReviewsSection from "@/components/ReviewsSection";
+import WhereToWatch from "@/components/WhereToWatch";
+import ExternalLinks from "@/components/ExternalLinks";
 import { useMovieDetails, getImageUrl } from "@/hooks/useTMDB";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/hooks/useAuth";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import {
+  formatCurrency,
+  formatDate,
+  formatLanguage,
+  formatList,
+  formatRuntime,
+  getMovieCertification,
+  profitLabel,
+} from "@/lib/format";
 
 const MovieDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,7 +38,9 @@ const MovieDetail = () => {
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const { addToRecentlyViewed } = useRecentlyViewed();
 
-
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
 
   useEffect(() => {
     if (movie && user) {
@@ -36,6 +53,13 @@ const MovieDetail = () => {
       });
     }
   }, [movie?.id, user?.id]);
+
+  useEffect(() => {
+    if (!movie) return;
+    document.title = `${movie.title}${movie.release_date ? ` (${movie.release_date.slice(0, 4)})` : ""} — AfuChat Movies`;
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc && movie.overview) desc.setAttribute("content", movie.overview.slice(0, 155));
+  }, [movie?.id]);
 
   const handleToggleWatchlist = () => {
     if (!user) {
@@ -58,13 +82,9 @@ const MovieDetail = () => {
   const handleShare = async () => {
     if (navigator.share && movie) {
       try {
-        await navigator.share({
-          title: movie.title,
-          text: movie.overview,
-          url: window.location.href,
-        });
+        await navigator.share({ title: movie.title, text: movie.overview, url: window.location.href });
       } catch {
-        // cancelled
+        /* cancelled */
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
@@ -76,13 +96,12 @@ const MovieDetail = () => {
     return (
       <div className="min-h-screen bg-background pb-24 md:pb-0 pt-24 md:pt-40">
         <Header />
-        <div className="relative h-[50vh]">
-          <Skeleton className="w-full h-full" />
-        </div>
-        <div className="p-4 space-y-3">
-          <Skeleton className="h-6 w-48" />
+        <Skeleton className="h-[45vh] w-full" />
+        <div className="mx-auto max-w-6xl space-y-3 p-4">
+          <Skeleton className="h-8 w-64" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-40 w-full" />
         </div>
         <MobileNav />
       </div>
@@ -91,135 +110,186 @@ const MovieDetail = () => {
 
   if (!movie) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4 pt-24 md:pt-40">
+      <div className="flex min-h-screen items-center justify-center bg-background p-4 pt-24 md:pt-40">
         <div className="text-center">
-          <h1 className="text-xl font-bold mb-2">Movie not found</h1>
-          <Link to="/" className="text-primary text-sm">Go Home</Link>
+          <h1 className="mb-2 text-xl">Movie not found</h1>
+          <Link to="/" className="text-sm text-primary">Go Home</Link>
         </div>
       </div>
     );
   }
 
-  const trailer = movie.videos?.results?.find((v: any) => v.type === "Trailer" && v.site === "YouTube");
-  const cast = movie.credits?.cast?.slice(0, 10) || [];
-  const director = movie.credits?.crew?.find((c: any) => c.job === "Director");
-  const similarMovies = movie.similar?.results?.slice(0, 10) || [];
+  const cert = getMovieCertification(movie.release_dates);
+  const director = movie.credits?.crew?.filter((c: any) => c.job === "Director") ?? [];
+  const writers = movie.credits?.crew?.filter((c: any) => ["Screenplay", "Writer", "Story"].includes(c.job)) ?? [];
+  const composer = movie.credits?.crew?.find((c: any) => c.job === "Original Music Composer");
+  const cinematographer = movie.credits?.crew?.find((c: any) => c.job === "Director of Photography");
+  const producers = movie.credits?.crew?.filter((c: any) => c.job === "Producer") ?? [];
+  const similarMovies = [...(movie.recommendations?.results ?? []), ...(movie.similar?.results ?? [])]
+    .filter((m, i, arr) => arr.findIndex((x) => x.id === m.id) === i)
+    .slice(0, 20);
   const inWatchlist = isInWatchlist(movie.id, "movie");
+  const collection = movie.belongs_to_collection;
+
+  const people = [
+    { label: "Director", value: formatList(director) },
+    { label: "Writers", value: formatList(writers) },
+    { label: "Producers", value: formatList(producers.slice(0, 4)) },
+    { label: "Cinematography", value: cinematographer?.name },
+    { label: "Music by", value: composer?.name },
+  ];
+
+  const releaseFacts = [
+    { label: "Status", value: movie.status },
+    { label: "Release date", value: formatDate(movie.release_date) },
+    { label: "Runtime", value: formatRuntime(movie.runtime) },
+    { label: "Certification", value: cert },
+    { label: "Original title", value: movie.original_title !== movie.title ? movie.original_title : null },
+    { label: "Original language", value: formatLanguage(movie.original_language) },
+    { label: "Spoken languages", value: formatList(movie.spoken_languages) },
+    { label: "Countries", value: formatList(movie.production_countries) },
+    { label: "Studios", value: formatList(movie.production_companies) },
+  ];
+
+  const boxOffice = [
+    { label: "Budget", value: formatCurrency(movie.budget) },
+    { label: "Revenue", value: formatCurrency(movie.revenue) },
+    { label: "Result", value: profitLabel(movie.budget, movie.revenue) },
+    { label: "TMDB score", value: movie.vote_average ? `${movie.vote_average.toFixed(1)} / 10` : null },
+    { label: "Vote count", value: movie.vote_count ? movie.vote_count.toLocaleString() : null },
+    { label: "Popularity", value: movie.popularity ? movie.popularity.toFixed(0) : null },
+  ];
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0 pt-24 md:pt-40">
       <Header />
 
+      {/* Masthead */}
       <div className="relative">
-        <div className="h-[50vh] md:h-[60vh] w-full">
+        <div className="h-[42vh] max-h-[560px] min-h-[300px] w-full md:h-[55vh]">
           <img
-            src={getImageUrl(movie.backdrop_path || movie.poster_path, "w780")}
-            alt={movie.title}
-            className="w-full h-full object-cover"
+            src={getImageUrl(movie.backdrop_path || movie.poster_path, "original")}
+            alt={`${movie.title} backdrop`}
+            className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+          <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <Link to="/" className="inline-flex items-center gap-1 text-xs text-muted-foreground mb-3">
-            <ArrowLeft className="h-3 w-3" /> Back
-          </Link>
+        <div className="absolute inset-x-0 bottom-0">
+          <div className="mx-auto max-w-6xl px-4 pb-4">
+            <Link to="/" className="mb-3 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
+              <ArrowLeft className="h-3 w-3" /> Back to discovery
+            </Link>
 
-          <h1 className="text-2xl md:text-4xl font-bold mb-2">{movie.title}</h1>
-          {movie.tagline && (
-            <p className="text-sm text-muted-foreground italic mb-2">{movie.tagline}</p>
-          )}
+            <div className="flex items-end gap-4">
+              <img
+                src={getImageUrl(movie.poster_path, "w342")}
+                alt={`${movie.title} poster`}
+                className="hidden w-32 shrink-0 rounded-lg border border-border shadow-2xl md:block lg:w-40"
+              />
 
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-            <span className="text-primary font-semibold">{Math.round(movie.vote_average * 10)}%</span>
-            <span>{movie.release_date?.slice(0, 4)}</span>
-            {movie.runtime ? <span>{movie.runtime} min</span> : null}
-            <div className="flex items-center gap-0.5">
-              <Star className="h-3 w-3 text-primary fill-primary" />
-              <span>{movie.vote_average?.toFixed(1)}</span>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-2xl leading-tight md:text-5xl">{movie.title}</h1>
+                {movie.tagline && (
+                  <p className="mt-1.5 text-sm italic text-primary md:text-base">“{movie.tagline}”</p>
+                )}
+
+                <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1 font-semibold text-foreground">
+                    <Star className="h-3.5 w-3.5 fill-primary text-primary" />
+                    {movie.vote_average?.toFixed(1)}
+                  </span>
+                  {movie.release_date && <span>{movie.release_date.slice(0, 4)}</span>}
+                  {movie.runtime ? <span>{formatRuntime(movie.runtime)}</span> : null}
+                  {cert && <span className="rounded border border-border px-1.5 py-0.5 font-semibold">{cert}</span>}
+                </div>
+
+                {movie.genres?.length > 0 && (
+                  <div className="mt-2.5 flex flex-wrap gap-1.5">
+                    {movie.genres.map((g: any) => (
+                      <Link key={g.id} to={`/genre/${g.id}`} className="chip">
+                        {g.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-
-          {movie.genres && (
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              {movie.genres.map((g: any) => (
-                <Link key={g.id} to={`/genre/${g.id}`} className="px-2 py-0.5 bg-secondary rounded text-[10px]">
-                  {g.name}
-                </Link>
-              ))}
-            </div>
-          )}
-
-          <div className="flex items-center gap-2 flex-wrap">
-            <Button
-              size="sm"
-              variant={inWatchlist ? "default" : "secondary"}
-              className={`h-9 px-4 font-semibold ${inWatchlist ? "bg-primary text-primary-foreground" : ""}`}
-              onClick={handleToggleWatchlist}
-            >
-              {inWatchlist ? (
-                <><Check className="mr-1.5 h-4 w-4" /> In My List</>
-              ) : (
-                <><Plus className="mr-1.5 h-4 w-4" /> Add to My List</>
-              )}
-            </Button>
-            <Button size="sm" variant="secondary" className="h-9 w-9 p-0" onClick={handleShare}>
-              <Share2 className="h-4 w-4" />
-            </Button>
           </div>
         </div>
       </div>
 
-      <div className="p-4 space-y-4">
+      <div className="mx-auto max-w-6xl space-y-8 px-4 py-5">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            size="sm"
+            variant={inWatchlist ? "default" : "secondary"}
+            className="h-9 px-4 font-semibold"
+            onClick={handleToggleWatchlist}
+          >
+            {inWatchlist ? (
+              <><Check className="mr-1.5 h-4 w-4" /> In My List</>
+            ) : (
+              <><Plus className="mr-1.5 h-4 w-4" /> Add to My List</>
+            )}
+          </Button>
+          <Button size="sm" variant="secondary" className="h-9 w-9 p-0" onClick={handleShare} aria-label="Share">
+            <Share2 className="h-4 w-4" />
+          </Button>
+        </div>
+
         {movie.overview && (
-          <div>
-            <h3 className="font-bold mb-1">Synopsis</h3>
-            <p className="text-sm text-foreground/80">{movie.overview}</p>
-          </div>
+          <section className="space-y-2.5">
+            <h2 className="section-title">Synopsis</h2>
+            <p className="max-w-3xl text-[15px] leading-relaxed text-foreground/85">{movie.overview}</p>
+          </section>
         )}
 
-        <StreamingProviders
-          watchProviders={movie["watch/providers"]}
-          title={movie.title}
-        />
+        <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+          <div className="min-w-0 space-y-8">
+            <FactPanel title="Release Details" facts={releaseFacts} />
+            <FactPanel title="Key People" facts={people} />
+            <VideoGallery videos={movie.videos?.results ?? []} title={movie.title} />
+            <CreditsSection cast={movie.credits?.cast ?? []} crew={movie.credits?.crew ?? []} />
+            <ImageGallery images={movie.images ?? {}} />
+            <ReviewsSection
+              reviews={movie.reviews?.results ?? []}
+              voteAverage={movie.vote_average}
+              voteCount={movie.vote_count}
+            />
+          </div>
 
-        <div className="grid grid-cols-2 gap-3 text-xs">
-          {director && (
-            <div>
-              <p className="text-muted-foreground">Director</p>
-              <p className="font-medium">{director.name}</p>
-            </div>
-          )}
-          {movie.release_date && (
-            <div>
-              <p className="text-muted-foreground">Release Date</p>
-              <p className="font-medium">{new Date(movie.release_date).toLocaleDateString()}</p>
-            </div>
-          )}
-          {movie.original_language && (
-            <div>
-              <p className="text-muted-foreground">Language</p>
-              <p className="font-medium uppercase">{movie.original_language}</p>
-            </div>
-          )}
-          {movie.production_countries?.[0] && (
-            <div>
-              <p className="text-muted-foreground">Country</p>
-              <p className="font-medium">{movie.production_countries[0].name}</p>
-            </div>
-          )}
-          {movie.budget > 0 && (
-            <div>
-              <p className="text-muted-foreground">Budget</p>
-              <p className="font-medium">${movie.budget.toLocaleString()}</p>
-            </div>
-          )}
-          {movie.revenue > 0 && (
-            <div>
-              <p className="text-muted-foreground">Revenue</p>
-              <p className="font-medium">${movie.revenue.toLocaleString()}</p>
-            </div>
-          )}
+          <aside className="min-w-0 space-y-8">
+            <FactPanel title="Box Office &amp; Scoring" facts={boxOffice} columns={1} />
+            <WhereToWatch
+              providers={movie["watch/providers"]}
+              title={movie.title}
+              tmdbLink={`https://www.themoviedb.org/movie/${movie.id}/watch`}
+            />
+            {collection && (
+              <section className="space-y-3">
+                <h2 className="section-title">Part of a Collection</h2>
+                <div className="fact-panel overflow-hidden">
+                  {collection.backdrop_path && (
+                    <img
+                      src={getImageUrl(collection.backdrop_path, "w780")}
+                      alt={collection.name}
+                      className="h-24 w-full object-cover"
+                    />
+                  )}
+                  <p className="flex items-center gap-2 p-3.5 text-sm font-semibold">
+                    <Film className="h-4 w-4 text-primary" /> {collection.name}
+                  </p>
+                </div>
+              </section>
+            )}
+            <ExternalLinks
+              externalIds={movie.external_ids}
+              homepage={movie.homepage}
+              keywords={movie.keywords?.keywords ?? []}
+              mediaType="movie"
+            />
+          </aside>
         </div>
 
         <AIInsights movie={movie} />
@@ -230,73 +300,9 @@ const MovieDetail = () => {
           genres={movie.genres?.map((g: any) => g.name)}
           overview={movie.overview}
         />
-
-        {cast.length > 0 && (
-          <div>
-            <h3 className="font-bold mb-2">Cast</h3>
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-              {cast.map((actor: any) => (
-                <Link
-                  key={actor.id}
-                  to={`/person/${actor.id}`}
-                  className="flex-shrink-0 w-20 text-center group"
-                >
-                  <div className="w-20 h-20 rounded-full overflow-hidden bg-card mb-1.5 ring-2 ring-transparent group-hover:ring-primary transition-all">
-                    <img
-                      src={getImageUrl(actor.profile_path, "w185")}
-                      alt={actor.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <p className="text-xs font-medium line-clamp-1 group-hover:text-primary transition-colors">{actor.name}</p>
-                  <p className="text-[10px] text-muted-foreground line-clamp-1">{actor.character}</p>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {trailer && (
-          <div>
-            <h3 className="font-bold mb-2">Trailer</h3>
-            <div className="w-full aspect-video rounded-xl overflow-hidden bg-black shadow-2xl">
-              <iframe
-                src={`https://www.youtube.com/embed/${trailer.key}?rel=0&modestbranding=1&iv_load_policy=3`}
-                title={`${movie.title} — Official Trailer`}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                allowFullScreen
-              />
-            </div>
-          </div>
-        )}
-
-        {movie.reviews?.results?.length > 0 && (
-          <div>
-            <h3 className="font-bold mb-2">Reviews</h3>
-            <div className="space-y-2">
-              {movie.reviews.results.slice(0, 3).map((review: any) => (
-                <div key={review.id} className="p-3 bg-card rounded-md">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium">{review.author}</span>
-                    {review.author_details?.rating && (
-                      <div className="flex items-center gap-0.5 text-xs">
-                        <Star className="h-3 w-3 text-primary fill-primary" />
-                        <span>{review.author_details.rating}</span>
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground line-clamp-3">{review.content}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
-      {similarMovies.length > 0 && (
-        <TMDBContentRow title="More Like This" movies={similarMovies} />
-      )}
+      {similarMovies.length > 0 && <TMDBContentRow title="More Like This" movies={similarMovies} />}
 
       <MobileNav />
     </div>

@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Outfit', 'system-ui', 'sans-serif'],
+        sans: ['Hind', 'system-ui', 'sans-serif'],
+        display: ['Archivo Black', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

@@ -5,6 +5,7 @@ import InfiniteContentRow from "@/components/InfiniteContentRow";
 import MobileNav from "@/components/MobileNav";
 import RecentlyViewed from "@/components/RecentlyViewed";
 import WhyYoullLoveThis from "@/components/WhyYoullLoveThis";
+import DiscoverSpotlight from "@/components/DiscoverSpotlight";
 
 import { 
   useTrending, 
@@ -71,15 +72,18 @@ const Index = () => {
       
       <main className="pt-24 md:pt-40">
         <TMDBHeroCarousel movies={trending?.results} isLoading={trendingLoading} />
-        
-        
+
+        {/* Editorial spotlight */}
+        <DiscoverSpotlight items={trending?.results} isLoading={trendingLoading} />
+
         {/* Recently Viewed */}
         <RecentlyViewed />
-        
+
         {/* Personalized Recommendations */}
         <WhyYoullLoveThis />
-        
+
         <CategoryCards />
+
         
         <div className="space-y-1">
           <InfiniteContentRow 
