@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import Header from "@/components/Header";
+import Seo from "@/components/Seo";
 import MobileNav from "@/components/MobileNav";
 import InfiniteContentRow from "@/components/InfiniteContentRow";
 import TMDBHeroCarousel from "@/components/TMDBHeroCarousel";
@@ -36,6 +37,7 @@ const TVShowsPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
+      <Seo title={"TV Shows — Series Guide & Episode Lists | AfuChat Movies"} description={"Explore TV series with season and episode guides, cast, crew, ratings and streaming availability."} path="/tv-shows" />
       <Header />
       
       <main className="pt-24 md:pt-40">

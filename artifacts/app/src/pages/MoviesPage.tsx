@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import Header from "@/components/Header";
+import Seo from "@/components/Seo";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import TMDBHeroCarousel from "@/components/TMDBHeroCarousel";
@@ -15,6 +16,7 @@ const MoviesPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
+      <Seo title={"Movies — Browse & Discover Films | AfuChat Movies"} description={"Browse thousands of films by genre, year and rating. Full cast, crew, box office and where-to-watch details for every movie."} path="/movies" />
       <Header />
       
       <main className="pt-24 md:pt-40">

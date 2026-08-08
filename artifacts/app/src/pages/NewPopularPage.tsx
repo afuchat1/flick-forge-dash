@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import Seo from "@/components/Seo";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import { useTrending, useTopRatedMovies, useUpcomingMovies, useTopRatedTV } from "@/hooks/useTMDB";
@@ -11,6 +12,7 @@ const NewPopularPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
+      <Seo title={"New & Popular — Latest Movies and Shows | AfuChat Movies"} description={"The newest releases and trending titles right now, with full details on cast, ratings and where to watch."} path="/new-popular" />
       <Header />
       
       <main className="pt-24 md:pt-40">

@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import Seo from "@/components/Seo";
 import TMDBHeroCarousel from "@/components/TMDBHeroCarousel";
 import CategoryCards from "@/components/CategoryCards";
 import InfiniteContentRow from "@/components/InfiniteContentRow";
@@ -68,6 +69,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
+      <Seo title={"AfuChat Movies — Movie & TV Discovery Library"} description={"Discover movies and TV shows with full documentation: cast, crew, box office, ratings, trailers and where to watch."} path="/" />
       <Header />
       
       <main className="pt-24 md:pt-40">

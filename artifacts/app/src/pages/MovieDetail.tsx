@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Plus, Star, Share2, Check, Film } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
+import Seo from "@/components/Seo";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import AIInsights from "@/components/AIInsights";
@@ -54,12 +55,6 @@ const MovieDetail = () => {
     }
   }, [movie?.id, user?.id]);
 
-  useEffect(() => {
-    if (!movie) return;
-    document.title = `${movie.title}${movie.release_date ? ` (${movie.release_date.slice(0, 4)})` : ""} — AfuChat Movies`;
-    const desc = document.querySelector('meta[name="description"]');
-    if (desc && movie.overview) desc.setAttribute("content", movie.overview.slice(0, 155));
-  }, [movie?.id]);
 
   const handleToggleWatchlist = () => {
     if (!user) {
@@ -162,7 +157,33 @@ const MovieDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0 pt-24 md:pt-40">
+      <Seo
+        title={`${movie.title}${movie.release_date ? ` (${movie.release_date.slice(0, 4)})` : ""} — AfuChat Movies`}
+        description={movie.overview || `Cast, crew, box office, ratings and where to watch ${movie.title}.`}
+        path={`/movie/${movie.id}`}
+        image={getImageUrl(movie.backdrop_path || movie.poster_path, "original")}
+        type="video.movie"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Movie",
+          name: movie.title,
+          description: movie.overview,
+          image: getImageUrl(movie.poster_path, "original"),
+          datePublished: movie.release_date || undefined,
+          genre: movie.genres?.map((g: { name: string }) => g.name),
+          aggregateRating: movie.vote_count
+            ? {
+                "@type": "AggregateRating",
+                ratingValue: Number(movie.vote_average?.toFixed(1)),
+                ratingCount: movie.vote_count,
+                bestRating: 10,
+                worstRating: 0,
+              }
+            : undefined,
+        }}
+      />
       <Header />
+
 
       {/* Masthead */}
       <div className="relative">

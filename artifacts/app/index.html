@@ -3,23 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-    
+
     <!-- Primary Meta Tags -->
     <title>AfuChat Movies — Movie & TV Discovery Library</title>
     <meta name="title" content="AfuChat Movies — Movie & TV Discovery Library" />
     <meta name="description" content="Discover movies and TV shows with full documentation: cast, crew, box office, ratings, trailers, keywords and where to watch. A research-grade film library." />
     <meta name="keywords" content="movie discovery, film database, movie info, cast and crew, box office, TV show guide, episode guide, movie ratings, where to watch, film library" />
     <meta name="author" content="AfuChat Movies" />
-    <meta name="robots" content="index, follow" />
-    <meta name="language" content="English" />
-    <meta name="revisit-after" content="1 days" />
-    
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://afuchat-movies.lovable.app" />
-    
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+    <!-- Canonical is set per-route via react-helmet-async -->
+
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://afuchat-movies.lovable.app" />
+    <meta property="og:url" content="https://flick-forge-dash.lovable.app/" />
     <meta property="og:title" content="AfuChat Movies — Movie & TV Discovery Library" />
     <meta property="og:description" content="Explore films and series in depth: cast, crew, box office, ratings, trailers and where to watch. Discovery only — no streaming." />
     <meta property="og:site_name" content="AfuChat Movies" />
@@ -27,19 +25,23 @@
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://afuchat-movies.lovable.app" />
+    <meta name="twitter:url" content="https://flick-forge-dash.lovable.app/" />
     <meta name="twitter:title" content="AfuChat Movies — Movie & TV Discovery Library" />
     <meta name="twitter:description" content="Explore films and series in depth: cast, crew, box office, ratings, trailers and where to watch." />
-    
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#e85d3a" />
-    <meta name="msapplication-TileColor" content="#e85d3a" />
 
-    
-    <!-- Apple Touch Icon -->
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#e51414" />
+    <meta name="msapplication-TileColor" content="#e51414" />
+
+    <!-- Icons -->
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
-    
+
+    <!-- Performance -->
+    <link rel="preconnect" href="https://image.tmdb.org" />
+    <link rel="preconnect" href="https://api.themoviedb.org" />
+    <link rel="dns-prefetch" href="https://image.tmdb.org" />
+
     <!-- Structured Data / JSON-LD -->
     <script type="application/ld+json">
     {
@@ -47,11 +49,17 @@
       "@type": "WebSite",
       "name": "AfuChat Movies",
       "alternateName": ["AfuChat", "AfuChat Movie Discovery"],
-      "url": "https://afuchat-movies.lovable.app",
+      "url": "https://flick-forge-dash.lovable.app/",
       "description": "A movie and TV discovery library with in-depth documentation on every title: cast, crew, box office, ratings, trailers and where to watch.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "AfuChat Movies",
+        "url": "https://flick-forge-dash.lovable.app/",
+        "logo": "https://flick-forge-dash.lovable.app/logo.png"
+      },
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://afuchat-movies.lovable.app/search?q={search_term_string}",
+        "target": "https://flick-forge-dash.lovable.app/search?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
     }
