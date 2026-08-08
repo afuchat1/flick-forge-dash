@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Search, Loader2, X, Sparkles } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
+import Seo from "@/components/Seo";
 import MobileNav from "@/components/MobileNav";
 import MoodMatcher from "@/components/MoodMatcher";
 import { useInfiniteSearch, useGenres, getImageUrl, useMoviesByGenre } from "@/hooks/useTMDB";
@@ -98,6 +99,7 @@ const SearchPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
+      <Seo title={"Search Movies & TV Shows | AfuChat Movies"} description={"Search a research-grade library of films and series. Find cast, crew, ratings, trailers and streaming availability."} path="/search" />
       <Header />
       
       <main className="pt-24 md:pt-40">
