@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Plus, Star, Share2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
+import Seo from "@/components/Seo";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import AIInsights from "@/components/AIInsights";
@@ -155,7 +156,35 @@ const TVDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0 pt-24 md:pt-40">
+      <Seo
+        title={`${show.name}${show.first_air_date ? ` (${show.first_air_date.slice(0, 4)})` : ""} — AfuChat Movies`}
+        description={show.overview || `Episode guide, cast, crew and ratings for ${show.name}.`}
+        path={`/tv/${show.id}`}
+        image={getImageUrl(show.backdrop_path || show.poster_path, "original")}
+        type="video.tv_show"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "TVSeries",
+          name: show.name,
+          description: show.overview,
+          image: getImageUrl(show.poster_path, "original"),
+          startDate: show.first_air_date || undefined,
+          numberOfSeasons: show.number_of_seasons,
+          numberOfEpisodes: show.number_of_episodes,
+          genre: show.genres?.map((g: { name: string }) => g.name),
+          aggregateRating: show.vote_count
+            ? {
+                "@type": "AggregateRating",
+                ratingValue: Number(show.vote_average?.toFixed(1)),
+                ratingCount: show.vote_count,
+                bestRating: 10,
+                worstRating: 0,
+              }
+            : undefined,
+        }}
+      />
       <Header />
+
 
       <div className="relative">
         <div className="h-[42vh] max-h-[560px] min-h-[300px] w-full md:h-[55vh]">
