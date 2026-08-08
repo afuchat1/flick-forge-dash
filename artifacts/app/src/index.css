@@ -5,33 +5,33 @@
 @tailwind utilities;
 
 /* AfuChat Movies — Discovery Design System
-   Palette: Charcoal & Ember  #1a1a1a / #2d2d2d / #4a4a4a / #e85d3a
+   Palette: Charcoal & Crimson  #141414 / #1e1e1e / #333 / #e51414
    Type:    Archivo Black (headings) x Hind (body) */
 
 @layer base {
   :root {
     /* Charcoal surfaces */
     --background: 0 0% 8%;          /* #141414 */
-    --foreground: 30 12% 96%;
+    --foreground: 0 0% 96%;
 
     --card: 0 0% 12%;               /* #1e1e1e */
-    --card-foreground: 30 12% 96%;
+    --card-foreground: 0 0% 96%;
 
     --popover: 0 0% 10%;
-    --popover-foreground: 30 12% 96%;
+    --popover-foreground: 0 0% 96%;
 
-    /* Ember */
-    --primary: 14 79% 57%;          /* #e85d3a */
+    /* Crimson */
+    --primary: 0 82% 49%;           /* #e51414 */
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 24 88% 62%;
+    --primary-glow: 358 86% 60%;
 
     --secondary: 0 0% 18%;          /* #2d2d2d */
-    --secondary-foreground: 30 12% 96%;
+    --secondary-foreground: 0 0% 96%;
 
     --muted: 0 0% 20%;
     --muted-foreground: 0 0% 62%;
 
-    --accent: 24 88% 62%;
+    --accent: 358 86% 60%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
@@ -39,16 +39,17 @@
 
     --border: 0 0% 20%;             /* #333 */
     --input: 0 0% 18%;
-    --ring: 14 79% 57%;
+    --ring: 0 82% 49%;
 
     --radius: 0.5rem;
 
     /* Signature effects */
     --gradient-hero: linear-gradient(180deg, transparent 0%, hsl(0 0% 8% / 0.55) 45%, hsl(0 0% 8%) 100%);
-    --gradient-ember: linear-gradient(120deg, hsl(14 79% 57%) 0%, hsl(24 88% 62%) 100%);
+    --gradient-ember: linear-gradient(120deg, hsl(0 82% 49%) 0%, hsl(358 86% 60%) 100%);
     --gradient-card: linear-gradient(180deg, transparent 40%, hsl(0 0% 8% / 0.95) 100%);
-    --shadow-ember: 0 12px 40px -12px hsl(14 79% 57% / 0.45);
+    --shadow-ember: 0 12px 40px -12px hsl(0 82% 49% / 0.45);
     --shadow-panel: 0 1px 0 0 hsl(0 0% 100% / 0.04) inset, 0 18px 50px -24px hsl(0 0% 0% / 0.9);
+
   }
 }
 
