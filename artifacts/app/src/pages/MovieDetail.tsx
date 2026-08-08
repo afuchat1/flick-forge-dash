@@ -54,12 +54,6 @@ const MovieDetail = () => {
     }
   }, [movie?.id, user?.id]);
 
-  useEffect(() => {
-    if (!movie) return;
-    document.title = `${movie.title}${movie.release_date ? ` (${movie.release_date.slice(0, 4)})` : ""} — AfuChat Movies`;
-    const desc = document.querySelector('meta[name="description"]');
-    if (desc && movie.overview) desc.setAttribute("content", movie.overview.slice(0, 155));
-  }, [movie?.id]);
 
   const handleToggleWatchlist = () => {
     if (!user) {

@@ -49,12 +49,6 @@ const TVDetail = () => {
     }
   }, [show?.id, user?.id]);
 
-  useEffect(() => {
-    if (!show) return;
-    document.title = `${show.name}${show.first_air_date ? ` (${show.first_air_date.slice(0, 4)})` : ""} — AfuChat Movies`;
-    const desc = document.querySelector('meta[name="description"]');
-    if (desc && show.overview) desc.setAttribute("content", show.overview.slice(0, 155));
-  }, [show?.id]);
 
   const handleToggleWatchlist = () => {
     if (!user) {
