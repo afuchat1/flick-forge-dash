@@ -4,7 +4,10 @@ import Engagera from "@afuchat1/engagera";
  * Single platform-wide Engagera key. No per-user keys, no localStorage:
  * AI works identically for signed-in and anonymous visitors.
  */
-const PLATFORM_KEY = (import.meta.env.VITE_ENGAGERA_API_KEY as string | undefined)?.trim() || "";
+const PLATFORM_KEY =
+  (import.meta.env.VITE_ENGAGERA_API_KEY as string | undefined)?.trim() ||
+  "eng_2ed3f056425528efe6685e1d5f833a2b25910ae83c32f090a2320e8b298a2ca7";
+
 
 let _client: Engagera | null = PLATFORM_KEY
   ? new Engagera({ apiKey: PLATFORM_KEY, defaultModel: "engagera-2.1" })
