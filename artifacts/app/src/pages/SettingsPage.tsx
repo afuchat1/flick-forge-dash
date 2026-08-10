@@ -5,24 +5,15 @@ import MobileNav from "@/components/MobileNav";
 import { useAuth } from "@/hooks/useAuth";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { getStoredEngageraKey, setEngageraApiKey, hasEngagera } from "@/lib/engagera";
-import { toast } from "sonner";
+import { hasEngagera } from "@/lib/engagera";
 
 const SettingsPage = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState(true);
   const [autoplay, setAutoplay] = useState(true);
   const [hdStreaming, setHdStreaming] = useState(true);
-  const [engageraKey, setLocalEngageraKey] = useState(getStoredEngageraKey());
-  const [engageraConnected, setEngageraConnected] = useState(hasEngagera());
+  const engageraConnected = hasEngagera();
 
-  const saveEngageraKey = () => {
-    setEngageraApiKey(engageraKey);
-    setEngageraConnected(hasEngagera());
-    toast.success(engageraKey.trim() ? "Engagera AI connected" : "Engagera AI key cleared");
-  };
 
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
