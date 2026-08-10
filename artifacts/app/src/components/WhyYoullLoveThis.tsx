@@ -18,20 +18,29 @@ interface PersonalizedRecommendation {
 
 const WhyYoullLoveThis = () => {
   const { user } = useAuth();
-  const { watchlist, isLoading: watchlistLoading } = useWatchlist();
+  const { watchlist } = useWatchlist();
   const { data: trending } = useTrending("all", "week");
 
+  const trendingItems = trending?.results?.slice(0, 15) || [];
+  // Signed-in users get watchlist-based picks; everyone else gets taste picks
+  // derived from what's trending, so the AI works without an account.
+  const seeds = user && watchlist.length > 0
+    ? watchlist.map((w) => `${w.title} (${w.media_type})`)
+    : trendingItems.slice(0, 6).map((i: any) => `${i.title || i.name} (${i.media_type || (i.title ? "movie" : "tv")})`);
+
+  const personalized = !!user && watchlist.length > 0;
+
   const { data: recommendations, isLoading } = useQuery({
-    queryKey: ["engagera-personalized-recommendations", watchlist.length],
+    queryKey: ["engagera-personalized-recommendations", personalized ? watchlist.length : "anon", seeds.slice(0, 3).join("|")],
     queryFn: async () => {
-      if (watchlist.length === 0 || !hasEngagera()) return null;
+      if (seeds.length === 0 || !hasEngagera()) return null;
 
-      const trendingItems = trending?.results?.slice(0, 15) || [];
+      const prompt = `${personalized
+        ? "Based on the user's watchlist"
+        : "Based on what audiences are watching right now"}, recommend up to 6 titles from the candidates list they would love.
 
-      const prompt = `Based on the user's watchlist, recommend up to 6 titles from the candidates list that they would love.
-
-User watchlist:
-${watchlist.map(w => `- ${w.title} (${w.media_type})`).join("\n")}
+Seed titles:
+${seeds.map((s) => `- ${s}`).join("\n")}
 
 Candidates:
 ${trendingItems.map((item: any) => `- ${item.title || item.name} (${item.media_type || (item.title ? "movie" : "tv")}) - TMDB ID: ${item.id}`).join("\n")}
@@ -54,18 +63,17 @@ Only include candidates from the list. Use the exact TMDB ID from the candidate.
 
       return { recommendations: enriched };
     },
-    enabled: !!user && watchlist.length > 0 && !!trending?.results && hasEngagera(),
+    enabled: seeds.length > 0 && trendingItems.length > 0 && hasEngagera(),
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
 
-  if (!user || watchlistLoading) return null;
-  if (watchlist.length === 0) return null;
+  if (!hasEngagera()) return null;
 
   return (
     <section className="py-3">
       <div className="flex items-center gap-2 px-3 mb-2">
-        <Heart className="h-4 w-4 text-pink-500" />
-        <h2 className="text-sm font-bold">For You</h2>
+        <Heart className="h-4 w-4 text-primary" />
+        <h2 className="text-sm font-bold">{personalized ? "For You" : "Picked for You"}</h2>
         <Sparkles className="h-3 w-3 text-primary animate-pulse" />
       </div>
 
