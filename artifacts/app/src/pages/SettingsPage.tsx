@@ -67,34 +67,24 @@ const SettingsPage = () => {
             <div className="p-4 bg-card rounded-lg space-y-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">Engagera API Key</span>
-                {engageraConnected && (
-                  <span className="ml-auto inline-flex items-center gap-1 text-xs text-emerald-400">
-                    <Check className="h-3 w-3" /> Connected
-                  </span>
-                )}
+                <span className="text-sm font-medium">Engagera AI</span>
+                <span className={`ml-auto inline-flex items-center gap-1 text-xs ${engageraConnected ? "text-emerald-400" : "text-muted-foreground"}`}>
+                  {engageraConnected ? (<><Check className="h-3 w-3" /> Active</>) : "Unavailable"}
+                </span>
               </div>
               <p className="text-xs text-muted-foreground">
-                All AI recommendations, mood matches, and search suggestions are powered by Engagera AI (AfuBot). Get your key from{" "}
+                AI recommendations, mood matching and smart search are powered by Engagera AI (AfuBot) on a
+                single platform key — available to everyone, no account or personal key needed. Learn more at{" "}
                 <a href="https://engagera.afuchat.com" target="_blank" rel="noreferrer" className="text-primary underline">
                   engagera.afuchat.com
                 </a>
-                {" "}(source: {" "}
+                {" "}(source:{" "}
                 <a href="https://github.com/afuchat1/EngageraAi" target="_blank" rel="noreferrer" className="text-primary underline">
                   afuchat1/EngageraAi
                 </a>
-                ). Stored only in this browser.
+                ).
               </p>
-              <div className="flex gap-2">
-                <Input
-                  type="password"
-                  placeholder="eng_..."
-                  value={engageraKey}
-                  onChange={(e) => setLocalEngageraKey(e.target.value)}
-                  className="flex-1"
-                />
-                <Button onClick={saveEngageraKey} size="sm">Save</Button>
-              </div>
+
             </div>
           </div>
 
