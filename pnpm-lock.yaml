@@ -162,8 +162,8 @@ importers:
   artifacts/app:
     dependencies:
       '@afuchat1/engagera':
-        specifier: 0.1.2
-        version: 0.1.2
+        specifier: 0.2.0
+        version: 0.2.0
       '@supabase/supabase-js':
         specifier: ^2.110.0
         version: 2.110.0
@@ -378,8 +378,8 @@ importers:
 
 packages:
 
-  '@afuchat1/engagera@0.1.2':
-    resolution: {integrity: sha512-kDyo9VoUBffKjzZCPlOtEQ1FHM71PMkqbxhl2Q+Q5v70qzb39J5jdjmfcbeIkBAKLZb7IW35y+lfQB2whFVwAg==}
+  '@afuchat1/engagera@0.2.0':
+    resolution: {integrity: sha512-n6g5u8zKcyd/9qaZo+yvPp6v0Ybr9uCvxhu/PiPJmSElErDTZLzCsPpmxYSCycf8oexj/QOFF7m1x6QshYFlzQ==}
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -2103,7 +2103,7 @@ packages:
 
 snapshots:
 
-  '@afuchat1/engagera@0.1.2': {}
+  '@afuchat1/engagera@0.2.0': {}
 
   '@alloc/quick-lru@5.2.0': {}
 
