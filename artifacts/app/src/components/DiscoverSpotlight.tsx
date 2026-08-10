@@ -56,7 +56,7 @@ const DiscoverSpotlight = ({ items = [], isLoading }: DiscoverSpotlightProps) =>
         className="group relative block overflow-hidden rounded-xl border border-border"
       >
         <img
-          src={getImageUrl(lead.backdrop_path, "w1280")}
+          src={getImageUrl(lead.backdrop_path, "original")}
           alt={titleOf(lead)}
           className="aspect-[16/9] w-full object-cover transition-transform duration-700 group-hover:scale-105 md:aspect-[21/8]"
         />
