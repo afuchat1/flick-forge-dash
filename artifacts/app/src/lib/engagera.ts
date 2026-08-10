@@ -1,50 +1,21 @@
 import Engagera from "@afuchat1/engagera";
 
-const STORAGE_KEY = "engagera_api_key";
+/**
+ * Single platform-wide Engagera key. No per-user keys, no localStorage:
+ * AI works identically for signed-in and anonymous visitors.
+ */
+const PLATFORM_KEY = (import.meta.env.VITE_ENGAGERA_API_KEY as string | undefined)?.trim() || "";
 
-const readKey = (): string | undefined => {
-  const envKey = (import.meta.env.VITE_ENGAGERA_API_KEY as string | undefined) ?? undefined;
-  if (envKey) return envKey;
-  if (typeof window !== "undefined") {
-    return window.localStorage.getItem(STORAGE_KEY) ?? undefined;
-  }
-  return undefined;
-};
+let _client: Engagera | null = PLATFORM_KEY
+  ? new Engagera({ apiKey: PLATFORM_KEY, defaultModel: "engagera-2.1" })
+  : null;
 
-let _client: Engagera | null = null;
-let _key: string | undefined = readKey();
+export const getEngagera = () => _client;
 
-const buildClient = (key?: string) => (key ? new Engagera({ apiKey: key, defaultModel: "engagera-2.1" }) : null);
-_client = buildClient(_key);
-
-export const getEngagera = () => {
-  const latest = readKey();
-  if (latest !== _key) {
-    _key = latest;
-    _client = buildClient(latest);
-  }
-  return _client;
-};
-
-export const hasEngagera = () => getEngagera() !== null;
-
-export const setEngageraApiKey = (key: string) => {
-  if (typeof window !== "undefined") {
-    if (key.trim()) window.localStorage.setItem(STORAGE_KEY, key.trim());
-    else window.localStorage.removeItem(STORAGE_KEY);
-  }
-  _key = key.trim() || undefined;
-  _client = buildClient(_key);
-};
-
-export const getStoredEngageraKey = (): string => {
-  if (typeof window === "undefined") return "";
-  return window.localStorage.getItem(STORAGE_KEY) ?? "";
-};
+export const hasEngagera = () => _client !== null;
 
 // Back-compat named export
-export const engagera = getEngagera();
-
+export const engagera = _client;
 
 export async function askEngageraJson<T>(prompt: string, fallback: T): Promise<T> {
   const client = getEngagera();
@@ -69,4 +40,3 @@ export async function askEngageraJson<T>(prompt: string, fallback: T): Promise<T
     return fallback;
   }
 }
-
