@@ -294,19 +294,25 @@ export const useInfiniteTrending = (mediaType: "all" | "movie" | "tv" = "all", t
   });
 };
 
-export const useInfiniteDiscover = (type: "movie" | "tv", sortBy: string = "popularity.desc") => {
+export const useInfiniteDiscover = (
+  type: "movie" | "tv",
+  sortBy: string = "popularity.desc",
+  genreId?: string
+) => {
   return useInfiniteQuery<TMDBResponse>({
-    queryKey: ["tmdb", "discover", "infinite", type, sortBy],
-    queryFn: ({ pageParam = 1 }) => fetchTMDB(`/discover/${type}`, { 
-      page: String(pageParam),
-      sort_by: sortBy 
-    }),
+    queryKey: ["tmdb", "discover", "infinite", type, sortBy, genreId || "all"],
+    queryFn: ({ pageParam = 1 }) =>
+      fetchTMDB(`/discover/${type}`, {
+        page: String(pageParam),
+        sort_by: sortBy,
+        "vote_count.gte": sortBy.startsWith("vote_average") ? "200" : "0",
+        ...(genreId ? { with_genres: genreId } : {}),
+      }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      if (lastPage.page < lastPage.total_pages && lastPage.page < 500) {
-        return lastPage.page + 1;
-      }
-      return undefined;
+      // TMDB hard-caps discover pagination at 500 pages
+      const maxPage = Math.min(lastPage.total_pages, 500);
+      return lastPage.page < maxPage ? lastPage.page + 1 : undefined;
     },
     staleTime: 5 * 60 * 1000,
   });
