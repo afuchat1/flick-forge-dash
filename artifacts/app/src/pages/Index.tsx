@@ -72,7 +72,7 @@ const Index = () => {
       <Seo title={"AfuChat Movies — Movie & TV Discovery Library"} description={"Discover movies and TV shows with full documentation: cast, crew, box office, ratings, trailers and where to watch."} path="/" />
       <Header />
       
-      <main className="pt-24 md:pt-40">
+      <main className="pt-28 md:pt-24">
         <TMDBHeroCarousel movies={trending?.results} isLoading={trendingLoading} />
 
         {/* Editorial spotlight */}

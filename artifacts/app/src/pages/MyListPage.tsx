@@ -32,7 +32,7 @@ const MyListPage = () => {
     <div className="min-h-screen bg-background pb-24 md:pb-0">
       <Header />
       
-      <main className="pt-24 md:pt-40">
+      <main className="pt-28 md:pt-24">
         <div className="px-3 py-3">
           <h1 className="text-xl font-bold">My List</h1>
           <p className="text-xs text-muted-foreground">

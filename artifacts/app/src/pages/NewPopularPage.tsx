@@ -15,7 +15,7 @@ const NewPopularPage = () => {
       <Seo title={"New & Popular — Latest Movies and Shows | AfuChat Movies"} description={"The newest releases and trending titles right now, with full details on cast, ratings and where to watch."} path="/new-popular" />
       <Header />
       
-      <main className="pt-24 md:pt-40">
+      <main className="pt-28 md:pt-24">
         <div className="px-3 py-3">
           <h1 className="text-xl font-bold">New & Popular</h1>
           <p className="text-xs text-muted-foreground">Trending and top-rated content</p>

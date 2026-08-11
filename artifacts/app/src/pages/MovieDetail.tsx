@@ -89,7 +89,7 @@ const MovieDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background pb-24 md:pb-0 pt-24 md:pt-40">
+      <div className="min-h-screen bg-background pb-24 md:pb-0 pt-28 md:pt-24">
         <Header />
         <Skeleton className="h-[45vh] w-full" />
         <div className="mx-auto max-w-6xl space-y-3 p-4">
@@ -105,7 +105,7 @@ const MovieDetail = () => {
 
   if (!movie) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4 pt-24 md:pt-40">
+      <div className="flex min-h-screen items-center justify-center bg-background p-4 pt-28 md:pt-24">
         <div className="text-center">
           <h1 className="mb-2 text-xl">Movie not found</h1>
           <Link to="/" className="text-sm text-primary">Go Home</Link>
@@ -156,7 +156,7 @@ const MovieDetail = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24 md:pb-0 pt-24 md:pt-40">
+    <div className="min-h-screen bg-background pb-24 md:pb-0 pt-28 md:pt-24">
       <Seo
         title={`${movie.title}${movie.release_date ? ` (${movie.release_date.slice(0, 4)})` : ""} — AfuChat Movies`}
         description={movie.overview || `Cast, crew, box office, ratings and where to watch ${movie.title}.`}
