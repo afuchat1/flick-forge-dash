@@ -15,7 +15,7 @@ const RecentlyViewed = () => {
     <section className="px-4 py-4">
       <div className="flex items-center gap-2 mb-4">
         <Clock className="h-5 w-5 text-muted-foreground" />
-        <h2 className="text-lg font-semibold">Continue Watching</h2>
+        <h2 className="text-lg font-semibold">Recently Viewed</h2>
       </div>
 
       {isLoading && (

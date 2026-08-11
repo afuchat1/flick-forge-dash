@@ -1,5 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
-import { User, Settings, LogOut, ChevronRight, Heart, Bell, Shield, HelpCircle } from "lucide-react";
+import { User, Settings, LogOut, ChevronRight, Heart, Shield, HelpCircle, Compass } from "lucide-react";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import { useAuth } from "@/hooks/useAuth";
@@ -42,7 +42,7 @@ const ProfilePage = () => {
 
   const menuItems = [
     { icon: Heart, label: "My List", count: watchlist.length, href: "/my-list" },
-    { icon: Bell, label: "Notifications", href: "/notifications" },
+    { icon: Compass, label: "Browse Catalogue", href: "/browse?type=movie" },
     { icon: Settings, label: "Settings", href: "/settings" },
     { icon: Shield, label: "Privacy", href: "/privacy" },
     { icon: HelpCircle, label: "Help & Support", href: "/help" },

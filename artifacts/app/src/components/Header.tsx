@@ -6,6 +6,7 @@ const navTabs = [
   { name: "Movies", href: "/movies" },
   { name: "TV", href: "/tv-shows" },
   { name: "New", href: "/new-popular" },
+  { name: "Browse", href: "/browse" },
   { name: "My List", href: "/my-list" },
 ];
 
