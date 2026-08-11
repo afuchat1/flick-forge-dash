@@ -66,9 +66,25 @@ export const useRecentlyViewed = () => {
     },
   });
 
+  const clearRecentlyViewed = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error("Not authenticated");
+      const { error } = await supabase
+        .from("recently_viewed")
+        .delete()
+        .eq("user_id", user.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["recently-viewed"] });
+    },
+  });
+
   return {
     recentlyViewed,
     isLoading,
     addToRecentlyViewed: addToRecentlyViewed.mutate,
+    clearRecentlyViewed: clearRecentlyViewed.mutate,
+    isClearing: clearRecentlyViewed.isPending,
   };
 };

@@ -1,104 +1,96 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Shield, Eye, Lock, Trash2 } from "lucide-react";
+import { ArrowLeft, Trash2, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
+import Seo from "@/components/Seo";
 import MobileNav from "@/components/MobileNav";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
+import { toast } from "sonner";
+
+const sections = [
+  {
+    title: "What we collect",
+    body: "If you create an account we store your email address and the account identifier issued by our authentication provider. When signed in we also store the titles you save to My List and the titles you open (recently viewed), so those lists follow you across devices. If you browse without an account, we store nothing about you.",
+  },
+  {
+    title: "What we do not collect",
+    body: "We do not track viewing or playback — AfuChat Movies never streams or downloads video, so there is no watch history to record. We do not sell data, run advertising profiles, or share your lists with other users.",
+  },
+  {
+    title: "Third-party data",
+    body: "Title metadata, artwork, cast, ratings, reviews and streaming availability are supplied by The Movie Database (TMDB) and its JustWatch availability feed. AI features are processed by Engagera AI (engagera.afuchat.com) using only the title or prompt text needed to generate a suggestion — your account identity is not sent.",
+  },
+  {
+    title: "Storage and security",
+    body: "Your data is stored in our managed backend with row-level security, meaning only your own account can read or write your saved lists. Traffic is encrypted in transit over HTTPS.",
+  },
+  {
+    title: "Your controls",
+    body: "You can remove any title from My List at any time, clear your recently viewed list below, or sign out. To have your account and all associated rows deleted, email support@afuchat.com from the address on the account and we will action it.",
+  },
+  {
+    title: "Contact",
+    body: "Questions about this policy can be sent to support@afuchat.com.",
+  },
+];
 
 const PrivacyPage = () => {
-  const [shareActivity, setShareActivity] = useState(false);
-  const [personalizedAds, setPersonalizedAds] = useState(false);
-  const [viewingHistory, setViewingHistory] = useState(true);
+  const { user } = useAuth();
+  const { recentlyViewed, clearRecentlyViewed, isClearing } = useRecentlyViewed();
+
+  const handleClear = () => {
+    clearRecentlyViewed(undefined, {
+      onSuccess: () => toast.success("Recently viewed cleared"),
+      onError: () => toast.error("Could not clear recently viewed"),
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-background pb-24 md:pb-0">
+    <div className="min-h-screen bg-background pb-24 md:pb-10">
+      <Seo
+        title="Privacy Policy — AfuChat Movies"
+        description="How AfuChat Movies collects, stores and protects your data as a movie discovery library."
+        path="/privacy"
+      />
       <Header />
-      
-      <main className="pt-28 md:pt-24 px-4">
-        <div className="flex items-center gap-3 py-4">
-          <Link to="/profile" className="text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <h1 className="text-xl font-bold">Privacy</h1>
-        </div>
 
-        <div className="space-y-6">
-          {/* Privacy Settings */}
-          <div>
-            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-              Privacy Controls
-            </h2>
-            <div className="space-y-1">
-              <div className="flex items-center justify-between p-3 bg-card rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center">
-                    <Eye className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium">Share Viewing Activity</span>
-                    <p className="text-xs text-muted-foreground">Allow friends to see what you watch</p>
-                  </div>
-                </div>
-                <Switch checked={shareActivity} onCheckedChange={setShareActivity} />
-              </div>
-
-              <div className="flex items-center justify-between p-3 bg-card rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center">
-                    <Shield className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium">Personalized Recommendations</span>
-                    <p className="text-xs text-muted-foreground">Use viewing history for suggestions</p>
-                  </div>
-                </div>
-                <Switch checked={personalizedAds} onCheckedChange={setPersonalizedAds} />
-              </div>
-
-              <div className="flex items-center justify-between p-3 bg-card rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center">
-                    <Lock className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium">Save Viewing History</span>
-                    <p className="text-xs text-muted-foreground">Track recently watched content</p>
-                  </div>
-                </div>
-                <Switch checked={viewingHistory} onCheckedChange={setViewingHistory} />
-              </div>
-            </div>
+      <main className="pt-28 md:pt-24">
+        <div className="mx-auto w-full max-w-3xl px-4">
+          <div className="flex items-center gap-3 py-4">
+            <Link to="/settings" className="text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+            <h1 className="text-xl md:text-2xl font-bold">Privacy Policy</h1>
           </div>
+          <p className="text-xs text-muted-foreground mb-6">Last updated 11 August 2026</p>
 
-          {/* Data Management */}
-          <div>
-            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-              Data Management
-            </h2>
-            <div className="space-y-1">
-              <Button variant="outline" className="w-full justify-start gap-3 h-auto p-3">
-                <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center">
-                  <Trash2 className="h-4 w-4" />
-                </div>
-                <div className="text-left">
-                  <span className="text-sm font-medium">Clear Viewing History</span>
-                  <p className="text-xs text-muted-foreground">Remove all watched content history</p>
-                </div>
-              </Button>
-            </div>
-          </div>
+          <div className="space-y-5">
+            {sections.map((s) => (
+              <section key={s.title} className="p-4 bg-card rounded-lg">
+                <h2 className="text-sm font-semibold mb-1.5">{s.title}</h2>
+                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{s.body}</p>
+              </section>
+            ))}
 
-          {/* Privacy Policy */}
-          <div className="p-4 bg-card rounded-lg">
-            <h3 className="font-medium mb-2">Privacy Policy</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              We value your privacy. Your personal data is encrypted and never shared with third parties 
-              without your explicit consent. We only collect data necessary to provide and improve our services.
-            </p>
-            <Button variant="link" className="p-0 h-auto mt-2 text-primary text-xs">
-              Read Full Privacy Policy →
-            </Button>
+            {user && (
+              <section className="p-4 bg-card rounded-lg">
+                <h2 className="text-sm font-semibold mb-1.5">Your data</h2>
+                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed mb-3">
+                  You currently have {recentlyViewed.length} recently viewed{" "}
+                  {recentlyViewed.length === 1 ? "title" : "titles"} stored.
+                </p>
+                <Button
+                  variant="outline"
+                  className="gap-2"
+                  disabled={isClearing || recentlyViewed.length === 0}
+                  onClick={handleClear}
+                >
+                  {isClearing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                  Clear recently viewed
+                </Button>
+              </section>
+            )}
           </div>
         </div>
       </main>

@@ -179,7 +179,7 @@ export const useInfiniteMoviesByGenre = (genreId: number) => {
     queryFn: ({ pageParam = 1 }) => fetchTMDB("/discover/movie", { with_genres: String(genreId), page: String(pageParam) }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      if (lastPage.page < lastPage.total_pages && lastPage.page < 20) {
+      if (lastPage.page < lastPage.total_pages && lastPage.page < 500) {
         return lastPage.page + 1;
       }
       return undefined;
@@ -294,23 +294,31 @@ export const useInfiniteTrending = (mediaType: "all" | "movie" | "tv" = "all", t
   });
 };
 
-export const useInfiniteDiscover = (type: "movie" | "tv", sortBy: string = "popularity.desc") => {
+export const useInfiniteDiscover = (
+  type: "movie" | "tv",
+  sortBy: string = "popularity.desc",
+  genreId?: string
+) => {
   return useInfiniteQuery<TMDBResponse>({
-    queryKey: ["tmdb", "discover", "infinite", type, sortBy],
-    queryFn: ({ pageParam = 1 }) => fetchTMDB(`/discover/${type}`, { 
-      page: String(pageParam),
-      sort_by: sortBy 
-    }),
+    queryKey: ["tmdb", "discover", "infinite", type, sortBy, genreId || "all"],
+    queryFn: ({ pageParam = 1 }) =>
+      fetchTMDB(`/discover/${type}`, {
+        page: String(pageParam),
+        sort_by: sortBy,
+        "vote_count.gte": sortBy.startsWith("vote_average") ? "200" : "0",
+        ...(genreId ? { with_genres: genreId } : {}),
+      }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      if (lastPage.page < lastPage.total_pages && lastPage.page < 500) {
-        return lastPage.page + 1;
-      }
-      return undefined;
+      // TMDB hard-caps discover pagination at 500 pages
+      const maxPage = Math.min(lastPage.total_pages, 500);
+      return lastPage.page < maxPage ? lastPage.page + 1 : undefined;
     },
     staleTime: 5 * 60 * 1000,
   });
 };
+
+export interface TMDBGenre { id: number; name: string }
 
 export const useGenres = () => {
   return useQuery({
@@ -320,9 +328,12 @@ export const useGenres = () => {
         fetchTMDB("/genre/movie/list"),
         fetchTMDB("/genre/tv/list"),
       ]);
-      const allGenres = [...movieGenres.genres, ...tvGenres.genres];
+      const allGenres = [...movieGenres.genres, ...tvGenres.genres] as TMDBGenre[];
       const uniqueGenres = allGenres.filter((g, i, arr) => arr.findIndex(x => x.id === g.id) === i);
-      return uniqueGenres;
+      const list = uniqueGenres as TMDBGenre[] & { movie: TMDBGenre[]; tv: TMDBGenre[] };
+      list.movie = movieGenres.genres as TMDBGenre[];
+      list.tv = tvGenres.genres as TMDBGenre[];
+      return list;
     },
     staleTime: 24 * 60 * 60 * 1000,
   });
