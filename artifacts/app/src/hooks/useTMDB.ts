@@ -312,6 +312,8 @@ export const useInfiniteDiscover = (type: "movie" | "tv", sortBy: string = "popu
   });
 };
 
+export interface TMDBGenre { id: number; name: string }
+
 export const useGenres = () => {
   return useQuery({
     queryKey: ["tmdb", "genres"],
@@ -320,9 +322,12 @@ export const useGenres = () => {
         fetchTMDB("/genre/movie/list"),
         fetchTMDB("/genre/tv/list"),
       ]);
-      const allGenres = [...movieGenres.genres, ...tvGenres.genres];
+      const allGenres = [...movieGenres.genres, ...tvGenres.genres] as TMDBGenre[];
       const uniqueGenres = allGenres.filter((g, i, arr) => arr.findIndex(x => x.id === g.id) === i);
-      return uniqueGenres;
+      const list = uniqueGenres as TMDBGenre[] & { movie: TMDBGenre[]; tv: TMDBGenre[] };
+      list.movie = movieGenres.genres as TMDBGenre[];
+      list.tv = tvGenres.genres as TMDBGenre[];
+      return list;
     },
     staleTime: 24 * 60 * 60 * 1000,
   });
