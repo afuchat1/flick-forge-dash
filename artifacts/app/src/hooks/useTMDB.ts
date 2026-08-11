@@ -179,7 +179,7 @@ export const useInfiniteMoviesByGenre = (genreId: number) => {
     queryFn: ({ pageParam = 1 }) => fetchTMDB("/discover/movie", { with_genres: String(genreId), page: String(pageParam) }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      if (lastPage.page < lastPage.total_pages && lastPage.page < 20) {
+      if (lastPage.page < lastPage.total_pages && lastPage.page < 500) {
         return lastPage.page + 1;
       }
       return undefined;
