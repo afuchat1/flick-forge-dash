@@ -19,7 +19,7 @@ const MoviesPage = () => {
       <Seo title={"Movies — Browse & Discover Films | AfuChat Movies"} description={"Browse thousands of films by genre, year and rating. Full cast, crew, box office and where-to-watch details for every movie."} path="/movies" />
       <Header />
       
-      <main className="pt-24 md:pt-40">
+      <main className="pt-28 md:pt-24">
         <TMDBHeroCarousel movies={popular?.results} isLoading={popularLoading} />
         
         {/* Browse All CTA */}

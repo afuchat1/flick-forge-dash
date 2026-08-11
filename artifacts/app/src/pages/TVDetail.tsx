@@ -84,7 +84,7 @@ const TVDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background pb-24 md:pb-0 pt-24 md:pt-40">
+      <div className="min-h-screen bg-background pb-24 md:pb-0 pt-28 md:pt-24">
         <Header />
         <Skeleton className="h-[45vh] w-full" />
         <div className="mx-auto max-w-6xl space-y-3 p-4">
@@ -99,7 +99,7 @@ const TVDetail = () => {
 
   if (!show) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4 pt-24 md:pt-40">
+      <div className="flex min-h-screen items-center justify-center bg-background p-4 pt-28 md:pt-24">
         <div className="text-center">
           <h1 className="mb-2 text-xl">TV Show not found</h1>
           <Link to="/" className="text-sm text-primary">Go Home</Link>
@@ -155,7 +155,7 @@ const TVDetail = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24 md:pb-0 pt-24 md:pt-40">
+    <div className="min-h-screen bg-background pb-24 md:pb-0 pt-28 md:pt-24">
       <Seo
         title={`${show.name}${show.first_air_date ? ` (${show.first_air_date.slice(0, 4)})` : ""} — AfuChat Movies`}
         description={show.overview || `Episode guide, cast, crew and ratings for ${show.name}.`}

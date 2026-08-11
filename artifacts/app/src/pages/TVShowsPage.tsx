@@ -40,7 +40,7 @@ const TVShowsPage = () => {
       <Seo title={"TV Shows — Series Guide & Episode Lists | AfuChat Movies"} description={"Explore TV series with season and episode guides, cast, crew, ratings and streaming availability."} path="/tv-shows" />
       <Header />
       
-      <main className="pt-24 md:pt-40">
+      <main className="pt-28 md:pt-24">
         <TMDBHeroCarousel movies={trending?.results} isLoading={trendingLoading} />
         
         {/* Browse All CTA */}

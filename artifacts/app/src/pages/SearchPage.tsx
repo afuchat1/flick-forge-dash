@@ -102,7 +102,7 @@ const SearchPage = () => {
       <Seo title={"Search Movies & TV Shows | AfuChat Movies"} description={"Search a research-grade library of films and series. Find cast, crew, ratings, trailers and streaming availability."} path="/search" />
       <Header />
       
-      <main className="pt-24 md:pt-40">
+      <main className="pt-28 md:pt-24">
         <div className="px-3 py-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
