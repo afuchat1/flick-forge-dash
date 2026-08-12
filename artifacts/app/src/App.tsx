@@ -11,6 +11,8 @@ import ActorDetail from "./pages/ActorDetail";
 import SearchPage from "./pages/SearchPage";
 import GenrePage from "./pages/GenrePage";
 import MoviesPage from "./pages/MoviesPage";
+import ComingSoonPage from "./pages/ComingSoonPage";
+import AiDiscoverPage from "./pages/AiDiscoverPage";
 import TVShowsPage from "./pages/TVShowsPage";
 import BrowseAllPage from "./pages/BrowseAllPage";
 import CategoriesPage from "./pages/CategoriesPage";
@@ -42,6 +44,8 @@ const App = () => (
           <Route path="/search" element={<SearchPage />} />
           <Route path="/genre/:genre" element={<GenrePage />} />
           <Route path="/movies" element={<MoviesPage />} />
+          <Route path="/coming-soon" element={<ComingSoonPage />} />
+          <Route path="/ai" element={<AiDiscoverPage />} />
           <Route path="/tv-shows" element={<TVShowsPage />} />
           <Route path="/browse" element={<BrowseAllPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
