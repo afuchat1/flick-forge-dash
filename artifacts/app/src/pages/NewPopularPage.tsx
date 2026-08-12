@@ -10,6 +10,11 @@ const NewPopularPage = () => {
   const { data: topTV, isLoading: topTVLoading } = useTopRatedTV();
   const { data: upcoming, isLoading: upcomingLoading } = useUpcomingMovies();
 
+  const today = new Date().toISOString().slice(0, 10);
+  const comingSoon = (upcoming?.results || [])
+    .filter((m) => (m.release_date || "") > today)
+    .sort((a, b) => (a.release_date || "").localeCompare(b.release_date || ""));
+
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
       <Seo title={"New & Popular — Latest Movies and Shows | AfuChat Movies"} description={"The newest releases and trending titles right now, with full details on cast, ratings and where to watch."} path="/new-popular" />
@@ -22,10 +27,31 @@ const NewPopularPage = () => {
         </div>
 
         <div className="space-y-1">
-          <TMDBContentRow title="Trending Today" movies={trending?.results} isLoading={trendingLoading} showRanks />
-          <TMDBContentRow title="Top Rated Movies" movies={topMovies?.results} isLoading={topMoviesLoading} />
-          <TMDBContentRow title="Top Rated TV Shows" movies={topTV?.results} isLoading={topTVLoading} />
-          <TMDBContentRow title="Coming Soon" movies={upcoming?.results} isLoading={upcomingLoading} />
+          <TMDBContentRow
+            title="Trending Today"
+            subtitle="Most viewed movies and shows on TMDB in the last 24 hours"
+            movies={trending?.results}
+            isLoading={trendingLoading}
+            showRanks
+          />
+          <TMDBContentRow
+            title="Top Rated Movies of All Time"
+            subtitle="Ranked by TMDB user score"
+            movies={topMovies?.results}
+            isLoading={topMoviesLoading}
+          />
+          <TMDBContentRow
+            title="Top Rated TV Shows of All Time"
+            subtitle="Ranked by TMDB user score"
+            movies={topTV?.results}
+            isLoading={topTVLoading}
+          />
+          <TMDBContentRow
+            title="Coming Soon"
+            subtitle="Not yet released — sorted by nearest release date"
+            movies={comingSoon}
+            isLoading={upcomingLoading}
+          />
         </div>
       </main>
 

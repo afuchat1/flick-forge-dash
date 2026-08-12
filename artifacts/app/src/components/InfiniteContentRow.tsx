@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 interface InfiniteContentRowProps {
   title: string;
+  subtitle?: string;
   movies?: TMDBMovie[];
   isLoading?: boolean;
   isFetchingMore?: boolean;
@@ -21,6 +22,7 @@ const CARD_W_RANK = "w-[96px] md:w-[104px]";
 
 const InfiniteContentRow = ({
   title,
+  subtitle,
   movies,
   isLoading,
   isFetchingMore,
@@ -77,8 +79,13 @@ const InfiniteContentRow = ({
 
   return (
     <div className="py-3">
-      <div className="flex items-center justify-between px-3 mb-2.5">
-        <h2 className="text-sm md:text-base font-bold">{title}</h2>
+      <div className="flex items-end justify-between gap-3 px-3 mb-2.5">
+        <div className="min-w-0">
+          <h2 className="text-sm md:text-base font-bold">{title}</h2>
+          {subtitle && (
+            <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground">{subtitle}</p>
+          )}
+        </div>
         {href && (
           <Link
             to={href}
