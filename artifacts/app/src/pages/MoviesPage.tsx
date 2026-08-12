@@ -14,6 +14,12 @@ const MoviesPage = () => {
   const { data: nowPlaying, isLoading: nowPlayingLoading } = useNowPlayingMovies();
   const { data: upcoming, isLoading: upcomingLoading } = useUpcomingMovies();
 
+  // Only genuinely unreleased titles belong under "Coming Soon".
+  const today = new Date().toISOString().slice(0, 10);
+  const comingSoon = (upcoming?.results || [])
+    .filter((m) => (m.release_date || "") > today)
+    .sort((a, b) => (a.release_date || "").localeCompare(b.release_date || ""));
+
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
       <Seo title={"Movies — Browse & Discover Films | AfuChat Movies"} description={"Browse thousands of films by genre, year and rating. Full cast, crew, box office and where-to-watch details for every movie."} path="/movies" />
@@ -33,10 +39,31 @@ const MoviesPage = () => {
         </div>
         
         <div className="space-y-1">
-          <TMDBContentRow title="Popular Movies" movies={popular?.results} isLoading={popularLoading} />
-          <TMDBContentRow title="Top Rated" movies={topRated?.results} isLoading={topRatedLoading} showRanks />
-          <TMDBContentRow title="Now Playing" movies={nowPlaying?.results} isLoading={nowPlayingLoading} />
-          <TMDBContentRow title="Coming Soon" movies={upcoming?.results} isLoading={upcomingLoading} />
+          <TMDBContentRow
+            title="Popular Movies"
+            subtitle="Films with the highest audience activity right now"
+            movies={popular?.results}
+            isLoading={popularLoading}
+          />
+          <TMDBContentRow
+            title="Top Rated Films of All Time"
+            subtitle="Ranked by TMDB user score"
+            movies={topRated?.results}
+            isLoading={topRatedLoading}
+            showRanks
+          />
+          <TMDBContentRow
+            title="In Cinemas Now"
+            subtitle="Currently screening in theatres"
+            movies={nowPlaying?.results}
+            isLoading={nowPlayingLoading}
+          />
+          <TMDBContentRow
+            title="Coming Soon"
+            subtitle="Not yet released — sorted by nearest release date"
+            movies={comingSoon}
+            isLoading={upcomingLoading}
+          />
         </div>
       </main>
 
