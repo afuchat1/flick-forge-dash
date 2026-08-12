@@ -132,7 +132,7 @@ const AiDiscoverPage = () => {
     setMessages((prev) => [...prev, userMessage]);
 
     // Full history is resent on every call — the model is stateless.
-    historyRef.current = [...historyRef.current, { role: "user", content: text }].slice(-16);
+    historyRef.current = [...historyRef.current, { role: "user" as const, content: text }].slice(-16);
 
     const fallback: AiReply = {
       reply: hasEngagera()
@@ -173,7 +173,7 @@ const AiDiscoverPage = () => {
 
     historyRef.current = [
       ...historyRef.current,
-      { role: "assistant", content: JSON.stringify({ reply: ai.reply, titles }) },
+      { role: "assistant" as const, content: JSON.stringify({ reply: ai.reply, titles }) },
     ].slice(-16);
 
     setMessages((prev) => [
