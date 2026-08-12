@@ -63,6 +63,7 @@ const MoviesPage = () => {
             subtitle="Not yet released — sorted by nearest release date"
             movies={comingSoon}
             isLoading={upcomingLoading}
+            href="/coming-soon"
           />
         </div>
       </main>

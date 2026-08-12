@@ -14,7 +14,7 @@ import {
   useInfiniteTopRatedMovies, 
   useInfiniteNowPlayingMovies,
   useInfinitePopularTV,
-  useInfiniteUpcomingMovies
+  useInfiniteUpcomingReleases
 } from "@/hooks/useTMDB";
 
 const Index = () => {
@@ -58,7 +58,7 @@ const Index = () => {
     fetchNextPage: fetchMoreUpcoming,
     hasNextPage: hasMoreUpcoming,
     isFetchingNextPage: isFetchingUpcoming
-  } = useInfiniteUpcomingMovies();
+  } = useInfiniteUpcomingReleases("movie");
 
   // Flatten infinite query results
   const allPopularMovies = popularMovies?.pages.flatMap(p => p.results) || [];
@@ -141,13 +141,13 @@ const Index = () => {
           />
           <InfiniteContentRow 
             title="Coming Soon" 
-            subtitle="Not yet released — sorted by nearest release date"
+            subtitle="Announced films not yet in cinemas — sorted by nearest release date"
             movies={allUpcoming} 
             isLoading={upcomingLoading}
             isFetchingMore={isFetchingUpcoming}
             hasMore={hasMoreUpcoming}
             onLoadMore={fetchMoreUpcoming}
-            href="/movies" 
+            href="/coming-soon" 
           />
         </div>
       </main>
