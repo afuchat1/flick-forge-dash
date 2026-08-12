@@ -5,13 +5,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 interface TMDBContentRowProps {
   title: string;
+  subtitle?: string;
   movies?: TMDBMovie[];
   isLoading?: boolean;
   showRanks?: boolean;
   href?: string;
 }
 
-const TMDBContentRow = ({ title, movies, isLoading, showRanks, href }: TMDBContentRowProps) => {
+const TMDBContentRow = ({ title, subtitle, movies, isLoading, showRanks, href }: TMDBContentRowProps) => {
   if (isLoading) {
     return (
       <div className="py-2">
@@ -31,8 +32,13 @@ const TMDBContentRow = ({ title, movies, isLoading, showRanks, href }: TMDBConte
 
   return (
     <div className="py-2">
-      <div className="flex items-center justify-between px-3 mb-2">
-        <h2 className="text-sm font-bold">{title}</h2>
+      <div className="flex items-end justify-between gap-3 px-3 mb-2">
+        <div className="min-w-0">
+          <h2 className="text-sm font-bold">{title}</h2>
+          {subtitle && (
+            <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground">{subtitle}</p>
+          )}
+        </div>
         {href && (
           <Link to={href} className="text-xs text-muted-foreground flex items-center">
             See all <ChevronRight className="h-3 w-3" />
