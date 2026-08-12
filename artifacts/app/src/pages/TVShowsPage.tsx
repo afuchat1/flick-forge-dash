@@ -56,6 +56,7 @@ const TVShowsPage = () => {
         <div className="space-y-1">
           <InfiniteContentRow 
             title="Popular TV Shows" 
+            subtitle="Series with the highest audience activity right now"
             movies={allPopular} 
             isLoading={popularLoading}
             isFetchingMore={isFetchingPopular}
@@ -63,7 +64,8 @@ const TVShowsPage = () => {
             onLoadMore={fetchMorePopular}
           />
           <InfiniteContentRow 
-            title="Top Rated" 
+            title="Top Rated Series of All Time" 
+            subtitle="Ranked by TMDB user score"
             movies={allTopRated} 
             isLoading={topRatedLoading}
             isFetchingMore={isFetchingTopRated}
@@ -73,6 +75,7 @@ const TVShowsPage = () => {
           />
           <InfiniteContentRow 
             title="Trending This Week" 
+            subtitle="Most viewed series on TMDB over the last 7 days"
             movies={trending?.results} 
             isLoading={trendingLoading} 
           />

@@ -65,7 +65,13 @@ const Index = () => {
   const allTopRated = topRated?.pages.flatMap(p => p.results) || [];
   const allNowPlaying = nowPlaying?.pages.flatMap(p => p.results) || [];
   const allPopularTV = popularTV?.pages.flatMap(p => p.results) || [];
-  const allUpcoming = upcoming?.pages.flatMap(p => p.results) || [];
+
+  // TMDB's /movie/upcoming still returns titles already in cinemas — keep only
+  // films whose release date is genuinely in the future, sorted soonest first.
+  const today = new Date().toISOString().slice(0, 10);
+  const allUpcoming = (upcoming?.pages.flatMap(p => p.results) || [])
+    .filter(m => (m.release_date || "") > today)
+    .sort((a, b) => (a.release_date || "").localeCompare(b.release_date || ""));
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-0">
@@ -89,20 +95,23 @@ const Index = () => {
         
         <div className="space-y-1">
           <InfiniteContentRow 
-            title="Top 10 Today" 
+            title="Top 10 Highest Rated Films" 
+            subtitle="All-time TMDB user score leaders"
             movies={allTopRated.slice(0, 10)} 
             isLoading={topRatedLoading} 
             showRanks 
             href="/new-popular" 
           />
           <InfiniteContentRow 
-            title="Trending Now" 
+            title="Trending This Week" 
+            subtitle="Most viewed movies and shows on TMDB over the last 7 days"
             movies={trending?.results} 
             isLoading={trendingLoading} 
             href="/new-popular" 
           />
           <InfiniteContentRow 
             title="Popular Movies" 
+            subtitle="Films with the highest audience activity right now"
             movies={allPopularMovies} 
             isLoading={popularLoading}
             isFetchingMore={isFetchingPopular}
@@ -112,6 +121,7 @@ const Index = () => {
           />
           <InfiniteContentRow 
             title="Popular TV Shows" 
+            subtitle="Series drawing the most attention this week"
             movies={allPopularTV} 
             isLoading={tvLoading}
             isFetchingMore={isFetchingTV}
@@ -120,7 +130,8 @@ const Index = () => {
             href="/tv-shows" 
           />
           <InfiniteContentRow 
-            title="Now Playing" 
+            title="In Cinemas Now" 
+            subtitle="Currently screening in theatres"
             movies={allNowPlaying} 
             isLoading={nowPlayingLoading}
             isFetchingMore={isFetchingNowPlaying}
@@ -130,6 +141,7 @@ const Index = () => {
           />
           <InfiniteContentRow 
             title="Coming Soon" 
+            subtitle="Not yet released — sorted by nearest release date"
             movies={allUpcoming} 
             isLoading={upcomingLoading}
             isFetchingMore={isFetchingUpcoming}
