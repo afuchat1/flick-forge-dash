@@ -338,3 +338,32 @@ export const useGenres = () => {
     staleTime: 24 * 60 * 60 * 1000,
   });
 };
+
+/**
+ * Genuinely unreleased titles: films with a future release date, or series
+ * whose first episode has not aired yet. Sorted by nearest date first.
+ */
+export const useInfiniteUpcomingReleases = (type: "movie" | "tv" = "movie") => {
+  const today = new Date().toISOString().slice(0, 10);
+  const dateKey = type === "movie" ? "primary_release_date.gte" : "first_air_date.gte";
+  const sortBy = type === "movie" ? "primary_release_date.asc" : "first_air_date.asc";
+
+  return useInfiniteQuery<TMDBResponse>({
+    queryKey: ["tmdb", "upcoming-releases", type, today],
+    queryFn: ({ pageParam = 1 }) =>
+      fetchTMDB(`/discover/${type}`, {
+        page: String(pageParam),
+        sort_by: sortBy,
+        [dateKey]: today,
+        with_release_type: type === "movie" ? "2|3" : "",
+        "vote_count.gte": "0",
+        include_adult: "false",
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const maxPage = Math.min(lastPage.total_pages, 500);
+      return lastPage.page < maxPage ? lastPage.page + 1 : undefined;
+    },
+    staleTime: 30 * 60 * 1000,
+  });
+};

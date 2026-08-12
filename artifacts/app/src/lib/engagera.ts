@@ -43,3 +43,33 @@ export async function askEngageraJson<T>(prompt: string, fallback: T): Promise<T
     return fallback;
   }
 }
+
+export interface EngageraMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
+/**
+ * Multi-turn conversation helper. Sends the full history every call (the model
+ * is stateless) and parses a single JSON object out of the reply.
+ */
+export async function askEngageraConversationJson<T>(
+  system: string,
+  history: EngageraMessage[],
+  fallback: T
+): Promise<T> {
+  const client = getEngagera();
+  if (!client) return fallback;
+  try {
+    const reply = await client.chat.create({
+      messages: [{ role: "system", content: system }, ...history],
+    });
+    const text = (reply as any).content ?? "";
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) return fallback;
+    return JSON.parse(match[0]) as T;
+  } catch (err) {
+    console.error("[engagera] conversation failed", err);
+    return fallback;
+  }
+}
