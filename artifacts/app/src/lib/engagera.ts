@@ -20,29 +20,48 @@ export const hasEngagera = () => _client !== null;
 // Back-compat named export
 export const engagera = _client;
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Retries transient (5xx / network) upstream failures a couple of times. */
+async function chatWithRetry(client: Engagera, messages: any[], attempts = 3) {
+  let lastErr: any;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await client.chat.create({ messages });
+    } catch (err: any) {
+      lastErr = err;
+      const status = err?.status;
+      const transient = status === undefined || status >= 500 || status === 429;
+      if (!transient || i === attempts - 1) break;
+      await sleep(400 * 2 ** i);
+    }
+  }
+  throw lastErr;
+}
+
 export async function askEngageraJson<T>(prompt: string, fallback: T): Promise<T> {
   const client = getEngagera();
   if (!client) return fallback;
   try {
-    const reply = await client.chat.create({
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a helpful movie & TV recommendation assistant. Respond with ONLY valid JSON matching the requested schema — no prose, no markdown fences.",
-        },
-        { role: "user", content: prompt },
-      ],
-    });
+    const reply = await chatWithRetry(client, [
+      {
+        role: "system",
+        content:
+          "You are a helpful movie & TV recommendation assistant. Respond with ONLY valid JSON matching the requested schema — no prose, no markdown fences.",
+      },
+      { role: "user", content: prompt },
+    ]);
     const text = (reply as any).content ?? "";
     const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
     if (!match) return fallback;
     return JSON.parse(match[0]) as T;
-  } catch (err) {
-    console.error("[engagera] request failed", err);
+  } catch (err: any) {
+    // Upstream AI outage — non-fatal, callers render without AI extras.
+    console.warn("[engagera] request unavailable:", err?.status ?? "network");
     return fallback;
   }
 }
+
 
 export interface EngageraMessage {
   role: "system" | "user" | "assistant";
