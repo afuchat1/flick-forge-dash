@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 
-const SITE_URL = "https://flick-forge-dash.lovable.app";
+const SITE_URL = "https://movies.afuchat.com";
 const SITE_NAME = "AfuChat Movies";
 
 interface SeoProps {
