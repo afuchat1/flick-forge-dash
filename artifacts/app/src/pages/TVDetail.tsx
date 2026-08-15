@@ -272,6 +272,24 @@ const TVDetail = () => {
           </section>
         )}
 
+        <AIVerdict
+          input={{
+            title: show.name,
+            type: "tv",
+            year: show.first_air_date?.slice(0, 4),
+            genres: show.genres?.map((g: any) => g.name),
+            overview: show.overview,
+            rating: show.vote_average,
+            voteCount: show.vote_count,
+            runtime: show.episode_run_time?.[0],
+            seasons: show.number_of_seasons,
+            episodes: show.number_of_episodes,
+            cast: show.credits?.cast?.slice(0, 5).map((c: any) => c.name),
+            certification: rating || undefined,
+          }}
+        />
+
+
         <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
           <div className="min-w-0 space-y-8">
             <FactPanel title="Production Details" facts={productionFacts} />
