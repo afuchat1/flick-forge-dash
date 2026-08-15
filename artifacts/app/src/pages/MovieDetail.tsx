@@ -7,6 +7,8 @@ import Seo from "@/components/Seo";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import AIInsights from "@/components/AIInsights";
+import AIVerdict from "@/components/AIVerdict";
+
 import ContentMatcher from "@/components/ContentMatcher";
 import FactPanel from "@/components/FactPanel";
 import CreditsSection from "@/components/CreditsSection";
@@ -265,6 +267,25 @@ const MovieDetail = () => {
             <p className="max-w-3xl text-[15px] leading-relaxed text-foreground/85">{movie.overview}</p>
           </section>
         )}
+
+        <AIVerdict
+          input={{
+            title: movie.title,
+            type: "movie",
+            year: movie.release_date?.slice(0, 4),
+            genres: movie.genres?.map((g: any) => g.name),
+            overview: movie.overview,
+            rating: movie.vote_average,
+            voteCount: movie.vote_count,
+            runtime: movie.runtime,
+            cast: movie.credits?.cast?.slice(0, 5).map((c: any) => c.name),
+            director: director[0]?.name,
+            certification: cert || undefined,
+            budget: movie.budget,
+            revenue: movie.revenue,
+          }}
+        />
+
 
         <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
           <div className="min-w-0 space-y-8">
