@@ -7,6 +7,8 @@ import Seo from "@/components/Seo";
 import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import AIInsights from "@/components/AIInsights";
+import AIVerdict from "@/components/AIVerdict";
+
 import ContentMatcher from "@/components/ContentMatcher";
 import FactPanel from "@/components/FactPanel";
 import CreditsSection from "@/components/CreditsSection";
