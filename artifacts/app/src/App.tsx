@@ -25,6 +25,8 @@ import HelpPage from "./pages/HelpPage";
 import TermsPage from "./pages/TermsPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
+import AiFab from "./components/AiFab";
+
 
 const queryClient = new QueryClient();
 
@@ -58,7 +60,9 @@ const App = () => (
           <Route path="/terms" element={<TermsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <AiFab />
       </BrowserRouter>
+
     </TooltipProvider>
   </QueryClientProvider>
 );
