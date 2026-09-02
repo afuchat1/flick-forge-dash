@@ -60,7 +60,9 @@ const App = () => (
           <Route path="/terms" element={<TermsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <AiFab />
       </BrowserRouter>
+
     </TooltipProvider>
   </QueryClientProvider>
 );
