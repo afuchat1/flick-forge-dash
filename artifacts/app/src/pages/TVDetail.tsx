@@ -8,6 +8,7 @@ import MobileNav from "@/components/MobileNav";
 import TMDBContentRow from "@/components/TMDBContentRow";
 import AIInsights from "@/components/AIInsights";
 import ContentMatcher from "@/components/ContentMatcher";
+import AIVerdict from "@/components/AIVerdict";
 import FactPanel from "@/components/FactPanel";
 import CreditsSection from "@/components/CreditsSection";
 import VideoGallery from "@/components/VideoGallery";
