@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import AiChat from "@/components/AiChat";
 
 /**
- * Floating action button that opens the AI Finder as a modal from anywhere.
+ * Vertical floating action bar that opens the AI Finder as a modal from anywhere.
  * Hidden while already on the AI Finder page.
  */
 const AiFab = () => {
@@ -18,11 +18,20 @@ const AiFab = () => {
       <button
         onClick={() => setOpen(true)}
         aria-label="Open AI Finder"
-        className="fixed right-4 z-50 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-primary-foreground shadow-lg shadow-primary/30 ring-1 ring-primary/40 transition-transform hover:scale-105 active:scale-95 bottom-20 md:bottom-6"
-        style={{ marginBottom: "env(safe-area-inset-bottom)" }}
+        className="fixed right-0 top-1/2 z-50 -translate-y-1/2 translate-x-0 flex flex-col items-center justify-center gap-3 rounded-l-2xl bg-primary px-2 py-6 text-primary-foreground shadow-xl shadow-primary/30 ring-1 ring-primary/40 transition-all hover:pr-4 hover:shadow-primary/50 active:scale-95"
+        style={{
+          width: "44px",
+          minHeight: "140px",
+          marginRight: "env(safe-area-inset-right)",
+        }}
       >
-        <Sparkles className="h-5 w-5" strokeWidth={2.2} />
-        <span className="hidden sm:inline text-sm font-semibold">AI Finder</span>
+        <Sparkles className="h-5 w-5 shrink-0" strokeWidth={2.2} />
+        <span
+          className="text-[11px] font-semibold uppercase tracking-widest leading-tight"
+          style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}
+        >
+          AI Finder
+        </span>
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
