@@ -1,4 +1,4 @@
-import { Heart, Sparkles } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
@@ -74,7 +74,6 @@ Only include candidates from the list. Use the exact TMDB ID from the candidate.
       <div className="flex items-center gap-2 px-3 mb-2">
         <Heart className="h-4 w-4 text-primary" />
         <h2 className="text-sm font-bold">{personalized ? "For You" : "Picked for You"}</h2>
-        <Sparkles className="h-3 w-3 text-primary animate-pulse" />
       </div>
 
       {isLoading && (

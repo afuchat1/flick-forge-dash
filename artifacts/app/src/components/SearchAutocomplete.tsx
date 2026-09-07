@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, Sparkles, Film, Tv, X, Loader2, Mic, MicOff } from "lucide-react";
+import { Search, SlidersHorizontal, Bot, Film, Tv, X, Loader2, Mic, MicOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
 import { cn } from "@/lib/utils";
@@ -194,7 +194,7 @@ const SearchAutocomplete = ({ className }: SearchAutocompleteProps) => {
           )}
           title="Filter by mood"
         >
-          <Sparkles className="h-4 w-4" />
+          <SlidersHorizontal className="h-4 w-4" />
         </button>
       </div>
 
@@ -240,7 +240,7 @@ const SearchAutocomplete = ({ className }: SearchAutocompleteProps) => {
         <div className="absolute top-full left-0 right-0 mt-1 bg-card rounded-lg border border-border shadow-lg z-50 overflow-hidden animate-fade-in">
           <div className="p-2 border-b border-border">
             <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <Sparkles className="h-3 w-3 text-primary" />
+              <Bot className="h-3 w-3 text-primary" />
               AI Suggestions
               {selectedMood && <span className="text-primary">• {selectedMood} mood</span>}
             </p>

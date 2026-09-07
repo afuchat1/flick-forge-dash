@@ -1,4 +1,4 @@
-import { Sparkles, ThumbsUp, ThumbsDown, Wallet, Clock, Tv, AlertTriangle, Loader2 } from "lucide-react";
+import { Scale, ThumbsUp, ThumbsDown, Wallet, Clock, Tv, AlertTriangle, Loader2 } from "lucide-react";
 import { useWatchVerdict, type VerdictInput } from "@/hooks/useWatchVerdict";
 import { hasEngagera } from "@/lib/engagera";
 
@@ -53,7 +53,7 @@ const AIVerdict = ({ input }: Props) => {
         <h2 className="section-title">Should You Watch This?</h2>
         <div className="fact-panel flex items-center gap-2 p-4 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin text-primary" />
-          AI is weighing this title up for you…
+          AI is weighing this title up for you.
         </div>
       </section>
     );
@@ -87,7 +87,7 @@ const AIVerdict = ({ input }: Props) => {
             </div>
           )}
           <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-            <Sparkles className="h-3 w-3 text-primary" /> AI verdict
+            <Scale className="h-3 w-3 text-primary" /> AI verdict
           </span>
         </div>
 

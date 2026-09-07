@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, Loader2, X, Sparkles } from "lucide-react";
+import { Search, Loader2, X } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Seo from "@/components/Seo";

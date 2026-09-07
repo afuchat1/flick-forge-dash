@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Globe, Shield, HelpCircle, ChevronRight, Sparkles, Check, FileText, Database } from "lucide-react";
+import { ArrowLeft, Globe, Shield, HelpCircle, ChevronRight, Bot, Check, FileText, Database } from "lucide-react";
 import Header from "@/components/Header";
 import Seo from "@/components/Seo";
 import MobileNav from "@/components/MobileNav";
@@ -18,7 +18,7 @@ const SettingsPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-10">
-      <Seo title="Settings — AfuChat Movies" description="Manage your AfuChat Movies account, data sources and support options." path="/settings" />
+      <Seo title="Settings | AfuChat Movies" description="Manage your AfuChat Movies account, data sources and support options." path="/settings" />
       <Header />
 
       <main className="pt-28 md:pt-24">
@@ -37,7 +37,7 @@ const SettingsPage = () => {
               </h2>
               <div className="p-4 bg-card rounded-lg space-y-3">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
+                  <Bot className="h-4 w-4 text-primary" />
                   <span className="text-sm font-medium">Engagera AI</span>
                   <span className={`ml-auto inline-flex items-center gap-1 text-xs ${engageraConnected ? "text-emerald-400" : "text-muted-foreground"}`}>
                     {engageraConnected ? (<><Check className="h-3 w-3" /> Active</>) : "Unavailable"}
@@ -45,7 +45,7 @@ const SettingsPage = () => {
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Recommendations, mood matching and smart search are powered by Engagera AI (AfuBot) on a single
-                  platform key — available to everyone, no account or personal key needed. Learn more at{" "}
+                  platform key, available to everyone, no account or personal key needed. Learn more at{" "}
                   <a href="https://engagera.afuchat.com" target="_blank" rel="noreferrer" className="text-primary underline">
                     engagera.afuchat.com
                   </a>{" "}

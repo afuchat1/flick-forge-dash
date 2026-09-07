@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, Smile, Frown, Heart, Zap, Moon, Coffee, Flame, Brain } from "lucide-react";
+import { Smile, Frown, Heart, Zap, Moon, Coffee, Flame, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
@@ -43,7 +43,6 @@ Return JSON: {"suggestions":[{"title":"...","reason":"one short sentence, max 15
   return (
     <section className="px-4 py-6">
       <div className="flex items-center gap-2 mb-4">
-        <Sparkles className="h-5 w-5 text-primary" />
         <h2 className="text-lg font-semibold">How are you feeling?</h2>
       </div>
       
@@ -73,7 +72,6 @@ Return JSON: {"suggestions":[{"title":"...","reason":"one short sentence, max 15
       {(isLoading || isFetching) && selectedMood && (
         <div className="mt-4 space-y-3">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Sparkles className="h-4 w-4 animate-pulse" />
             Finding perfect matches for your mood...
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
