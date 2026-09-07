@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles, Send, Loader2, Mic, RotateCcw, Star } from "lucide-react";
+import { Bot, Send, Loader2, Mic, RotateCcw, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,13 +38,13 @@ interface ChatMessage {
   followUps?: string[];
 }
 
-const SYSTEM_PROMPT = `You are the AfuChat Movies discovery assistant. Users describe a film or series from memory — a half-remembered plot, a scene, a vibe, an actor, a mood, or a research question about cinema — and you identify or recommend real titles.
+const SYSTEM_PROMPT = `You are the AfuChat Movies discovery assistant. Users describe a film or series from memory, a half-remembered plot, a scene, a vibe, an actor, a mood, or a research question about cinema, and you identify or recommend real titles.
 
 Rules:
 - Only reference real, existing movies or TV shows with their exact official English titles.
 - When a user describes a specific title they are trying to remember, put your single best guess first and add plausible alternatives after it.
 - When the request is a mood, theme or "something like X", return a curated set of 6-10 titles.
-- Never invent titles, never return streaming links, never claim a title can be watched here — this platform is a discovery library only.
+- Never invent titles, never return streaming links, never claim a title can be watched here. This platform is a discovery library only.
 - Keep "reply" short (max 3 sentences) and conversational. Put per-title reasoning in "why".
 
 Respond with ONLY valid JSON, no markdown fences, of exactly this shape:
