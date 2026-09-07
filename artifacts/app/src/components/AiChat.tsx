@@ -199,7 +199,7 @@ const AiChat = ({ onNavigate }: AiChatProps) => {
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex items-start justify-between gap-3 px-1 py-3 shrink-0">
         <p className="text-xs md:text-sm text-muted-foreground">
-          Describe a plot, a scene, an actor or just a mood — the assistant identifies the
+          Describe a plot, a scene, an actor or just a mood. The assistant identifies the
           title and links straight to its details.
         </p>
         {messages.length > 0 && (
@@ -240,7 +240,7 @@ const AiChat = ({ onNavigate }: AiChatProps) => {
             ) : (
               <div key={m.id} className="space-y-3">
                 <div className="flex gap-2">
-                  <Sparkles className="h-4 w-4 text-primary mt-1 shrink-0" />
+                  <Bot className="h-4 w-4 text-primary mt-1 shrink-0" />
                   <p className="text-sm leading-relaxed text-foreground/90">{m.text}</p>
                 </div>
 

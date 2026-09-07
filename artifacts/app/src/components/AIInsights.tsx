@@ -1,4 +1,4 @@
-import { Sparkles, Lightbulb, Heart, Loader2 } from "lucide-react";
+import { Bot, Lightbulb, Heart, Loader2 } from "lucide-react";
 import { useMovieInsights, useMovieMood, toMovieData } from "@/hooks/useMovieInsights";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +33,7 @@ const AIInsights = ({ movie, className }: AIInsightsProps) => {
       {insights?.result && (
         <div className="space-y-2">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Sparkles className="h-3 w-3 text-primary" />
+            <Bot className="h-3 w-3 text-primary" />
             <span className="font-medium">AI Insights</span>
           </div>
           <div className="space-y-2">

@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { Wand2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useContentMatcher } from "@/hooks/useContentMatcher";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -52,7 +52,7 @@ const ContentMatcher = ({ title, type, genres, overview }: ContentMatcherProps) 
   return (
     <section className="mt-6">
       <div className="flex items-center gap-2 mb-3">
-        <Sparkles className="h-4 w-4 text-primary" />
+        <Wand2 className="h-4 w-4 text-primary" />
         <h3 className="text-sm font-semibold">You might also like</h3>
       </div>
 

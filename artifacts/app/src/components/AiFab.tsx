@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Sparkles, X } from "lucide-react";
+import { Bot, X } from "lucide-react";
 import AiChat from "@/components/AiChat";
 
 /**
@@ -21,7 +21,7 @@ const AiFab = () => {
         className="fixed right-4 z-50 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-primary-foreground shadow-lg shadow-primary/30 ring-1 ring-primary/40 transition-transform hover:scale-105 active:scale-95 bottom-20 md:bottom-6"
         style={{ marginBottom: "env(safe-area-inset-bottom)" }}
       >
-        <Sparkles className="h-5 w-5" strokeWidth={2.2} />
+        <Bot className="h-5 w-5" strokeWidth={2.2} />
         <span className="hidden sm:inline text-sm font-semibold">AI Finder</span>
       </button>
 
@@ -39,7 +39,7 @@ const AiFab = () => {
           >
             <div className="flex items-center justify-between gap-3 border-b border-border/40 px-4 py-3 shrink-0">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
+                <Bot className="h-5 w-5 text-primary" />
                 <h2 className="text-base font-semibold">AI Discovery</h2>
               </div>
               <button
