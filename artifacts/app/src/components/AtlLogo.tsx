@@ -9,8 +9,11 @@ const AtlLogo = ({ className = "h-8 w-auto" }: AtlLogoProps) => (
     role="img"
     aria-labelledby="atl-title"
     className={className}
+    width="160"
+    height="32"
   >
     <title id="atl-title">Developed by ATL</title>
+    <rect x="0" y="0" width="200" height="40" fill="transparent" />
     <text
       x="0"
       y="25"
@@ -29,7 +32,7 @@ const AtlLogo = ({ className = "h-8 w-auto" }: AtlLogoProps) => (
         width="86"
         height="32"
         rx="8"
-        fill="#fff"
+        fill="#ffffff"
         stroke="#0B63CE"
         strokeWidth="2"
       />
