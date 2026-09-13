@@ -26,6 +26,7 @@ import TermsPage from "./pages/TermsPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import AiFab from "./components/AiFab";
+import Footer from "./components/Footer";
 
 
 const queryClient = new QueryClient();
@@ -61,6 +62,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
         <AiFab />
+        <Footer />
       </BrowserRouter>
 
     </TooltipProvider>
