@@ -62,6 +62,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
         <AiFab />
+        <Footer />
       </BrowserRouter>
 
     </TooltipProvider>
