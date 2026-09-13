@@ -21,13 +21,9 @@ const Footer = () => {
           target="_blank"
           rel="noopener noreferrer"
           className="opacity-80 transition-opacity hover:opacity-100"
+          aria-label="Developed by ATL"
         >
-          <img
-            src="/atl-developed-by.svg"
-            alt="Developed by ATL"
-            className="h-8 w-auto md:h-9"
-            loading="lazy"
-          />
+          <AtlLogo className="h-8 w-auto md:h-9" />
         </a>
       </div>
     </footer>
