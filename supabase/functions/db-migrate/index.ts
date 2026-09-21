@@ -54,25 +54,35 @@ Deno.serve(async (req) => {
       );
       const colList = colRows.map((c: Record<string, string>) => `"${c.column_name}"`).join(", ");
 
-      const rows = await src.unsafe(`select to_jsonb(t) as data from ${table} t`);
+      const rows = await src.unsafe(`select to_jsonb(t)::text as data from ${table} t`);
+      const [before] = await tgt.unsafe(`select count(*)::int as count from ${table}`);
       let copied = 0;
       const errors: string[] = [];
       for (const r of rows) {
-        const payload = typeof r.data === "string" ? r.data : JSON.stringify(r.data);
+        const payload = String(r.data);
+        if (payload.includes("$mig$")) {
+          errors.push("row skipped: unsafe literal");
+          continue;
+        }
         try {
           await tgt.unsafe(
             `insert into ${table} (${colList})
-             select ${colList} from jsonb_populate_record(null::${table}, $1::jsonb)
+             select ${colList} from jsonb_populate_record(null::${table}, $mig$${payload}$mig$::jsonb)
              on conflict do nothing`,
-            [payload],
           );
           copied++;
         } catch (e) {
           if (errors.length < 3) errors.push(String((e as Error).message));
         }
       }
-      const [{ count }] = await tgt.unsafe(`select count(*)::int as count from ${table}`);
-      report[table] = { source: rows.length, copied, targetTotal: count, errors };
+      const [after] = await tgt.unsafe(`select count(*)::int as count from ${table}`);
+      report[table] = {
+        source: rows.length,
+        copied,
+        targetBefore: before.count,
+        targetAfter: after.count,
+        errors,
+      };
     }
 
     return new Response(JSON.stringify({ ok: true, report }, null, 2), {
