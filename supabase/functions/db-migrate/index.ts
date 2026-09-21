@@ -52,7 +52,21 @@ Deno.serve(async (req) => {
          order by ordinal_position`,
         [schema, name],
       );
-      const colList = colRows.map((c: Record<string, string>) => `"${c.column_name}"`).join(", ");
+      const targetCols = new Set(colRows.map((c: Record<string, string>) => c.column_name));
+      const srcColRows = await src.unsafe(
+        `select column_name from information_schema.columns
+         where table_schema = $1 and table_name = $2 and is_generated = 'NEVER'
+         order by ordinal_position`,
+        [schema, name],
+      );
+      const shared = srcColRows
+        .map((c: Record<string, string>) => c.column_name)
+        .filter((c: string) => targetCols.has(c));
+      const colList = shared.map((c: string) => `"${c}"`).join(", ");
+      if (!colList) {
+        report[table] = { skipped: "no shared columns" };
+        continue;
+      }
 
       const rows = await src.unsafe(`select to_jsonb(t)::text as data from ${table} t`);
       const [before] = await tgt.unsafe(`select count(*)::int as count from ${table}`);
