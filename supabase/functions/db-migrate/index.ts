@@ -45,14 +45,26 @@ Deno.serve(async (req) => {
     await tgt.unsafe("set session_replication_role = replica");
 
     for (const table of TABLES) {
+      const [schema, name] = table.split(".");
+      const colRows = await tgt.unsafe(
+        `select column_name from information_schema.columns
+         where table_schema = $1 and table_name = $2 and is_generated = 'NEVER'
+         order by ordinal_position`,
+        [schema, name],
+      );
+      const colList = colRows.map((c: Record<string, string>) => `"${c.column_name}"`).join(", ");
+
       const rows = await src.unsafe(`select to_jsonb(t) as data from ${table} t`);
       let copied = 0;
       const errors: string[] = [];
       for (const r of rows) {
+        const payload = typeof r.data === "string" ? r.data : JSON.stringify(r.data);
         try {
           await tgt.unsafe(
-            `insert into ${table} select * from jsonb_populate_record(null::${table}, $1::jsonb) on conflict do nothing`,
-            [JSON.stringify(r.data)],
+            `insert into ${table} (${colList})
+             select ${colList} from jsonb_populate_record(null::${table}, $1::jsonb)
+             on conflict do nothing`,
+            [payload],
           );
           copied++;
         } catch (e) {
